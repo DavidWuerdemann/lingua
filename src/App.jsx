@@ -319,6 +319,10 @@ textarea,input{font-family:'DM Sans',sans-serif;}
 .err-screen p{color:var(--muted);font-size:15px;line-height:1.6;max-width:480px;}
 .err-screen code{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:13px;color:var(--gold);}
 
+/* UPDATE BUTTON */
+.update-btn{position:fixed;bottom:18px;right:18px;z-index:999;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:7px 13px;font-size:12px;color:var(--muted);transition:all .2s;backdrop-filter:blur(8px);}
+.update-btn:hover{border-color:var(--gold);color:var(--gold);}
+
 /* ANIMS */
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
@@ -1002,6 +1006,7 @@ export default function App() {
   return (
     <>
       <style>{CSS}</style>
+      <button className="update-btn" onClick={() => window.location.reload(true)} title="Reload to get latest version">⟳ Update</button>
       {mode === "adult" && <AdultMode onBack={() => setMode(null)} />}
       {mode === "kids"  && <KidsMode  onBack={() => setMode(null)} />}
       {!mode && (
