@@ -1,0 +1,3 @@
+/* Global reset — app styles live in App.jsx CSS string */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
