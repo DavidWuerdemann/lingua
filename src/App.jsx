@@ -1308,7 +1308,7 @@ Omit the <fix> block entirely when there are no errors.`;
       if (fix) addError(fix);
       setMsgs(m=>[...m,{role:"assistant",content:text,rawContent:raw,fix}]);
       const newTotal = addStarsTo(2); onStars?.(newTotal);
-      if (langObj) speak(text,langObj.tts,0.92);
+      /* speak on demand only — use the 🔊 button */
     } catch(e) {
       setMsgs(m=>[...m,{role:"assistant",content:`Error: ${e.message}`}]);
     }
@@ -1669,7 +1669,7 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
   useEffect(()=>{
     setLoading(true);
     ai([{role:"user",content:"Start! Greet the child warmly and ask your first question about one of the vocabulary words."}],system,180)
-      .then(text=>{ setMsgs([{role:"assistant",content:text}]); bounce(); speak(text,langObj.tts,0.85); })
+      .then(text=>{ setMsgs([{role:"assistant",content:text}]); bounce(); })
       .catch(()=>{}).finally(()=>setLoading(false));
   },[]);
 
@@ -1682,7 +1682,7 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
     setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
       const raw=await ai(newMsgs,system,180);
-      setMsgs(m=>[...m,{role:"assistant",content:raw}]); bounce(); speak(raw,langObj.tts,0.85);
+      setMsgs(m=>[...m,{role:"assistant",content:raw}]); bounce();
     } catch {}
     setLoading(false);
   }
@@ -1815,7 +1815,7 @@ Reply in 1-2 sentences max. Use LOTS of emojis 🎉. Be super enthusiastic and e
     if (!topic) return;
     setLoading(true);
     ai([{role:"user",content:"Start! Introduce yourself and the topic in a super fun way."}],system,150)
-      .then(text=>{ setMsgs([{role:"assistant",content:text}]); setCurrentAi(text); bounce(); speak(text,langObj.tts,0.85); })
+      .then(text=>{ setMsgs([{role:"assistant",content:text}]); setCurrentAi(text); bounce(); })
       .catch(()=>{}).finally(()=>setLoading(false));
   },[topic,kidLang]);
 
@@ -1827,7 +1827,7 @@ Reply in 1-2 sentences max. Use LOTS of emojis 🎉. Be super enthusiastic and e
     try {
       const raw=await ai(newMsgs,system,150);
       setMsgs(m=>[...m,{role:"assistant",content:raw}]);
-      setCurrentAi(raw); bounce(); speak(raw,langObj.tts,0.85);
+      setCurrentAi(raw); bounce();
       const newTotal=addStarsTo(3); onStars?.(newTotal);
     } catch {}
     setLoading(false);
