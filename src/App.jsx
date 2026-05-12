@@ -1,1044 +1,1398 @@
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useEffect, useRef, createContext, useContext } from "react";
 
-// ─── LANGUAGES ────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────
+   CONTEXT
+───────────────────────────────────────────────────────────── */
+const Ctx = createContext({});
+const useApp = () => useContext(Ctx);
 
-const LANGUAGES = {
-  dutch:      { name:"Dutch",      flag:"🇳🇱", native:"Nederlands", accent:"#E8552A", scenarios:["At the Market","Café Visit","Meeting Neighbours","Train Station","Doctor's Visit","Work Meeting","At a Party","Booking a Hotel"] },
-  italian:    { name:"Italian",    flag:"🇮🇹", native:"Italiano",   accent:"#009246", scenarios:["Ordering Pasta","At the Gelateria","Asking Directions","Shopping in Milano","Hotel Check-in","Family Dinner","At the Beach","Football Talk"] },
-  french:     { name:"French",     flag:"🇫🇷", native:"Français",   accent:"#0055A4", scenarios:["Boulangerie Visit","Museum Trip","Parisian Café","Making Reservations","At the Pharmacy","Weekend Plans","On the Metro","Wine Tasting"] },
-  spanish:    { name:"Spanish",    flag:"🇪🇸", native:"Español",    accent:"#AA151B", scenarios:["At the Tapas Bar","Flamenco Night","Beach Resort","Market Visit","Siesta Chat","Fútbol Talk","Airbnb Host","Local Festival"] },
-  german:     { name:"German",     flag:"🇩🇪", native:"Deutsch",    accent:"#555555", scenarios:["Biergarten Visit","At the Bakery","Taking the U-Bahn","Office Small Talk","Christmas Market","Museum Visit","Renting a Car","At the Pharmacy"] },
-  portuguese: { name:"Portuguese", flag:"🇵🇹", native:"Português",  accent:"#006600", scenarios:["Petiscos Bar","Pastéis de Nata Café","Fado Night","Lisbon Tram","At the Beach","Mercado Visit","Booking a Tour","Football Chat"] },
-  japanese:   { name:"Japanese",   flag:"🇯🇵", native:"日本語",      accent:"#BC002D", scenarios:["Convenience Store","Ramen Restaurant","Train Journey","Temple Visit","Karaoke Night","Onsen Etiquette","Harajuku Shopping","Business Meeting"] },
-  mandarin:   { name:"Mandarin",   flag:"🇨🇳", native:"普通话",      accent:"#DE2910", scenarios:["Dim Sum Brunch","Night Market","Tea House","Taxi Ride","Shopping & Bargaining","Visiting Friends","Street Food Tour","Business Dinner"] },
-}
+/* ─────────────────────────────────────────────────────────────
+   UI TRANSLATIONS  (EN / DE / NL / FR / ES)
+───────────────────────────────────────────────────────────── */
+const UI_LANGS_LIST = ["EN","DE","NL","FR","ES"];
+const T = {
+  EN:{
+    adultMode:"Adult Mode",kidsMode:"Kids Mode",chat:"Chat",notebook:"Notebook",
+    vocabSets:"Vocab Sets",wordOfDay:"Word of the Day",idiomOfDay:"Idiom of the Day",
+    startChat:"Start chatting…",send:"Send",save:"Save",saved:"Saved!",clear:"Clear chat",
+    summary:"Session Summary",noWords:"No words saved yet.",yourLevel:"Your Level",
+    stars:"Stars",errorPatterns:"Error Patterns",dueReview:"Due for review",loading:"Thinking…",
+    scenario:"Scenario",language:"Language",newSet:"New Set",import:"Import",
+    flashcards:"Flashcards",practice:"Practice with Ollie",editSet:"Edit",deleteSet:"Delete",
+    addWord:"Add word",wordLabel:"Word / Phrase",translLabel:"Translation",
+    listenMode:"Listen & Type",speakBtn:"🔊 Speak",correct:"Correct!",tryAgain:"Try again",
+    flip:"Flip",typeIt:"Type it",easy:"Easy",good:"Good",hard:"Hard",
+    next:"Next",back:"Back",allDone:"All done!",
+    pickLanguage:"Pick a language to practise:",funIdioms:"Fun Idioms 🌈",
+    close:"Close",setName:"Set name",cancel:"Cancel",done:"Done",
+    collocations:"Collocations",tip:"Tip",fix:"Correction",uiLang:"Language",idiomCat:"Category",
+  },
+  DE:{
+    adultMode:"Erwachsenen",kidsMode:"Kinder",chat:"Chat",notebook:"Notizbuch",
+    vocabSets:"Vokabeln",wordOfDay:"Wort des Tages",idiomOfDay:"Redewendung des Tages",
+    startChat:"Schreib etwas…",send:"Senden",save:"Speichern",saved:"Gespeichert!",
+    clear:"Chat löschen",summary:"Zusammenfassung",noWords:"Keine Wörter gespeichert.",
+    yourLevel:"Dein Level",stars:"Sterne",errorPatterns:"Fehlermuster",
+    dueReview:"Zur Wiederholung",loading:"Denke nach…",scenario:"Szenario",language:"Sprache",
+    newSet:"Neue Liste",import:"Importieren",flashcards:"Karteikarten",
+    practice:"Mit Ollie üben",editSet:"Bearbeiten",deleteSet:"Löschen",
+    addWord:"Wort hinzufügen",wordLabel:"Wort / Phrase",translLabel:"Übersetzung",
+    listenMode:"Hören & Tippen",speakBtn:"🔊 Sprechen",correct:"Richtig!",
+    tryAgain:"Nochmal",flip:"Umdrehen",typeIt:"Eintippen",easy:"Einfach",good:"Gut",
+    hard:"Schwer",next:"Weiter",back:"Zurück",allDone:"Alles erledigt!",
+    pickLanguage:"Wähle eine Sprache:",funIdioms:"Witzige Redewendungen 🌈",
+    close:"Schließen",setName:"Listenname",cancel:"Abbrechen",done:"Fertig",
+    collocations:"Kollokationen",tip:"Tipp",fix:"Korrektur",uiLang:"Sprache",idiomCat:"Kategorie",
+  },
+  NL:{
+    adultMode:"Volwassen",kidsMode:"Kinderen",chat:"Chat",notebook:"Notitieboek",
+    vocabSets:"Woordenlijsten",wordOfDay:"Woord van de dag",idiomOfDay:"Uitdrukking van de dag",
+    startChat:"Begin te chatten…",send:"Sturen",save:"Opslaan",saved:"Opgeslagen!",
+    clear:"Chat wissen",summary:"Samenvatting",noWords:"Geen woorden opgeslagen.",
+    yourLevel:"Jouw niveau",stars:"Sterren",errorPatterns:"Foutpatronen",
+    dueReview:"Voor herhaling",loading:"Bezig…",scenario:"Scenario",language:"Taal",
+    newSet:"Nieuwe lijst",import:"Importeren",flashcards:"Flashkaarten",
+    practice:"Oefenen met Ollie",editSet:"Bewerken",deleteSet:"Verwijderen",
+    addWord:"Woord toevoegen",wordLabel:"Woord / Zin",translLabel:"Vertaling",
+    listenMode:"Luisteren & Typen",speakBtn:"🔊 Spreken",correct:"Correct!",
+    tryAgain:"Probeer opnieuw",flip:"Omdraaien",typeIt:"Intypen",easy:"Makkelijk",
+    good:"Goed",hard:"Moeilijk",next:"Volgende",back:"Terug",allDone:"Alles klaar!",
+    pickLanguage:"Kies een taal:",funIdioms:"Grappige uitdrukkingen 🌈",
+    close:"Sluiten",setName:"Lijstnaam",cancel:"Annuleren",done:"Klaar",
+    collocations:"Collocaties",tip:"Tip",fix:"Correctie",uiLang:"Taal",idiomCat:"Categorie",
+  },
+  FR:{
+    adultMode:"Adultes",kidsMode:"Enfants",chat:"Chat",notebook:"Carnet",
+    vocabSets:"Listes vocab",wordOfDay:"Mot du jour",idiomOfDay:"Expression du jour",
+    startChat:"Commencez à chatter…",send:"Envoyer",save:"Enregistrer",saved:"Enregistré!",
+    clear:"Effacer le chat",summary:"Résumé",noWords:"Aucun mot enregistré.",
+    yourLevel:"Votre niveau",stars:"Étoiles",errorPatterns:"Erreurs fréquentes",
+    dueReview:"À réviser",loading:"Réflexion…",scenario:"Scénario",language:"Langue",
+    newSet:"Nouvelle liste",import:"Importer",flashcards:"Fiches",
+    practice:"Pratiquer avec Ollie",editSet:"Modifier",deleteSet:"Supprimer",
+    addWord:"Ajouter un mot",wordLabel:"Mot / Phrase",translLabel:"Traduction",
+    listenMode:"Écouter & Taper",speakBtn:"🔊 Écouter",correct:"Correct!",
+    tryAgain:"Réessayer",flip:"Retourner",typeIt:"Taper",easy:"Facile",good:"Bien",
+    hard:"Difficile",next:"Suivant",back:"Retour",allDone:"Tout fait!",
+    pickLanguage:"Choisissez une langue:",funIdioms:"Expressions amusantes 🌈",
+    close:"Fermer",setName:"Nom de la liste",cancel:"Annuler",done:"Terminé",
+    collocations:"Collocations",tip:"Conseil",fix:"Correction",uiLang:"Langue",idiomCat:"Catégorie",
+  },
+  ES:{
+    adultMode:"Adultos",kidsMode:"Niños",chat:"Chat",notebook:"Cuaderno",
+    vocabSets:"Vocabulario",wordOfDay:"Palabra del día",idiomOfDay:"Expresión del día",
+    startChat:"Empieza a chatear…",send:"Enviar",save:"Guardar",saved:"¡Guardado!",
+    clear:"Borrar chat",summary:"Resumen",noWords:"No hay palabras guardadas.",
+    yourLevel:"Tu nivel",stars:"Estrellas",errorPatterns:"Patrones de error",
+    dueReview:"Para repasar",loading:"Pensando…",scenario:"Escenario",language:"Idioma",
+    newSet:"Nueva lista",import:"Importar",flashcards:"Tarjetas",
+    practice:"Practicar con Ollie",editSet:"Editar",deleteSet:"Eliminar",
+    addWord:"Añadir palabra",wordLabel:"Palabra / Frase",translLabel:"Traducción",
+    listenMode:"Escuchar y escribir",speakBtn:"🔊 Hablar",correct:"¡Correcto!",
+    tryAgain:"Inténtalo de nuevo",flip:"Voltear",typeIt:"Escribirlo",easy:"Fácil",
+    good:"Bien",hard:"Difícil",next:"Siguiente",back:"Atrás",allDone:"¡Todo listo!",
+    pickLanguage:"Elige un idioma:",funIdioms:"Expresiones divertidas 🌈",
+    close:"Cerrar",setName:"Nombre de lista",cancel:"Cancelar",done:"Hecho",
+    collocations:"Colocaciones",tip:"Consejo",fix:"Corrección",uiLang:"Idioma",idiomCat:"Categoría",
+  },
+};
 
+/* ─────────────────────────────────────────────────────────────
+   LANGUAGES  (8 × 11 scenarios)
+───────────────────────────────────────────────────────────── */
+const SCENARIOS = [
+  "At the Airport","At the Hotel","Ordering Food","Shopping","Asking Directions",
+  "Doctor's Visit","Job Interview","Making Friends","Real Estate","Business Negotiation","On a Film Set",
+];
+const LANGUAGES = [
+  {code:"es",name:"Spanish 🇪🇸",tts:"es-ES",scenarios:SCENARIOS},
+  {code:"fr",name:"French 🇫🇷",tts:"fr-FR",scenarios:SCENARIOS},
+  {code:"de",name:"German 🇩🇪",tts:"de-DE",scenarios:SCENARIOS},
+  {code:"it",name:"Italian 🇮🇹",tts:"it-IT",scenarios:SCENARIOS},
+  {code:"pt",name:"Portuguese 🇧🇷",tts:"pt-BR",scenarios:SCENARIOS},
+  {code:"nl",name:"Dutch 🇳🇱",tts:"nl-NL",scenarios:SCENARIOS},
+  {code:"ja",name:"Japanese 🇯🇵",tts:"ja-JP",scenarios:SCENARIOS},
+  {code:"zh",name:"Chinese 🇨🇳",tts:"zh-CN",scenarios:SCENARIOS},
+];
+
+/* ─────────────────────────────────────────────────────────────
+   KIDS
+───────────────────────────────────────────────────────────── */
+const KIDS_LANGS = [
+  {code:"en",name:"English 🇬🇧",tts:"en-GB"},
+  {code:"es",name:"Spanish 🇪🇸",tts:"es-ES"},
+  {code:"de",name:"German 🇩🇪",tts:"de-DE"},
+];
 const KIDS_TOPICS = [
-  { id:"animals",   label:"Animals",      emoji:"🐾", color:"#E8B4A0" },
-  { id:"food",      label:"Food & Drink", emoji:"🍎", color:"#F4C28A" },
-  { id:"school",    label:"School Stuff", emoji:"✏️", color:"#B7C9DC" },
-  { id:"body",      label:"Body Parts",   emoji:"🦷", color:"#B9D4B5" },
-  { id:"weather",   label:"Weather",      emoji:"⛅", color:"#F4D998" },
-  { id:"numbers",   label:"Numbers",      emoji:"🔢", color:"#C9B4D6" },
-  { id:"colors",    label:"Colors",       emoji:"🎨", color:"#E8C5BC" },
-  { id:"transport", label:"Transport",    emoji:"🚗", color:"#ACBBC9" },
-  { id:"sports",    label:"Sports",       emoji:"⚽", color:"#A8C4B5" },
-  { id:"stories",   label:"Story Time",   emoji:"📖", color:"#DCC9A8" },
-  { id:"opposites", label:"Opposites",    emoji:"↔️", color:"#C7BBC4" },
-  { id:"free",      label:"Free Chat",    emoji:"💬", color:"#DDB89E" },
-]
+  "Animals 🐾","Colors 🎨","Numbers 🔢","Food & Drinks 🍕","Family 👨‍👩‍👧","Body Parts 🦷",
+  "Weather ☀️","Clothes 👗","School 🏫","Sports ⚽","Nature 🌳","Emotions 😊","Fun Idioms 🌈",
+];
 
-const HINTS = {
-  dutch:      ["Kunt u dat herhalen?","Ik begrijp het niet","Hoeveel kost het?","Dank u wel","Kunt u langzamer spreken?"],
-  italian:    ["Può ripetere?","Non capisco","Quanto costa?","Grazie mille","Parla più lentamente?"],
-  french:     ["Pouvez-vous répéter?","Je ne comprends pas","Combien ça coûte?","Merci beaucoup","Plus lentement?"],
-  spanish:    ["¿Puede repetir?","No entiendo","¿Cuánto cuesta?","Muchas gracias","¿Más despacio?"],
-  german:     ["Können Sie das wiederholen?","Ich verstehe nicht","Was kostet das?","Danke schön","Bitte langsamer?"],
-  portuguese: ["Pode repetir?","Não entendo","Quanto custa?","Muito obrigado","Mais devagar?"],
-  japanese:   ["もう一度言ってください","わかりません","いくらですか?","ありがとうございます","ゆっくり話してください"],
-  mandarin:   ["请再说一遍","我不明白","多少钱?","非常感谢","请说慢一点"],
+/* ─────────────────────────────────────────────────────────────
+   CONSTANTS
+───────────────────────────────────────────────────────────── */
+const IDIOM_CATS = ["Business","Travel","Emotions","Nature","Pop Culture"];
+const LEVEL_THRESHOLDS = [0,50,150,300,500,750,1050,1400,1800,2250,2750,3300,3900,4550,5250];
+const LEVEL_NAMES = [
+  "Newcomer","Wanderer","Explorer","Adventurer","Conversationalist",
+  "Storyteller","Connector","Navigator","Linguist","Polyglot",
+  "Scholar","Maestro","Expert","Master","Legend",
+];
+
+/* ─────────────────────────────────────────────────────────────
+   STORAGE KEYS
+───────────────────────────────────────────────────────────── */
+const SK_NB    = "lingua_notebook";
+const SK_KIDNB = "lingua_kidnb";
+const SK_STARS = "lingua_stars";
+const SK_ERRS  = "lingua_errors";
+const SK_WOD   = "lingua_wod";
+const SK_IDIOM = "lingua_idiom";
+const SK_VSETS = "lingua_vsets";
+const SK_UILNG = "lingua_uilang";
+const SK_KIDLG = "lingua_kidlang";
+
+/* ─────────────────────────────────────────────────────────────
+   STORAGE UTILITIES
+───────────────────────────────────────────────────────────── */
+const loadLS = (key, def) => {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; }
+};
+const saveLS = (key, val) => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} };
+
+const loadNB  = ()  => loadLS(SK_NB,  []);
+const saveNB  = (v) => saveLS(SK_NB,  v);
+const loadKNB = ()  => loadLS(SK_KIDNB, []);
+const saveKNB = (v) => saveLS(SK_KIDNB, v);
+
+function addAdultWord(text, lang) {
+  const nb = loadNB();
+  if (nb.find(w => w.text === text)) return false;
+  nb.unshift({text,lang,date:new Date().toISOString(),interval:1,ease:2.5,reviewCount:0,
+    lastReviewed:null,nextReview:new Date(Date.now()+86400000).toISOString()});
+  saveNB(nb); return true;
+}
+function delAdultWord(text) { saveNB(loadNB().filter(w => w.text !== text)); }
+function getDueWords(entries) {
+  const now = new Date();
+  return entries.filter(w => !w.nextReview || new Date(w.nextReview) <= now);
 }
 
-// ─── STORAGE ──────────────────────────────────────────────────────────────────
+/* Daily caches */
+const todayKey = () => new Date().toISOString().slice(0,10);
+const loadWOD    = (lc)   => { const c=loadLS(SK_WOD,{}); return c[`${lc}_${todayKey()}`]||null; };
+const saveWOD    = (lc,d) => { const c=loadLS(SK_WOD,{}); c[`${lc}_${todayKey()}`]=d; saveLS(SK_WOD,c); };
+const loadIdiom  = (cat)  => { const c=loadLS(SK_IDIOM,{}); return c[`${cat}_${todayKey()}`]||null; };
+const saveIdiom  = (cat,d)=> { const c=loadLS(SK_IDIOM,{}); c[`${cat}_${todayKey()}`]=d; saveLS(SK_IDIOM,c); };
 
-const ADULT_KEY = "lingua_nb_adult"
-const KIDS_KEY  = "lingua_nb_kids"
-const WOD_KEY   = "lingua_wod"
+/* Stars / level */
+function getStarsData() { return loadLS(SK_STARS, {total:0,history:[]}); }
+function addStarsTo(n) {
+  const d = getStarsData();
+  d.total += n; d.history.push({n,date:new Date().toISOString()});
+  saveLS(SK_STARS, d); return d.total;
+}
+function computeLevel(total) {
+  let lvl = 0;
+  for (let i=0;i<LEVEL_THRESHOLDS.length;i++) { if (total>=LEVEL_THRESHOLDS[i]) lvl=i; }
+  return lvl;
+}
 
-async function loadNB(mode) {
+/* Errors */
+const getErrors = () => loadLS(SK_ERRS, []);
+function addError(entry) {
+  const e = getErrors(); e.unshift({...entry,date:new Date().toISOString()});
+  saveLS(SK_ERRS, e.slice(0,50));
+}
+
+/* Vocab Sets */
+const loadVSets = () => loadLS(SK_VSETS, []);
+const saveVSets = (v) => saveLS(SK_VSETS, v);
+
+/* SM-2 lite */
+function sm2Update(word, quality) {
+  let ease = word.ease ?? 2.5, interval = word.interval ?? 1;
+  if (quality===2) { ease=Math.min(3,ease+0.15); interval=Math.round(interval*ease); }
+  else if (quality===1) { interval=Math.round(interval*1.2); }
+  else { ease=Math.max(1.3,ease-0.2); interval=1; }
+  return {...word,ease,interval,
+    nextReview:new Date(Date.now()+interval*86400000).toISOString(),
+    reviewCount:(word.reviewCount||0)+1,lastReviewed:new Date().toISOString()};
+}
+
+/* ─────────────────────────────────────────────────────────────
+   AUDIO  (lazy AudioContext)
+───────────────────────────────────────────────────────────── */
+let _audioCtx = null;
+function _getCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if (_audioCtx.state==="suspended") _audioCtx.resume().catch(()=>{});
+  return _audioCtx;
+}
+function playTone(freq=440,dur=0.12,type="sine",vol=0.18) {
   try {
-    const raw = localStorage.getItem(mode === "kids" ? KIDS_KEY : ADULT_KEY)
-    return raw ? JSON.parse(raw) : []
-  } catch { return [] }
-}
-async function saveNB(mode, entries) {
-  try { localStorage.setItem(mode === "kids" ? KIDS_KEY : ADULT_KEY, JSON.stringify(entries)) } catch {}
-}
-async function addWord(mode, entry) {
-  const nb = await loadNB(mode)
-  const updated = [{ ...entry, id: Date.now(), date: new Date().toLocaleDateString() }, ...nb]
-  await saveNB(mode, updated)
-  return updated
-}
-async function delWord(mode, id) {
-  const nb = await loadNB(mode)
-  const updated = nb.filter(e => e.id !== id)
-  await saveNB(mode, updated)
-  return updated
-}
-async function loadWODCache() {
-  try {
-    const raw = localStorage.getItem(WOD_KEY)
-    if (raw) {
-      const d = JSON.parse(raw)
-      if (d.date === new Date().toDateString()) return d
-    }
+    const c=_getCtx(), o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type=type; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+    o.start(); o.stop(c.currentTime+dur);
   } catch {}
-  return null
 }
-async function saveWODCache(data) {
-  try { localStorage.setItem(WOD_KEY, JSON.stringify({ ...data, date: new Date().toDateString() })) } catch {}
+const sfx = {
+  send:   ()=>{ playTone(600,0.07,"sine",0.12); setTimeout(()=>playTone(800,0.07,"sine",0.12),80); },
+  save:   ()=>{ playTone(880,0.1,"sine",0.18); setTimeout(()=>playTone(1100,0.1,"sine",0.18),110); },
+  star:   ()=>{ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.12,"sine",0.2),i*70)); },
+  correct:()=>{ [523,659,784].forEach((f,i)=>setTimeout(()=>playTone(f,0.1,"sine",0.2),i*80)); },
+  wrong:  ()=>{ playTone(220,0.18,"sawtooth",0.12); },
+  flip:   ()=>{ playTone(700,0.07,"triangle",0.1); },
+  click:  ()=>{ playTone(440,0.06,"sine",0.08); },
+};
+const haptic = (p=[30]) => { try { navigator.vibrate?.(p); } catch {} };
+
+/* ─────────────────────────────────────────────────────────────
+   TTS
+───────────────────────────────────────────────────────────── */
+function speak(text, lang="en-US", rate=0.95) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang=lang; u.rate=rate; u.pitch=1; u.volume=1;
+  window.speechSynthesis.speak(u);
 }
 
-// ─── API ──────────────────────────────────────────────────────────────────────
-
-async function ai(messages, system, max = 600) {
-  const body = { model: "claude-sonnet-4-20250514", max_tokens: max, messages }
-  if (system) body.system = system
-  const r = await fetch("/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  })
-  const d = await r.json()
-  if (d.error) throw new Error(d.error.message)
-  return d.content?.find(b => b.type === "text")?.text || ""
+/* ─────────────────────────────────────────────────────────────
+   AUTO-CORRECTION PARSER
+───────────────────────────────────────────────────────────── */
+function parseAiResponse(raw) {
+  const m = raw.match(/<fix>([\s\S]*?)<\/fix>/);
+  const text = raw.replace(/<fix>[\s\S]*?<\/fix>/g,"").trim();
+  let fix = null;
+  if (m) try { fix = JSON.parse(m[1].trim()); } catch {}
+  return {text, fix};
 }
 
-// ─── CSS ──────────────────────────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────
+   AI CALL  →  /api/chat
+───────────────────────────────────────────────────────────── */
+async function ai(messages, system="You are a helpful language tutor.", maxTokens=512) {
+  const res = await fetch("/api/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,system,messages}),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message||"API error");
+  return data.content?.[0]?.text || "";
+}
 
+/* ─────────────────────────────────────────────────────────────
+   CSS
+───────────────────────────────────────────────────────────── */
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#0F1B2D;--surf:#162336;--surf2:#1D2E44;--border:#243650;
-  --text:#F0EBE0;--muted:#8899AE;--gold:#C9943A;--goldl:#E5B86A;
-  --cream:#F0EBE0;--terra:#C2634B;
-  --k-bg:#FAF3E4;--k-paper:#FFFFFF;--k-paper2:#FFF7E8;
-  --k-ink:#2D2521;--k-inkSoft:#6B5F54;--k-mute:#A89889;
-  --k-border:#E8DCC4;--k-accent:#E8943B;
+  --bg:#0f0f13;--surf:#1a1a22;--surf2:#22222d;--border:#2e2e3d;
+  --text:#e8e8f0;--muted:#7a7a9a;--gold:#f0c040;--goldL:#fdd96a;
+  --green:#4caf7d;--red:#e05555;--blue:#5b9cf6;--purple:#a78bfa;
+  --orange:#f59e0b;--teal:#2dd4bf;
+  --radius:14px;--shadow:0 4px 24px rgba(0,0,0,.45);
 }
-html,body{height:100%;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);}
-button{cursor:pointer;font-family:'DM Sans',sans-serif;}
-textarea,input{font-family:'DM Sans',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent;}
+button{cursor:pointer;border:none;background:none;font-family:inherit;}
+input,textarea,select{font-family:inherit;}
 
-/* LANDING */
-.landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;background:var(--bg);position:relative;overflow:hidden;}
-.l-orb1{position:absolute;top:-120px;right:-120px;width:600px;height:600px;background:radial-gradient(circle,rgba(201,148,58,.13) 0%,transparent 65%);pointer-events:none;}
-.l-orb2{position:absolute;bottom:-80px;left:-80px;width:450px;height:450px;background:radial-gradient(circle,rgba(194,99,75,.11) 0%,transparent 65%);pointer-events:none;}
-.l-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(36,54,80,.35) 1px,transparent 1px),linear-gradient(90deg,rgba(36,54,80,.35) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;}
-.logo-row{display:flex;align-items:center;gap:14px;margin-bottom:36px;animation:fadeUp .55s ease both;}
-.logo-icon{width:56px;height:56px;background:var(--gold);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 36px rgba(201,148,58,.45);}
-.logo-name{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:var(--cream);letter-spacing:-.5px;}
-.l-h1{font-family:'Cormorant Garamond',serif;font-size:clamp(38px,6vw,70px);font-weight:600;text-align:center;line-height:1.05;color:var(--cream);margin-bottom:16px;animation:fadeUp .55s .1s ease both;}
-.l-h1 em{font-style:italic;color:var(--gold);}
-.l-sub{color:var(--muted);font-size:17px;text-align:center;max-width:500px;line-height:1.65;margin-bottom:52px;animation:fadeUp .55s .2s ease both;}
-.p-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;animation:fadeUp .55s .3s ease both;}
-.p-card{background:var(--surf);border:1px solid var(--border);border-radius:24px;padding:32px 26px;width:220px;cursor:pointer;transition:all .25s;text-align:center;position:relative;overflow:hidden;}
-.p-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 50%,rgba(201,148,58,.05));pointer-events:none;}
-.p-card:hover{border-color:var(--gold);transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.4),0 0 0 1px rgba(201,148,58,.25);}
-.p-card .ce{font-size:48px;margin-bottom:14px;display:block;}
-.p-card h3{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--cream);margin-bottom:8px;}
-.p-card p{font-size:13px;color:var(--muted);line-height:1.55;margin:0;}
-.l-langs{margin-top:44px;font-size:12px;color:var(--muted);animation:fadeUp .55s .5s ease both;opacity:0;animation-fill-mode:forwards;}
+.app{display:flex;flex-direction:column;min-height:100vh;max-width:700px;margin:0 auto;padding-bottom:80px;}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--surf);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);gap:8px;}
+.top-bar h1{font-size:1.2rem;font-weight:700;background:linear-gradient(135deg,var(--gold),var(--goldL));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
+.top-bar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.mode-switch{display:flex;gap:4px;}
+.mode-btn{padding:5px 12px;border-radius:20px;font-size:0.76rem;font-weight:600;border:1px solid var(--border);color:var(--muted);transition:all .2s;}
+.mode-btn.active{background:var(--gold);color:#111;border-color:var(--gold);}
 
-/* SHELL */
-.shell{min-height:100vh;display:flex;flex-direction:column;background:var(--bg);}
-.topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
-.topbar-logo{width:36px;height:36px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 0 16px rgba(201,148,58,.3);}
-.topbar-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--cream);flex:1;}
-.ghost{background:transparent;border:1px solid var(--border);border-radius:10px;padding:6px 14px;font-size:13px;color:var(--muted);transition:all .2s;}
-.ghost:hover{border-color:var(--muted);color:var(--cream);}
-.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surf);}
-.tab{flex:1;padding:12px 8px;background:none;border:none;font-size:13px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:all .2s;}
-.tab.on{color:var(--gold);border-bottom-color:var(--gold);}
-.scr{flex:1;padding:24px 20px;max-width:840px;margin:0 auto;width:100%;}
+.stars-bar{display:flex;align-items:center;gap:10px;padding:7px 14px;background:var(--surf2);border-bottom:1px solid var(--border);font-size:0.8rem;}
+.stars-bar .star-ct{color:var(--gold);font-weight:700;white-space:nowrap;}
+.stars-bar .lvl-badge{background:var(--purple);color:#fff;border-radius:10px;padding:2px 8px;font-size:0.7rem;font-weight:600;white-space:nowrap;}
+.stars-bar .prog-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.stars-bar .prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));border-radius:3px;transition:width .5s;}
 
-/* TYPOGRAPHY */
-.sh{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--cream);margin-bottom:6px;}
-.ss{color:var(--muted);font-size:14px;margin-bottom:24px;}
+.tabs{display:flex;gap:2px;padding:10px 10px 0;background:var(--surf);border-bottom:1px solid var(--border);position:sticky;top:55px;z-index:40;overflow-x:auto;}
+.tab-btn{padding:7px 13px;border-radius:10px 10px 0 0;font-size:0.78rem;font-weight:600;color:var(--muted);border:1px solid transparent;border-bottom:none;white-space:nowrap;transition:all .15s;}
+.tab-btn.active{background:var(--bg);color:var(--text);border-color:var(--border);}
 
-/* LANG GRID */
-.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:12px;margin-bottom:28px;}
-.lcard{background:var(--surf);border:1px solid var(--border);border-radius:16px;padding:18px 16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px;}
-.lcard:hover{border-color:var(--muted);transform:translateY(-2px);}
-.lcard.on{border-width:1.5px;}
-.lflag{font-size:32px;flex-shrink:0;}
-.linfo h4{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:2px;}
-.linfo span{font-size:12px;color:var(--muted);}
-.sgrid{display:flex;flex-direction:column;gap:7px;margin-bottom:24px;}
-.sbtn{background:var(--surf);border:1px solid var(--border);border-radius:11px;padding:11px 14px;font-size:13px;font-weight:500;color:var(--muted);text-align:left;transition:all .2s;display:flex;align-items:center;}
-.sbtn:hover{color:var(--cream);border-color:var(--muted);}
-.sbtn.on{color:var(--gold);border-color:var(--gold);background:rgba(201,148,58,.06);}
-.sbtn.on::after{content:'✓';margin-left:auto;color:var(--gold);}
-.cta{background:var(--gold);color:#0F1B2D;border:none;border-radius:12px;padding:14px 28px;font-size:15px;font-weight:600;transition:all .2s;box-shadow:0 4px 20px rgba(201,148,58,.3);}
-.cta:hover{background:var(--goldl);transform:translateY(-1px);box-shadow:0 6px 28px rgba(201,148,58,.4);}
-.cta:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.selectors{display:flex;flex-wrap:wrap;gap:8px;padding:12px 14px;background:var(--surf2);border-bottom:1px solid var(--border);}
+.sel-group{display:flex;flex-direction:column;gap:3px;flex:1;min-width:120px;}
+.sel-group label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.sel-group select{background:var(--surf);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:0.83rem;}
 
-/* WORD OF DAY */
-.wod-card{background:linear-gradient(135deg,var(--surf),var(--surf2));border:1px solid var(--border);border-radius:20px;padding:28px 24px;position:relative;overflow:hidden;margin-bottom:20px;}
-.wod-card::before{content:'';position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:radial-gradient(circle,rgba(201,148,58,.15) 0%,transparent 65%);pointer-events:none;}
-.wod-ltabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}
-.wod-ltab{background:var(--surf2);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .15s;}
-.wod-ltab.on{background:rgba(201,148,58,.14);border-color:rgba(201,148,58,.4);color:var(--gold);}
-.wod-word{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:600;color:var(--cream);line-height:1.05;margin-bottom:4px;}
-.wod-ph{font-size:15px;color:var(--gold);font-style:italic;margin-bottom:10px;}
-.wod-tr{font-size:18px;color:var(--muted);margin-bottom:18px;}
-.wod-ex{background:rgba(255,255,255,.04);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 10px 10px 0;font-size:14px;color:var(--cream);line-height:1.65;margin-bottom:12px;}
-.wod-fact{font-size:13px;color:var(--muted);line-height:1.55;font-style:italic;}
-.wod-save{background:rgba(201,148,58,.12);border:1px solid rgba(201,148,58,.3);border-radius:10px;padding:7px 16px;font-size:13px;color:var(--gold);margin-top:16px;transition:all .15s;}
-.wod-save:hover{background:rgba(201,148,58,.22);}
-.loading-row{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:14px;padding:16px 0;}
+.chat-area{flex:1;overflow-y:auto;padding:12px 12px 4px;display:flex;flex-direction:column;gap:8px;min-height:200px;}
+.bubble{max-width:88%;padding:10px 13px;border-radius:14px;font-size:0.88rem;line-height:1.55;position:relative;}
+.bubble.user{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.bubble.ai{background:var(--surf2);border:1px solid var(--border);align-self:flex-start;border-bottom-left-radius:4px;}
+.bubble .tts-btn{font-size:0.7rem;opacity:.55;padding:2px 5px;margin-left:4px;transition:opacity .15s;vertical-align:middle;}
+.bubble .tts-btn:hover{opacity:1;}
+.fix-pill{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:7px;padding:6px 9px;background:rgba(240,192,64,.07);border:1px solid rgba(240,192,64,.28);border-radius:8px;font-size:0.78rem;}
+.fix-label{color:var(--gold);font-weight:700;}
+.fix-err{color:var(--red);text-decoration:line-through;}
+.fix-ok{color:var(--green);}
+.fix-tip{color:var(--muted);font-style:italic;}
 
-/* NOTEBOOK */
-.nb-empty{text-align:center;padding:60px 20px;}
-.nb-empty .ei{font-size:52px;margin-bottom:12px;}
-.nb-empty p{color:var(--muted);font-size:15px;}
-.nb-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
-.nbf{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .15s;}
-.nbf.on{background:rgba(201,148,58,.12);border-color:rgba(201,148,58,.4);color:var(--gold);}
-.wcs{display:grid;gap:10px;}
-.wc{background:var(--surf);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:flex-start;gap:14px;transition:border-color .2s;}
-.wc:hover{border-color:var(--surf2);}
-.wc-flag{font-size:22px;flex-shrink:0;margin-top:2px;}
-.wc-b{flex:1;min-width:0;}
-.wc-w{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--cream);margin-bottom:2px;}
-.wc-ph{font-size:12px;color:var(--gold);font-style:italic;margin-bottom:4px;}
-.wc-tr{font-size:14px;color:var(--muted);margin-bottom:6px;}
-.wc-ctx{font-size:12px;color:var(--muted);background:rgba(255,255,255,.04);border-radius:8px;padding:6px 10px;line-height:1.5;}
-.wc-meta{font-size:11px;color:var(--muted);margin-top:6px;opacity:.6;}
-.wc-del{background:none;border:none;color:var(--muted);font-size:18px;padding:4px 6px;border-radius:6px;transition:all .15s;flex-shrink:0;}
-.wc-del:hover{color:#E57373;background:rgba(229,115,115,.1);}
+.chat-input{display:flex;gap:8px;padding:9px 12px;background:var(--surf);border-top:1px solid var(--border);}
+.chat-input textarea{flex:1;background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:8px 11px;color:var(--text);font-size:0.88rem;resize:none;min-height:40px;max-height:110px;line-height:1.4;}
+.chat-input textarea:focus{outline:none;border-color:var(--blue);}
+.send-btn{background:var(--blue);color:#fff;border-radius:10px;padding:8px 15px;font-weight:600;font-size:0.86rem;align-self:flex-end;transition:all .15s;}
+.send-btn:hover{background:#4488e0;}
+.send-btn:disabled{opacity:.4;cursor:default;}
+.chat-actions{display:flex;gap:7px;padding:6px 12px;flex-wrap:wrap;}
+.action-btn{font-size:0.76rem;padding:4px 11px;border-radius:8px;border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+.action-btn:hover{border-color:var(--gold);color:var(--gold);}
+.action-btn.primary{background:var(--gold);color:#111;border-color:var(--gold);font-weight:600;}
 
-/* CHAT */
-.cshell{display:flex;flex-direction:column;height:calc(100vh - 62px);}
-.cinfo{background:var(--surf2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);flex-wrap:wrap;}
-.ctag{background:rgba(201,148,58,.12);border:1px solid rgba(201,148,58,.3);border-radius:20px;padding:3px 12px;font-size:12px;color:var(--gold);}
-.cmsgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;}
-.cmsgs::-webkit-scrollbar{width:3px;}
-.cmsgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-.mrow{display:flex;gap:10px;animation:fadeUp .25s ease;}
-.mrow.user{flex-direction:row-reverse;}
-.mav{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--surf2);border:1px solid var(--border);}
-.mcol{max-width:76%;display:flex;flex-direction:column;gap:5px;}
-.mrow.user .mcol{align-items:flex-end;}
-.bub{padding:12px 16px;border-radius:18px;font-size:15px;line-height:1.6;}
-.mrow.user      .bub{background:var(--gold);color:#0F1B2D;border-bottom-right-radius:4px;font-weight:500;}
-.mrow.assistant .bub{background:var(--surf2);border:1px solid var(--border);border-bottom-left-radius:4px;}
-.macts{display:flex;gap:6px;flex-wrap:wrap;}
-.mact{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:11px;color:var(--muted);transition:all .15s;}
-.mact:hover{border-color:var(--muted);color:var(--cream);}
-.mact.on{border-color:var(--gold);color:var(--gold);background:rgba(201,148,58,.1);}
-.mpanel{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.6;color:var(--cream);}
-.plabel{font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
-.pph{font-size:16px;color:var(--gold);font-style:italic;margin-bottom:6px;}
-.ptip{color:var(--muted);font-size:13px;line-height:1.55;}
-.hints{display:flex;gap:8px;flex-wrap:wrap;padding:10px 20px;border-top:1px solid var(--border);background:var(--surf);}
-.hchip{background:rgba(201,148,58,.08);border:1px solid rgba(201,148,58,.2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--gold);transition:all .15s;}
-.hchip:hover{background:rgba(201,148,58,.18);}
-.iarea{padding:14px 20px;background:var(--surf);border-top:1px solid var(--border);}
-.irow{display:flex;gap:10px;align-items:flex-end;}
-.cinput{flex:1;background:var(--surf2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:15px;color:var(--cream);resize:none;min-height:48px;max-height:120px;outline:none;transition:border-color .2s;line-height:1.4;}
-.cinput::placeholder{color:var(--muted);}
-.cinput:focus{border-color:var(--gold);}
-.sbtn-send{width:48px;height:48px;background:var(--gold);border:none;border-radius:14px;color:#0F1B2D;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;box-shadow:0 4px 16px rgba(201,148,58,.3);}
-.sbtn-send:hover:not(:disabled){box-shadow:0 6px 24px rgba(201,148,58,.4);transform:translateY(-1px);}
-.sbtn-send:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
-
-/* MODAL */
-.mbdrop{position:fixed;inset:0;background:rgba(10,16,26,.82);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
-.modal{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:28px;width:100%;max-width:420px;animation:scaleIn .2s ease;}
-.modal h3{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--cream);margin-bottom:6px;}
-.modal p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
-.minput{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:11px 14px;font-size:15px;color:var(--cream);outline:none;margin-bottom:10px;transition:border-color .2s;}
-.minput::placeholder{color:var(--muted);}
-.minput:focus{border-color:var(--gold);}
-.mrow2{display:flex;gap:10px;}
-.mcancel{flex:1;background:transparent;border:1px solid var(--border);border-radius:12px;padding:11px;font-size:14px;color:var(--muted);transition:all .2s;}
-.mcancel:hover{border-color:var(--muted);color:var(--cream);}
-.msave{flex:1;background:var(--gold);border:none;border-radius:12px;padding:11px;font-size:14px;font-weight:600;color:#0F1B2D;transition:all .2s;}
-.msave:hover{background:var(--goldl);}
-
-/* KIDS */
-.ks{min-height:100vh;display:flex;flex-direction:column;background:var(--k-bg);font-family:'Nunito',sans-serif;}
-.kh{background:var(--k-ink);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
-.kh-brand{display:flex;align-items:center;gap:8px;margin-left:8px;flex:1;}
-.kh-brand span{font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;color:white;}
-.ktabs{display:flex;background:var(--k-paper2);border-bottom:2px solid var(--k-border);}
-.ktab{flex:1;padding:11px;background:none;border:none;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--k-mute);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;}
-.ktab.on{color:var(--k-ink);border-bottom-color:var(--k-accent);}
-.kwel{padding:20px 20px 6px;max-width:680px;margin:0 auto;width:100%;}
-.kwel h1{font-family:'Fraunces',serif;font-weight:600;font-size:26px;color:var(--k-ink);margin-bottom:6px;letter-spacing:-.3px;line-height:1.15;}
-.kwel p{font-size:13px;color:var(--k-inkSoft);font-weight:600;}
-.ktgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;padding:14px 16px 24px;max-width:680px;margin:0 auto;width:100%;}
-.tcard{border-radius:18px;padding:14px 6px 12px;cursor:pointer;border:2px solid rgba(45,37,33,.08);font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;text-align:center;transition:all .2s;color:var(--k-ink);display:flex;flex-direction:column;align-items:center;gap:5px;box-shadow:0 3px 0 rgba(45,37,33,.12);min-height:88px;}
-.tcard:hover{transform:translateY(-2px);box-shadow:0 5px 0 rgba(45,37,33,.12);}
-.tcard:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(45,37,33,.12);}
-.temoji{font-size:26px;}
-.kcshell{display:flex;flex-direction:column;flex:1;height:calc(100vh - 112px);}
-.kmsgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;max-width:680px;margin:0 auto;width:100%;}
-.kmsg{display:flex;gap:8px;animation:fadeUp .25s ease;}
-.kmsg.user{flex-direction:row-reverse;}
-.kav{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.kbub{max-width:72%;padding:10px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;font-weight:600;font-family:'Nunito',sans-serif;}
-.kmsg.user      .kbub{background:var(--k-ink);color:white;border-bottom-right-radius:4px;}
-.kmsg.assistant .kbub{background:var(--k-paper);border:2px solid var(--k-border);color:var(--k-ink);border-bottom-left-radius:4px;}
-.ksavebtn{background:rgba(248,209,135,.2);border:1.5px solid #F4D998;border-radius:8px;padding:4px 10px;font-size:11px;font-family:'Nunito',sans-serif;font-weight:800;color:#A87515;margin-top:5px;transition:all .15s;}
-.ksavebtn:hover{background:rgba(248,209,135,.35);}
-.kiarea{background:var(--k-paper);border-top:2px solid var(--k-border);padding:12px 20px;max-width:680px;margin:0 auto;width:100%;}
-.kirow{display:flex;gap:9px;align-items:center;}
-.kinput{flex:1;border:2px solid var(--k-border);border-radius:14px;padding:10px 14px;font-size:14px;font-family:'Nunito',sans-serif;font-weight:700;background:var(--k-bg);color:var(--k-ink);outline:none;transition:border-color .2s;}
-.kinput:focus{border-color:var(--k-ink);}
-.ksendbtn{width:42px;height:42px;border-radius:50%;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 rgba(45,37,33,.18);transition:all .15s;color:white;}
-.ksendbtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 0 rgba(45,37,33,.18);}
-.ksendbtn:disabled{opacity:.4;cursor:not-allowed;}
-.knb{padding:20px;max-width:680px;margin:0 auto;width:100%;}
-.knb h2{font-family:'Fraunces',serif;font-weight:600;font-size:24px;color:var(--k-ink);margin-bottom:4px;line-height:1.15;}
-.knb p{font-size:13px;color:var(--k-inkSoft);margin-bottom:20px;font-weight:600;}
-.kwcard{background:var(--k-paper);border:2px solid var(--k-border);border-radius:16px;padding:14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 2px 0 rgba(45,37,33,.06);transition:border-color .2s;}
-.kwcard:hover{border-color:var(--k-mute);}
-.kwe{font-size:24px;flex-shrink:0;width:42px;height:42px;background:var(--k-paper2);border:2px solid var(--k-border);border-radius:12px;display:flex;align-items:center;justify-content:center;}
-.kwb{flex:1;}
-.kww{font-family:'Nunito',sans-serif;font-weight:900;font-size:17px;color:var(--k-ink);margin-bottom:3px;}
-.kwd{font-size:13px;color:var(--k-inkSoft);line-height:1.45;font-weight:600;}
-.kwdate{font-size:11px;color:var(--k-mute);margin-top:5px;font-weight:700;letter-spacing:.2px;}
-.kwdel{background:none;border:none;font-size:18px;color:var(--k-mute);padding:4px;border-radius:8px;transition:all .15s;flex-shrink:0;}
-.kwdel:hover{color:#c94040;background:rgba(201,64,64,.1);}
-.knempty{text-align:center;padding:48px 20px;}
-.knempty .ei{font-size:52px;margin-bottom:12px;}
-.knempty p{font-size:15px;color:var(--k-inkSoft);font-family:'Nunito',sans-serif;font-weight:700;}
-.kids-modal{background:var(--k-bg);border:2px solid var(--k-border);}
-.kids-minput{background:var(--k-paper);border:2px solid var(--k-border);color:var(--k-ink);}
-.kids-minput::placeholder{color:var(--k-mute);}
-.kids-minput:focus{border-color:var(--k-ink);}
-.kids-mh3{font-family:'Nunito',sans-serif;color:var(--k-ink);}
-.kids-mp{color:var(--k-inkSoft);}
-
-/* DOTS */
-.dots{display:flex;gap:5px;align-items:center;padding:6px 2px;}
-.dots span{width:7px;height:7px;border-radius:50%;animation:bounce 1.2s infinite;}
+.dots{display:inline-flex;gap:4px;align-items:center;}
+.dots span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite;}
 .dots span:nth-child(2){animation-delay:.2s;}
 .dots span:nth-child(3){animation-delay:.4s;}
-.adult-dots span{background:var(--muted);}
-.kids-dots  span{background:var(--k-mute);}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
 
-/* ERROR */
-.err-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;background:var(--bg);}
-.err-screen h2{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--cream);margin-bottom:12px;}
-.err-screen p{color:var(--muted);font-size:15px;line-height:1.6;max-width:480px;}
-.err-screen code{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:13px;color:var(--gold);}
+.summary-box{margin:10px 12px;padding:12px 14px;background:var(--surf2);border:1px solid var(--border);border-radius:12px;font-size:0.84rem;line-height:1.6;color:var(--muted);}
+.summary-box h3{color:var(--text);margin-bottom:6px;font-size:0.92rem;}
 
-/* UPDATE BUTTON */
-.update-btn{position:fixed;bottom:18px;right:18px;z-index:999;background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:7px 13px;font-size:12px;color:var(--muted);transition:all .2s;backdrop-filter:blur(8px);}
+.notebook{padding:12px;}
+.nb-word{display:flex;align-items:center;gap:7px;padding:9px 11px;background:var(--surf2);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;}
+.nb-word .word-text{flex:1;font-size:0.88rem;}
+.nb-word .word-lang{font-size:0.7rem;color:var(--muted);background:var(--surf);padding:2px 6px;border-radius:5px;white-space:nowrap;}
+.nb-word .tts-btn{font-size:0.76rem;color:var(--muted);padding:3px 7px;border-radius:6px;border:1px solid var(--border);}
+.nb-word .del-btn{color:var(--red);font-size:0.76rem;padding:3px 7px;border-radius:6px;border:1px solid transparent;opacity:.6;}
+.nb-word .del-btn:hover{border-color:var(--red);opacity:1;}
+.due-badge{display:inline-block;background:var(--orange);color:#111;border-radius:5px;padding:1px 6px;font-size:0.68rem;font-weight:700;margin-left:5px;}
+.nudge-banner{margin:0 0 8px;padding:7px 11px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.32);border-radius:9px;font-size:0.8rem;color:var(--orange);}
+.error-section{padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;}
+.error-section h3{font-size:0.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:7px;}
+.err-item{font-size:0.78rem;padding:5px 8px;background:var(--surf2);border-radius:6px;border-left:3px solid var(--red);margin-bottom:4px;color:var(--muted);}
+.err-ok{color:var(--green);}
+
+.wod-card{margin:12px 12px 0;padding:13px;background:linear-gradient(135deg,rgba(167,139,250,.12),rgba(91,156,246,.07));border:1px solid rgba(167,139,250,.28);border-radius:14px;}
+.wod-card h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);margin-bottom:6px;}
+.wod-word{font-size:1.45rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.wod-pos{font-size:0.72rem;color:var(--muted);margin-bottom:5px;}
+.wod-def{font-size:0.86rem;color:var(--muted);margin-bottom:5px;}
+.wod-ex{font-size:0.8rem;font-style:italic;color:var(--text);border-left:2px solid var(--purple);padding-left:8px;margin-top:4px;}
+.wod-colls{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.wod-coll{background:var(--surf);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:0.76rem;color:var(--blue);}
+
+.idiom-card{margin:8px 12px 0;padding:13px;background:linear-gradient(135deg,rgba(240,192,64,.09),rgba(240,192,64,.03));border:1px solid rgba(240,192,64,.24);border-radius:14px;}
+.idiom-card h3{font-size:0.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:5px;}
+.idiom-cat-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;}
+.idiom-cat-btn{font-size:0.72rem;padding:3px 9px;border-radius:10px;border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+.idiom-cat-btn.active{background:var(--gold);color:#111;border-color:var(--gold);}
+.idiom-phrase{font-size:1.05rem;font-weight:600;color:var(--goldL);margin-bottom:3px;}
+.idiom-meaning{font-size:0.83rem;color:var(--muted);}
+.idiom-ex{font-size:0.8rem;color:var(--text);font-style:italic;margin-top:4px;border-left:2px solid var(--gold);padding-left:8px;}
+.card-loading{color:var(--muted);font-size:0.83rem;text-align:center;padding:10px;}
+
+.kids-wrap{flex:1;display:flex;flex-direction:column;}
+.ollie-block{display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 0 4px;}
+.ollie-avatar{width:68px;height:68px;}
+.ollie-speech{background:var(--surf2);border:1px solid var(--border);border-radius:14px 14px 14px 4px;padding:8px 13px;font-size:0.86rem;color:var(--text);max-width:270px;text-align:center;}
+.kids-lang-pick{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;padding:6px 0;}
+.kids-lang-btn{padding:8px 16px;border-radius:11px;border:2px solid var(--border);font-size:0.9rem;font-weight:600;color:var(--text);background:var(--surf2);transition:all .2s;}
+.kids-lang-btn.active{border-color:var(--teal);background:rgba(45,212,191,.12);color:var(--teal);}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px;padding:10px 12px;}
+.topic-btn{padding:12px 8px;border-radius:11px;font-size:0.86rem;font-weight:600;border:1px solid var(--border);background:var(--surf2);color:var(--text);transition:all .15s;text-align:center;}
+.topic-btn.active,.topic-btn:hover{border-color:var(--teal);background:rgba(45,212,191,.1);color:var(--teal);}
+.listen-strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:5px 12px;}
+.listen-btn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:9px;border:1px solid var(--teal);color:var(--teal);font-size:0.82rem;font-weight:600;transition:all .15s;}
+.listen-btn.active{background:rgba(45,212,191,.14);}
+.listen-btn:hover{background:rgba(45,212,191,.08);}
+.dictation-area{padding:6px 12px;}
+.dictation-input{width:100%;padding:8px 11px;border-radius:9px;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.88rem;margin-bottom:6px;}
+.dictation-input:focus{outline:none;border-color:var(--teal);}
+.dict-result{padding:6px 10px;border-radius:8px;font-size:0.83rem;font-weight:600;}
+.dict-result.ok{background:rgba(76,175,125,.14);color:var(--green);}
+.dict-result.err{background:rgba(224,85,85,.1);color:var(--red);}
+
+.vs-list{padding:10px 12px;}
+.vs-item{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--surf2);border:1px solid var(--border);border-radius:10px;margin-bottom:7px;}
+.vs-name{flex:1;font-size:0.88rem;font-weight:600;}
+.vs-count{font-size:0.74rem;color:var(--muted);white-space:nowrap;}
+.vs-actions{display:flex;gap:4px;}
+.vs-btn{font-size:0.76rem;padding:4px 8px;border-radius:6px;border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+.vs-btn:hover{border-color:var(--gold);color:var(--gold);}
+.vs-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+.set-editor{padding:12px;}
+.se-input{width:100%;margin-bottom:8px;padding:8px 11px;border-radius:8px;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.88rem;}
+.se-input:focus{outline:none;border-color:var(--blue);}
+.word-row{display:flex;gap:5px;margin-bottom:5px;align-items:center;}
+.word-row input{flex:1;padding:6px 9px;border-radius:7px;background:var(--surf);border:1px solid var(--border);color:var(--text);font-size:0.83rem;}
+.word-row input:focus{outline:none;border-color:var(--teal);}
+.word-row .del-btn{color:var(--red);padding:5px 7px;border-radius:5px;border:1px solid transparent;opacity:.6;}
+.word-row .del-btn:hover{border-color:var(--red);opacity:1;}
+.import-btn{display:flex;align-items:center;gap:5px;padding:7px 13px;border-radius:8px;border:1px dashed var(--border);color:var(--muted);font-size:0.8rem;margin-bottom:9px;transition:all .2s;width:100%;}
+.import-btn:hover{border-color:var(--blue);color:var(--blue);}
+.se-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;}
+.se-btn{padding:7px 17px;border-radius:9px;font-size:0.86rem;font-weight:600;border:1px solid var(--border);color:var(--muted);}
+.se-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+.fc-wrap{display:flex;flex-direction:column;align-items:center;gap:13px;padding:18px 12px;}
+.fc-prog{font-size:0.78rem;color:var(--muted);}
+.fc-mode-btns{display:flex;gap:7px;}
+.fc-container{perspective:900px;width:290px;height:160px;cursor:pointer;}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .4s ease;}
+.fc-inner.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:15px;padding:18px;}
+.fc-front{background:var(--surf2);border:2px solid var(--border);}
+.fc-back{background:linear-gradient(135deg,rgba(91,156,246,.14),rgba(167,139,250,.09));border:2px solid rgba(91,156,246,.28);transform:rotateY(180deg);}
+.fc-word{font-size:1.35rem;font-weight:700;color:var(--text);text-align:center;}
+.fc-transl{font-size:1.05rem;color:var(--blue);margin-top:6px;text-align:center;}
+.fc-hint{font-size:0.72rem;color:var(--muted);margin-top:5px;}
+.fc-sm2-btns{display:flex;gap:9px;}
+.fc-sm2-btn{padding:7px 17px;border-radius:9px;font-size:0.83rem;font-weight:600;border:1px solid var(--border);transition:all .15s;}
+.fc-sm2-btn.easy{border-color:var(--green);color:var(--green);}
+.fc-sm2-btn.easy:hover{background:rgba(76,175,125,.14);}
+.fc-sm2-btn.good{border-color:var(--blue);color:var(--blue);}
+.fc-sm2-btn.good:hover{background:rgba(91,156,246,.1);}
+.fc-sm2-btn.hard{border-color:var(--red);color:var(--red);}
+.fc-sm2-btn.hard:hover{background:rgba(224,85,85,.09);}
+.fc-type-input{padding:8px 13px;border-radius:9px;background:var(--surf2);border:1px solid var(--border);color:var(--text);font-size:0.88rem;width:220px;text-align:center;}
+.fc-type-input:focus{outline:none;border-color:var(--teal);}
+.fc-check-btn{padding:7px 17px;border-radius:9px;background:var(--teal);color:#111;font-weight:600;font-size:0.83rem;}
+
+.ui-lang-picker{display:flex;gap:3px;}
+.ui-lang-btn{font-size:0.7rem;padding:3px 6px;border-radius:5px;border:1px solid var(--border);color:var(--muted);transition:all .15s;}
+.ui-lang-btn.active{background:var(--gold);color:#111;border-color:var(--gold);}
+
+.update-btn{position:fixed;bottom:16px;right:16px;z-index:999;background:var(--surf);border:1px solid var(--border);border-radius:9px;padding:6px 12px;font-size:11px;color:var(--muted);transition:all .2s;backdrop-filter:blur(8px);}
 .update-btn:hover{border-color:var(--gold);color:var(--gold);}
 
-/* ANIMS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:scale(1);}}
-@keyframes bounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
-`
+@media(max-width:480px){
+  .app{padding-bottom:66px;}
+  .wod-word{font-size:1.2rem;}
+  .fc-container{width:260px;height:148px;}
+  .top-bar h1{font-size:1.05rem;}
+}
+`;
 
-// ─── OLLIE AVATAR ─────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   SMALL SHARED COMPONENTS
+═══════════════════════════════════════════════════════════ */
+function Dots() {
+  return <div className="dots"><span/><span/><span/></div>;
+}
 
-function OllieAvatar({ size = 40 }) {
+function OllieAvatar({animate}) {
+  const [blink, setBlink] = useState(false);
+  useEffect(()=>{
+    const t = setInterval(()=>{ setBlink(true); setTimeout(()=>setBlink(false),140); },2600);
+    return ()=>clearInterval(t);
+  },[]);
   return (
-    <svg width={size} height={size} viewBox="0 0 64 64" style={{ flexShrink: 0, display: "block" }}>
-      <defs>
-        <radialGradient id="oBody" cx=".5" cy=".4">
-          <stop offset="0" stopColor="#C49570" />
-          <stop offset="1" stopColor="#8B6242" />
-        </radialGradient>
-      </defs>
-      <ellipse cx="32" cy="38" rx="22" ry="22" fill="url(#oBody)" />
-      <ellipse cx="32" cy="42" rx="13" ry="15" fill="#F4E4CC" />
-      <path d="M14 22 L18 12 L22 20 Z" fill="#8B6242" />
-      <path d="M50 22 L46 12 L42 20 Z" fill="#8B6242" />
-      <circle cx="24" cy="30" r="7.5" fill="#fff" />
-      <circle cx="40" cy="30" r="7.5" fill="#fff" />
-      <circle cx="25" cy="31" r="3.5" fill="#2D2521" />
-      <circle cx="39" cy="31" r="3.5" fill="#2D2521" />
-      <circle cx="26" cy="29.5" r="1.2" fill="#fff" />
-      <circle cx="40" cy="29.5" r="1.2" fill="#fff" />
-      <path d="M32 35 L28 40 L36 40 Z" fill="#E8943B" />
+    <svg className="ollie-avatar" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="36" fill="#2dd4bf" opacity=".12"/>
+      <ellipse cx="40" cy="41" rx="20" ry="22" fill="#1e1e2b" stroke="#2dd4bf" strokeWidth="1.6"/>
+      {blink
+        ? <><line x1="30" y1="37" x2="36" y2="37" stroke="#2dd4bf" strokeWidth="2.2" strokeLinecap="round"/>
+             <line x1="44" y1="37" x2="50" y2="37" stroke="#2dd4bf" strokeWidth="2.2" strokeLinecap="round"/></>
+        : <><circle cx="33" cy="37" r="3.5" fill="#2dd4bf"/><circle cx="47" cy="37" r="3.5" fill="#2dd4bf"/>
+             <circle cx="34.2" cy="36.1" r="1.3" fill="#0f0f13"/><circle cx="48.2" cy="36.1" r="1.3" fill="#0f0f13"/></>
+      }
+      <path d={animate?"M32,47 Q40,53 48,47":"M32,46 Q40,51 48,46"} stroke="#2dd4bf" strokeWidth="1.8" fill="none" strokeLinecap="round"/>
+      <line x1="40" y1="20" x2="40" y2="12" stroke="#2dd4bf" strokeWidth="1.5"/>
+      <circle cx="40" cy="10" r="2.8" fill="#f0c040"/>
     </svg>
-  )
+  );
 }
 
-// ─── DOTS ─────────────────────────────────────────────────────────────────────
-
-function Dots({ kids }) {
-  const cls = kids ? "kids-dots" : "adult-dots"
+function UiLangPicker({uiLang, setUiLang}) {
   return (
-    <div className="dots">
-      <span className={cls} />
-      <span className={cls} />
-      <span className={cls} />
+    <div className="ui-lang-picker">
+      {UI_LANGS_LIST.map(l=>(
+        <button key={l} className={`ui-lang-btn${uiLang===l?" active":""}`}
+          onClick={()=>{ setUiLang(l); saveLS(SK_UILNG,l); sfx.click(); }}>
+          {l}
+        </button>
+      ))}
     </div>
-  )
+  );
 }
 
-// ─── SAVE MODAL ───────────────────────────────────────────────────────────────
-
-function SaveModal({ sourceText, language, langFlag, mode, onSave, onClose }) {
-  const [word, setWord] = useState("")
-  const [ctx, setCtx] = useState(sourceText?.slice(0, 100) || "")
-  const isKids = mode === "kids"
+function LevelBadge({stars}) {
+  const lvl  = computeLevel(stars);
+  const name = LEVEL_NAMES[lvl];
+  const curr = LEVEL_THRESHOLDS[lvl];
+  const next = LEVEL_THRESHOLDS[lvl+1] ?? curr+1000;
+  const pct  = Math.min(100,((stars-curr)/(next-curr))*100);
   return (
-    <div className="mbdrop" onClick={onClose}>
-      <div className={`modal${isKids ? " kids-modal" : ""}`} onClick={e => e.stopPropagation()}>
-        <h3 className={isKids ? "kids-mh3" : ""} style={isKids ? { fontFamily: "'Nunito',sans-serif" } : {}}>
-          {isKids ? "📌 Save a Word!" : "Save to Notebook"}
-        </h3>
-        <p className={isKids ? "kids-mp" : ""}>
-          {isKids ? "Type the word you want to remember" : "Pick a word or phrase to save"}
-        </p>
-        <input
-          className={`minput${isKids ? " kids-minput" : ""}`}
-          placeholder={isKids ? "Word or phrase…" : "Word / phrase in target language…"}
-          value={word}
-          onChange={e => setWord(e.target.value)}
-          autoFocus
-        />
-        <input
-          className={`minput${isKids ? " kids-minput" : ""}`}
-          placeholder={isKids ? "What does it mean? (optional)" : "Context / example sentence…"}
-          value={ctx}
-          onChange={e => setCtx(e.target.value)}
-        />
-        <div className="mrow2">
-          <button className="mcancel" style={isKids ? { color: "#78716C" } : {}} onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            className="msave"
-            style={isKids ? { background: "#FECA57", color: "#1C1917" } : {}}
-            onClick={() => {
-              if (!word.trim()) return
-              onSave({ word: word.trim(), context: ctx.trim(), language, langFlag })
-              onClose()
-            }}
-          >
-            {isKids ? "Save it! ⭐" : "Save →"}
-          </button>
-        </div>
+    <div className="stars-bar">
+      <span className="star-ct">⭐ {stars}</span>
+      <span className="lvl-badge">{name}</span>
+      <div className="prog-bar"><div className="prog-fill" style={{width:`${pct}%`}}/></div>
+      <span style={{fontSize:"0.68rem",color:"var(--muted)"}}>Lv{lvl+1}</span>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WORD OF DAY
+═══════════════════════════════════════════════════════════ */
+function WordOfDay({langCode, t}) {
+  const [data,setData]       = useState(null);
+  const [loading,setLoading] = useState(false);
+  const lang = LANGUAGES.find(l=>l.code===langCode);
+
+  useEffect(()=>{
+    const cached = loadWOD(langCode);
+    if (cached) { setData(cached); return; }
+    setLoading(true);
+    ai([{role:"user",content:`Give me one interesting ${lang?.name||langCode} word of the day. Reply ONLY valid JSON with these keys: word, pos (part of speech), definition (in English), example (sentence in ${lang?.name||langCode}), collocations (array of 4 common collocations in ${lang?.name||langCode}).`}],
+       "You are a language expert. Output only valid JSON, no markdown.",300)
+      .then(raw=>{ const m=raw.match(/\{[\s\S]*\}/); if(m){const d=JSON.parse(m[0]);saveWOD(langCode,d);setData(d);} })
+      .catch(()=>{})
+      .finally(()=>setLoading(false));
+  },[langCode]);
+
+  if (loading) return <div className="wod-card"><div className="card-loading"><Dots/></div></div>;
+  if (!data)   return null;
+  return (
+    <div className="wod-card">
+      <h3>📚 {t.wordOfDay}</h3>
+      <div className="wod-word">
+        {data.word}
+        <button className="tts-btn" onClick={()=>speak(data.word,lang?.tts||"en-US")}>🔊</button>
       </div>
+      <div className="wod-pos">{data.pos}</div>
+      <div className="wod-def">{data.definition}</div>
+      {data.example && <div className="wod-ex">{data.example}</div>}
+      {data.collocations?.length>0 && <>
+        <div style={{fontSize:"0.72rem",color:"var(--muted)",marginTop:8,marginBottom:4}}>{t.collocations}</div>
+        <div className="wod-colls">{data.collocations.map((c,i)=><span key={i} className="wod-coll">{c}</span>)}</div>
+      </>}
     </div>
-  )
+  );
 }
 
-// ─── WORD OF DAY ──────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   IDIOM OF DAY
+═══════════════════════════════════════════════════════════ */
+function IdiomOfDay({langCode, t}) {
+  const [cat,setCat]         = useState(IDIOM_CATS[0]);
+  const [data,setData]       = useState(null);
+  const [loading,setLoading] = useState(false);
+  const lang = LANGUAGES.find(l=>l.code===langCode);
 
-function WordOfDay() {
-  const langs = Object.keys(LANGUAGES)
-  const [active, setActive] = useState("dutch")
-  const [data, setData] = useState({})
-  const [loading, setLoading] = useState({})
-  const [saved, setSaved] = useState({})
-
-  const fetchWOD = useCallback(
-    async lang => {
-      if (data[lang] || loading[lang]) return
-      setLoading(p => ({ ...p, [lang]: true }))
-      const cached = await loadWODCache()
-      if (cached?.words?.[lang]) {
-        setData(p => ({ ...p, [lang]: cached.words[lang] }))
-        setLoading(p => ({ ...p, [lang]: false }))
-        return
-      }
-      try {
-        const L = LANGUAGES[lang]
-        const text = await ai(
-          [{ role: "user", content: `Give me an interesting, vivid ${L.name} word of the day for a language learner. Respond ONLY as valid JSON with these exact fields: {"word":"...","phonetic":"...","translation":"...","example_native":"...","example_english":"...","fun_fact":"..."}` }],
-          null,
-          400
-        )
-        const parsed = JSON.parse(text.replace(/```json|```/g, "").trim())
-        setData(p => ({ ...p, [lang]: parsed }))
-        const cur = await loadWODCache()
-        await saveWODCache({ words: { ...(cur?.words || {}), [lang]: parsed } })
-      } catch {
-        setData(p => ({ ...p, [lang]: { word: "–", phonetic: "", translation: "Could not load today's word", example_native: "", example_english: "", fun_fact: "" } }))
-      }
-      setLoading(p => ({ ...p, [lang]: false }))
-    },
-    [data, loading]
-  )
-
-  useEffect(() => { fetchWOD(active) }, [active])
-
-  const d = data[active]
-  const L = LANGUAGES[active]
-
-  const saveToNB = async () => {
-    if (!d || saved[active]) return
-    await addWord("adult", { word: d.word, phonetic: d.phonetic, translation: d.translation, context: d.example_native, language: active, langFlag: L.flag })
-    setSaved(p => ({ ...p, [active]: true }))
-  }
+  useEffect(()=>{
+    const cached = loadIdiom(cat);
+    if (cached) { setData(cached); return; }
+    setLoading(true);
+    ai([{role:"user",content:`Give me a ${cat}-themed idiom in ${lang?.name||langCode}. Reply ONLY valid JSON with these keys: phrase (in ${lang?.name||langCode}), meaning (in English), example (sentence in ${lang?.name||langCode}).`}],
+       "You are a language expert. Output only valid JSON, no markdown.",200)
+      .then(raw=>{ const m=raw.match(/\{[\s\S]*\}/); if(m){const d=JSON.parse(m[0]);saveIdiom(cat,d);setData(d);} })
+      .catch(()=>{})
+      .finally(()=>setLoading(false));
+  },[cat,langCode]);
 
   return (
-    <div className="scr">
-      <h2 className="sh">Word of the Day</h2>
-      <p className="ss">A fresh word each day — tap any language to load it</p>
-      <div className="wod-ltabs">
-        {langs.map(k => (
-          <button key={k} className={`wod-ltab${active === k ? " on" : ""}`} onClick={() => setActive(k)}>
-            {LANGUAGES[k].flag} {LANGUAGES[k].name}
-          </button>
+    <div className="idiom-card">
+      <h3>💬 {t.idiomOfDay}</h3>
+      <div className="idiom-cat-tabs">
+        {IDIOM_CATS.map(c=>(
+          <button key={c} className={`idiom-cat-btn${cat===c?" active":""}`}
+            onClick={()=>{ setCat(c); setData(null); sfx.click(); }}>{c}</button>
         ))}
       </div>
-      <div className="wod-card">
-        {loading[active] && (
-          <div className="loading-row">
-            <Dots /> Fetching today's {L.name} word…
-          </div>
-        )}
-        {!loading[active] && d && (
-          <>
-            <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 8 }}>
-              {L.flag} {L.name} · {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long" })}
-            </div>
-            <div className="wod-word">{d.word}</div>
-            {d.phonetic && <div className="wod-ph">/{d.phonetic}/</div>}
-            <div className="wod-tr">{d.translation}</div>
-            {d.example_native && (
-              <div className="wod-ex">
-                <div style={{ marginBottom: 4 }}>{d.example_native}</div>
-                <div style={{ color: "var(--muted)", fontSize: 13, fontStyle: "italic" }}>{d.example_english}</div>
-              </div>
-            )}
-            {d.fun_fact && <div className="wod-fact">💡 {d.fun_fact}</div>}
-            <button className="wod-save" onClick={saveToNB}>
-              {saved[active] ? "✓ Saved to notebook" : "📌 Save to notebook"}
-            </button>
-          </>
-        )}
-      </div>
+      {loading && <div className="card-loading"><Dots/></div>}
+      {!loading && data && <>
+        <div className="idiom-phrase">
+          {data.phrase}
+          <button className="tts-btn" onClick={()=>speak(data.phrase,lang?.tts||"en-US")}>🔊</button>
+        </div>
+        <div className="idiom-meaning">{data.meaning}</div>
+        {data.example && <div className="idiom-ex">{data.example}</div>}
+      </>}
     </div>
-  )
+  );
 }
 
-// ─── ADULT NOTEBOOK ───────────────────────────────────────────────────────────
-
-function AdultNotebook({ refresh }) {
-  const [entries, setEntries] = useState([])
-  const [filter, setFilter] = useState("all")
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    loadNB("adult").then(e => { setEntries(e); setLoaded(true) })
-  }, [refresh])
-
-  const del = async id => setEntries(await delWord("adult", id))
-  const langs = ["all", ...Object.keys(LANGUAGES).filter(k => entries.some(e => e.language === k))]
-  const filtered = filter === "all" ? entries : entries.filter(e => e.language === filter)
+/* ═══════════════════════════════════════════════════════════
+   ADULT NOTEBOOK
+═══════════════════════════════════════════════════════════ */
+function AdultNotebook({t}) {
+  const [words,setWords] = useState(loadNB());
+  const reload = () => setWords(loadNB());
+  const due    = getDueWords(words);
+  const errs   = getErrors().slice(0,8);
 
   return (
-    <div className="scr">
-      <h2 className="sh">Vocabulary Notebook</h2>
-      <p className="ss">{entries.length} saved word{entries.length !== 1 ? "s" : ""}</p>
-      {langs.length > 1 && (
-        <div className="nb-filters">
-          {langs.map(k => (
-            <button key={k} className={`nbf${filter === k ? " on" : ""}`} onClick={() => setFilter(k)}>
-              {k === "all" ? "All" : LANGUAGES[k]?.flag + " " + LANGUAGES[k]?.name}
-            </button>
+    <div className="notebook">
+      {due.length>0 && (
+        <div className="nudge-banner">
+          🔔 {due.length} word{due.length>1?"s":""} {t.dueReview}:&nbsp;
+          {due.slice(0,3).map(w=>w.text).join(", ")}{due.length>3?"…":""}
+        </div>
+      )}
+      {words.length===0 && <p style={{color:"var(--muted)",fontSize:"0.86rem",padding:"6px 2px"}}>{t.noWords}</p>}
+      {words.map((w,i)=>{
+        const isDue = w.nextReview && new Date(w.nextReview)<=new Date();
+        return (
+          <div key={i} className="nb-word">
+            <span className="word-text">{w.text}{isDue && <span className="due-badge">review</span>}</span>
+            <span className="word-lang">{w.lang}</span>
+            <button className="tts-btn" onClick={()=>speak(w.text,LANGUAGES.find(x=>x.code===w.lang)?.tts||"en-US")}>🔊</button>
+            <button className="del-btn" onClick={()=>{ delAdultWord(w.text); reload(); }}>✕</button>
+          </div>
+        );
+      })}
+      {errs.length>0 && (
+        <div className="error-section">
+          <h3>{t.errorPatterns}</h3>
+          {errs.map((e,i)=>(
+            <div key={i} className="err-item">
+              <span className="fix-err">{e.err}</span>{" → "}
+              <span className="err-ok">{e.fix}</span>
+              {e.tip && <div style={{marginTop:2,fontSize:"0.74rem"}}>{e.tip}</div>}
+            </div>
           ))}
         </div>
       )}
-      {loaded && filtered.length === 0 && (
-        <div className="nb-empty">
-          <div className="ei">📓</div>
-          <p>{entries.length === 0 ? "Start a conversation and tap 📌 to save words!" : "No words for this language yet."}</p>
-        </div>
-      )}
-      <div className="wcs">
-        {filtered.map(e => (
-          <div key={e.id} className="wc">
-            <div className="wc-flag">{e.langFlag || "🌍"}</div>
-            <div className="wc-b">
-              <div className="wc-w">{e.word}</div>
-              {e.phonetic && <div className="wc-ph">/{e.phonetic}/</div>}
-              {e.translation && <div className="wc-tr">{e.translation}</div>}
-              {e.context && <div className="wc-ctx">{e.context}</div>}
-              <div className="wc-meta">{e.language ? LANGUAGES[e.language]?.name : ""} · {e.date}</div>
-            </div>
-            <button className="wc-del" onClick={() => del(e.id)}>×</button>
-          </div>
-        ))}
-      </div>
     </div>
-  )
+  );
 }
 
-// ─── ADULT CHAT ───────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════
+   ADULT CHAT
+═══════════════════════════════════════════════════════════ */
+function AdultChat({lang, scenario, t, onStars}) {
+  const [msgs,setMsgs]               = useState([]);
+  const [input,setInput]             = useState("");
+  const [loading,setLoading]         = useState(false);
+  const [savedIdx,setSavedIdx]       = useState(new Set());
+  const [summary,setSummary]         = useState("");
+  const [summLoading,setSummLoading] = useState(false);
+  const [saveInput,setSaveInput]     = useState({idx:-1,val:""});
+  const bottomRef = useRef();
+  const langObj   = LANGUAGES.find(l=>l.code===lang);
 
-function AdultChat({ lang, scenario, onNotebookSave }) {
-  const L = LANGUAGES[lang]
-  const [msgs, setMsgs] = useState([])
-  const [inp, setInp] = useState("")
-  const [busy, setBusy] = useState(false)
-  const [panels, setPanels] = useState({})
-  const [modal, setModal] = useState(null)
-  const endRef = useRef(null)
+  useEffect(()=>{
+    setMsgs([]); setSummary(""); setSavedIdx(new Set()); setSaveInput({idx:-1,val:""});
+  },[lang,scenario]);
 
-  const sys = `You are a native ${L.name} speaker in scenario: "${scenario}".
-- Reply mainly in ${L.name} (natural everyday speech, not textbook)
-- Add subtle English hints in parentheses only when the learner clearly struggles
-- Keep replies to 2-3 sentences max — real dialogue
-- Correct errors gently inline; no grammar lectures
-- Stay in character for the scenario
-Start the conversation naturally.`
+  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[msgs,loading]);
 
-  useEffect(() => { start() }, [])
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }) }, [msgs, busy, panels])
+  const sysPrompt = `You are a friendly ${langObj?.name} language tutor doing a roleplay scenario: "${scenario}".
+Respond primarily in ${langObj?.name} at an intermediate B1-B2 level. Keep replies to 2-4 short sentences.
+If the user makes a language error, append EXACTLY this block at the very end of your reply (after all other text):
+<fix>{"err":"[their exact error]","fix":"[correct form]","tip":"[brief tip in English]"}</fix>
+Omit the <fix> block entirely when there are no errors.`;
 
-  const toApi = ms => ms.map(m => ({ role: m.role, content: m.text }))
-
-  const start = async () => {
-    setBusy(true)
+  async function send() {
+    if (!input.trim()||loading) return;
+    sfx.send(); haptic([15]);
+    const userMsg = {role:"user",content:input.trim()};
+    const newMsgs = [...msgs,userMsg];
+    setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
-      const t = await ai([{ role: "user", content: "Start the conversation." }], sys, 400)
-      setMsgs([{ role: "assistant", text: t, id: 1 }])
-    } catch {
-      setMsgs([{ role: "assistant", text: "Connection error. Try again.", id: 1 }])
+      const apiMsgs = newMsgs.map(m=>({role:m.role,content:m.rawContent||m.content}));
+      const raw = await ai(apiMsgs,sysPrompt);
+      const {text,fix} = parseAiResponse(raw);
+      if (fix) addError(fix);
+      setMsgs(m=>[...m,{role:"assistant",content:text,rawContent:raw,fix}]);
+      const newTotal = addStarsTo(2); onStars?.(newTotal);
+      if (langObj) speak(text,langObj.tts,0.92);
+    } catch(e) {
+      setMsgs(m=>[...m,{role:"assistant",content:`Error: ${e.message}`}]);
     }
-    setBusy(false)
+    setLoading(false);
   }
 
-  const send = async () => {
-    if (!inp.trim() || busy) return
-    const um = { role: "user", text: inp.trim(), id: Date.now() }
-    const next = [...msgs, um]
-    setMsgs(next)
-    setInp("")
-    setBusy(true)
+  async function getSessionSummary() {
+    if (msgs.length<2) return;
+    setSummLoading(true);
+    const transcript = msgs.map(m=>`${m.role}: ${m.rawContent||m.content}`).join("\n");
     try {
-      const t = await ai(toApi(next), sys, 400)
-      setMsgs(p => [...p, { role: "assistant", text: t, id: Date.now() + 1 }])
-    } catch {
-      setMsgs(p => [...p, { role: "assistant", text: "Error. Try again.", id: Date.now() }])
-    }
-    setBusy(false)
+      const s = await ai(
+        [{role:"user",content:`Summarise this language learning chat in 4-5 bullet points covering: topics discussed, vocabulary used, grammar practiced, and overall progress. Be concise and encouraging.\n\n${transcript}`}],
+        "You are a language learning coach.",350
+      );
+      setSummary(s);
+    } catch {}
+    setSummLoading(false);
   }
 
-  const togglePanel = async (id, text, type) => {
-    if (panels[id]?.type === type) {
-      setPanels(p => { const n = { ...p }; delete n[id]; return n })
-      return
-    }
-    setPanels(p => ({ ...p, [id]: { type, loading: true, content: "" } }))
-    try {
-      let content
-      if (type === "translation") {
-        content = await ai([{ role: "user", content: `Translate this ${L.name} text to English. Translation only, nothing else:\n"${text}"` }], null, 300)
-      } else {
-        const raw = await ai(
-          [{ role: "user", content: `For this ${L.name} text, give a pronunciation guide for an English-speaking beginner. Respond ONLY as valid JSON: {"phonetic":"simplified phonetic spelling","tips":"1-2 key pronunciation tips","sounds":"one tricky sound to watch"}\nText: "${text}"` }],
-          null,
-          300
-        )
-        try { content = JSON.parse(raw.replace(/```json|```/g, "").trim()) } catch { content = { phonetic: "", tips: raw, sounds: "" } }
-      }
-      setPanels(p => ({ ...p, [id]: { type, loading: false, content } }))
-    } catch {
-      setPanels(p => ({ ...p, [id]: { type, loading: false, content: "Could not load." } }))
-    }
+  function openSave(i,text) {
+    const firstWord = text.split(/[\s,!?.]+/).find(w=>w.length>1)||text.slice(0,30);
+    setSaveInput({idx:i,val:firstWord});
   }
-
-  const doSave = async entry => { await addWord("adult", { ...entry }); onNotebookSave?.() }
-
-  return (
-    <div className="cshell">
-      <div className="cinfo">
-        <span>{L.flag} {L.name}</span>
-        <span className="ctag">{scenario}</span>
-        <span style={{ marginLeft: "auto", fontSize: 12 }}>Tap a message for translation, pronunciation & save</span>
-      </div>
-      <div className="cmsgs">
-        {msgs.map(m => (
-          <div key={m.id} className={`mrow ${m.role}`}>
-            <div className="mav">{m.role === "user" ? "👤" : L.flag}</div>
-            <div className="mcol">
-              <div className="bub">{m.text}</div>
-              {m.role === "assistant" && (
-                <div className="macts">
-                  <button className={`mact${panels[m.id]?.type === "translation" ? " on" : ""}`} onClick={() => togglePanel(m.id, m.text, "translation")}>🇬🇧 Translate</button>
-                  <button className={`mact${panels[m.id]?.type === "pronunciation" ? " on" : ""}`} onClick={() => togglePanel(m.id, m.text, "pronunciation")}>🔊 Pronunciation</button>
-                  <button className="mact" onClick={() => setModal({ text: m.text })}>📌 Save</button>
-                </div>
-              )}
-              {panels[m.id] && (
-                <div className="mpanel">
-                  {panels[m.id].loading && <Dots />}
-                  {!panels[m.id].loading && panels[m.id].type === "translation" && (
-                    <><div className="plabel">English Translation</div>{panels[m.id].content}</>
-                  )}
-                  {!panels[m.id].loading && panels[m.id].type === "pronunciation" && (() => {
-                    const c = panels[m.id].content
-                    return (
-                      <>
-                        <div className="plabel">Pronunciation Guide</div>
-                        {c.phonetic && <div className="pph">/{c.phonetic}/</div>}
-                        {c.tips && <div className="ptip">{c.tips}</div>}
-                        {c.sounds && <div className="ptip" style={{ marginTop: 6 }}>🎯 Watch out for: {c.sounds}</div>}
-                      </>
-                    )
-                  })()}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-        {busy && (
-          <div className="mrow assistant">
-            <div className="mav">{L.flag}</div>
-            <div className="mcol"><div className="bub"><Dots /></div></div>
-          </div>
-        )}
-        <div ref={endRef} />
-      </div>
-      <div className="hints">
-        {(HINTS[lang] || []).map(h => (
-          <button key={h} className="hchip" onClick={() => setInp(h)}>{h}</button>
-        ))}
-      </div>
-      <div className="iarea">
-        <div className="irow">
-          <textarea
-            className="cinput"
-            value={inp}
-            rows={1}
-            onChange={e => setInp(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send() } }}
-            placeholder={`Type in ${L.name}…`}
-          />
-          <button className="sbtn-send" onClick={send} disabled={busy || !inp.trim()}>↑</button>
-        </div>
-      </div>
-      {modal && (
-        <SaveModal
-          sourceText={modal.text}
-          language={lang}
-          langFlag={L.flag}
-          mode="adult"
-          onSave={doSave}
-          onClose={() => setModal(null)}
-        />
-      )}
-    </div>
-  )
-}
-
-// ─── KIDS NOTEBOOK ────────────────────────────────────────────────────────────
-
-function KidsNotebook({ refresh }) {
-  const [entries, setEntries] = useState([])
-  const [loaded, setLoaded] = useState(false)
-
-  useEffect(() => {
-    loadNB("kids").then(e => { setEntries(e); setLoaded(true) })
-  }, [refresh])
-
-  const del = async id => setEntries(await delWord("kids", id))
-
-  return (
-    <div className="knb">
-      <h2>My Word Book</h2>
-      <p>Words you've saved from your chats with Ollie! ⭐</p>
-      {loaded && entries.length === 0 && (
-        <div className="knempty">
-          <div className="ei">📖</div>
-          <p>Chat with Ollie and tap "Save a word!" to start your collection!</p>
-        </div>
-      )}
-      {entries.map(e => (
-        <div key={e.id} className="kwcard">
-          <div className="kwe">{e.emoji || "⭐"}</div>
-          <div className="kwb">
-            <div className="kww">{e.word}</div>
-            {e.context && <div className="kwd">{e.context}</div>}
-            <div className="kwdate">Saved on {e.date}</div>
-          </div>
-          <button className="kwdel" onClick={() => del(e.id)}>×</button>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-// ─── KIDS CHAT ────────────────────────────────────────────────────────────────
-
-function KidsChat({ topic, onKidsSave }) {
-  const T = KIDS_TOPICS.find(t => t.id === topic)
-  const [msgs, setMsgs] = useState([])
-  const [inp, setInp] = useState("")
-  const [busy, setBusy] = useState(false)
-  const [modal, setModal] = useState(null)
-  const endRef = useRef(null)
-
-  const sys = `You are Ollie the Owl 🦉, a warm and enthusiastic English tutor for children aged 5–12.
-Topic: ${T.label} (${T.emoji})
-- Be super encouraging, use emojis! 🎉
-- Introduce 2-3 words at a time with fun, simple examples
-- For Story Time: build a story together with the child
-- Celebrate with "Brilliant! 🌟", "Amazing! 💪", "Great job! 🎊"
-- Keep replies to 2-4 sentences; always end with ONE simple question
-- Correct mistakes very gently: "I love that! We say 'X' — try it?"
-Start with a fun, warm intro for ${T.label}!`
-
-  useEffect(() => { start() }, [])
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }) }, [msgs, busy])
-
-  const start = async () => {
-    setBusy(true)
-    try {
-      const t = await ai([{ role: "user", content: "Start!" }], sys, 300)
-      setMsgs([{ role: "assistant", text: t, id: 1 }])
-    } catch {
-      setMsgs([{ role: "assistant", text: "Hoot hoot! 🦉 Trouble connecting. Try again!", id: 1 }])
+  function commitSave(i) {
+    const word = saveInput.val.trim();
+    if (!word) return;
+    if (addAdultWord(word,lang)) {
+      sfx.save(); haptic([20,10,20]);
+      setSavedIdx(s=>new Set([...s,i]));
+      const newTotal = addStarsTo(5); onStars?.(newTotal);
     }
-    setBusy(false)
+    setSaveInput({idx:-1,val:""});
   }
-
-  const send = async () => {
-    if (!inp.trim() || busy) return
-    const um = { role: "user", text: inp.trim(), id: Date.now() }
-    const next = [...msgs, um]
-    setMsgs(next)
-    setInp("")
-    setBusy(true)
-    try {
-      const t = await ai(next.map(m => ({ role: m.role, content: m.text })), sys, 300)
-      setMsgs(p => [...p, { role: "assistant", text: t, id: Date.now() + 1 }])
-    } catch {
-      setMsgs(p => [...p, { role: "assistant", text: "Oops! 🦉 Let's try again!", id: Date.now() }])
-    }
-    setBusy(false)
-  }
-
-  const doSave = async entry => { await addWord("kids", { ...entry, emoji: T.emoji }); onKidsSave?.() }
-
-  return (
-    <div className="kcshell">
-      <div className="kmsgs">
-        {msgs.map(m => (
-          <div key={m.id} className={`kmsg ${m.role}`}>
-            {m.role === "assistant" && (
-              <div className="kav" style={{ background: "#F4E4CC" }}>
-                <OllieAvatar size={38} />
-              </div>
-            )}
-            {m.role === "user" && (
-              <div className="kav" style={{ background: "#B7C9DC", fontSize: 18 }}>🧒</div>
-            )}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: m.role === "user" ? "flex-end" : "flex-start" }}>
-              <div className="kbub">{m.text}</div>
-              {m.role === "assistant" && (
-                <button className="ksavebtn" onClick={() => setModal({ text: m.text })}>⭐ Save a word!</button>
-              )}
-            </div>
-          </div>
-        ))}
-        {busy && (
-          <div className="kmsg assistant">
-            <div className="kav" style={{ background: "#F4E4CC" }}>
-              <OllieAvatar size={38} />
-            </div>
-            <div className="kbub" style={{ paddingTop: 8, paddingBottom: 8 }}>
-              <Dots kids />
-            </div>
-          </div>
-        )}
-        <div ref={endRef} />
-      </div>
-      <div className="kiarea">
-        <div className="kirow">
-          <input
-            className="kinput"
-            value={inp}
-            onChange={e => setInp(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter") send() }}
-            placeholder="Type here… ✏️"
-          />
-          <button className="ksendbtn" style={{ background: T.color }} onClick={send} disabled={busy || !inp.trim()}>↑</button>
-        </div>
-      </div>
-      {modal && (
-        <SaveModal
-          sourceText={modal.text}
-          mode="kids"
-          onSave={doSave}
-          onClose={() => setModal(null)}
-        />
-      )}
-    </div>
-  )
-}
-
-// ─── ADULT MODE ───────────────────────────────────────────────────────────────
-
-function AdultMode({ onBack }) {
-  const [tab, setTab] = useState("converse")
-  const [lang, setLang] = useState(null)
-  const [scenario, setScenario] = useState(null)
-  const [inChat, setInChat] = useState(false)
-  const [nbV, setNbV] = useState(0)
-
-  if (inChat && lang && scenario) {
-    return (
-      <div className="shell">
-        <div className="topbar">
-          <div className="topbar-logo">✦</div>
-          <span className="topbar-title">Lingua — {LANGUAGES[lang].flag} {LANGUAGES[lang].name}</span>
-          <button className="ghost" onClick={() => setInChat(false)}>← Scenarios</button>
-          <button className="ghost" onClick={onBack}>Home</button>
-        </div>
-        <AdultChat lang={lang} scenario={scenario} onNotebookSave={() => setNbV(v => v + 1)} />
-      </div>
-    )
-  }
-
-  return (
-    <div className="shell">
-      <div className="topbar">
-        <div className="topbar-logo">✦</div>
-        <span className="topbar-title">Lingua</span>
-        <button className="ghost" onClick={onBack}>← Home</button>
-      </div>
-      <div className="tabs">
-        {[["converse", "💬 Converse"], ["wod", "🌟 Word of Day"], ["notebook", "📓 Notebook"]].map(([k, l]) => (
-          <button key={k} className={`tab${tab === k ? " on" : ""}`} onClick={() => setTab(k)}>{l}</button>
-        ))}
-      </div>
-      {tab === "converse" && (
-        <div className="scr">
-          <h2 className="sh">Choose a language</h2>
-          <p className="ss">8 languages · 8 scenarios each · real conversation</p>
-          <div className="lgrid">
-            {Object.entries(LANGUAGES).map(([k, v]) => (
-              <div
-                key={k}
-                className={`lcard${lang === k ? " on" : ""}`}
-                style={lang === k ? { borderColor: v.accent, boxShadow: `0 4px 20px ${v.accent}30` } : {}}
-                onClick={() => { setLang(k); setScenario(null) }}
-              >
-                <span className="lflag">{v.flag}</span>
-                <div className="linfo"><h4>{v.name}</h4><span>{v.native}</span></div>
-              </div>
-            ))}
-          </div>
-          {lang && (
-            <>
-              <h3 style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, color: "var(--cream)", marginBottom: 14 }}>
-                Pick a scenario
-              </h3>
-              <div className="sgrid">
-                {LANGUAGES[lang].scenarios.map(s => (
-                  <button key={s} className={`sbtn${scenario === s ? " on" : ""}`} onClick={() => setScenario(s)}>{s}</button>
-                ))}
-              </div>
-            </>
-          )}
-          <button className="cta" disabled={!lang || !scenario} onClick={() => setInChat(true)}>
-            Start conversation →
-          </button>
-        </div>
-      )}
-      {tab === "wod"      && <WordOfDay />}
-      {tab === "notebook" && <AdultNotebook refresh={nbV} />}
-    </div>
-  )
-}
-
-// ─── KIDS MODE ────────────────────────────────────────────────────────────────
-
-function KidsMode({ onBack }) {
-  const [tab, setTab] = useState("learn")
-  const [topic, setTopic] = useState(null)
-  const [nbV, setNbV] = useState(0)
-
-  return (
-    <div className="ks">
-      <div className="kh">
-        <button
-          className="ghost"
-          style={{ background: "rgba(255,255,255,.1)", color: "white", borderColor: "rgba(255,255,255,.2)", fontSize: 12, padding: "5px 10px" }}
-          onClick={onBack}
-        >
-          ← Home
-        </button>
-        <div className="kh-brand">
-          <OllieAvatar size={28} />
-          <span>Ollie's English World</span>
-        </div>
-        {topic && (
-          <button
-            className="ghost"
-            style={{ background: "rgba(255,255,255,.1)", color: "white", borderColor: "rgba(255,255,255,.2)", fontSize: 12, padding: "5px 10px" }}
-            onClick={() => setTopic(null)}
-          >
-            ← Topics
-          </button>
-        )}
-      </div>
-      <div className="ktabs">
-        <button className={`ktab${tab === "learn" ? " on" : ""}`} onClick={() => { setTab("learn"); setTopic(null) }}>📚 Learn</button>
-        <button className={`ktab${tab === "words" ? " on" : ""}`} onClick={() => { setTab("words"); setTopic(null) }}>⭐ My Words</button>
-      </div>
-      {tab === "learn" && !topic && (
-        <>
-          <div className="kwel">
-            <h1>What shall we learn today?</h1>
-            <p>Pick a topic and chat with Ollie 🦉</p>
-          </div>
-          <div className="ktgrid">
-            {KIDS_TOPICS.map(t => (
-              <button key={t.id} className="tcard" style={{ background: t.color }} onClick={() => setTopic(t.id)}>
-                <span className="temoji">{t.emoji}</span>
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-      {tab === "learn" && topic && <KidsChat topic={topic} onKidsSave={() => setNbV(v => v + 1)} />}
-      {tab === "words" && <KidsNotebook refresh={nbV} />}
-    </div>
-  )
-}
-
-// ─── APP ──────────────────────────────────────────────────────────────────────
-
-export default function App() {
-  const [mode, setMode] = useState(null)
 
   return (
     <>
-      <style>{CSS}</style>
-      <button className="update-btn" onClick={() => window.location.reload(true)} title="Reload to get latest version">⟳ Update</button>
-      {mode === "adult" && <AdultMode onBack={() => setMode(null)} />}
-      {mode === "kids"  && <KidsMode  onBack={() => setMode(null)} />}
-      {!mode && (
-        <div className="landing">
-          <div className="l-grid" />
-          <div className="l-orb1" /><div className="l-orb2" />
-          <div className="logo-row">
-            <div className="logo-icon">✦</div>
-            <div className="logo-name">Lingua</div>
-          </div>
-          <h1 className="l-h1">Learn to <em>speak</em>,<br />not just study.</h1>
-          <p className="l-sub">
-            Conversation-first language learning for your whole family. Real dialogues, daily vocabulary,
-            pronunciation guides, and a personal notebook — no streaks, no gamification.
+      <div className="chat-area">
+        {msgs.length===0 && (
+          <p style={{color:"var(--muted)",fontSize:"0.86rem",textAlign:"center",marginTop:24}}>
+            {t.startChat}
           </p>
-          <div className="p-cards">
-            <div className="p-card" onClick={() => setMode("kids")}>
-              <span className="ce">🦉</span>
-              <h3>Kids Mode</h3>
-              <p>English vocabulary &amp; fun dialogues with Ollie the Owl. 12 topics, word book included.</p>
-            </div>
-            <div className="p-card" onClick={() => setMode("adult")}>
-              <span className="ce">✈️</span>
-              <h3>Adult Mode</h3>
-              <p>8 languages. Real-life scenarios. Pronunciation guides, translations &amp; a personal notebook.</p>
-            </div>
+        )}
+        {msgs.map((m,i)=>(
+          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
+            {m.content}
+            {m.role==="assistant" && (
+              <button className="tts-btn" onClick={()=>speak(m.content,langObj?.tts||"en-US")}>🔊</button>
+            )}
+            {m.fix && (
+              <div className="fix-pill">
+                <span className="fix-label">{t.fix}:</span>
+                <span className="fix-err">{m.fix.err}</span>
+                <span>→</span>
+                <span className="fix-ok">{m.fix.fix}</span>
+                {m.fix.tip && <span className="fix-tip">({m.fix.tip})</span>}
+              </div>
+            )}
+            {m.role==="assistant" && (
+              savedIdx.has(i)
+                ? <span style={{fontSize:"0.73rem",color:"var(--green)",marginTop:5,display:"block"}}>✓ {t.saved}</span>
+                : saveInput.idx===i
+                  ? <div style={{display:"flex",gap:5,marginTop:6,alignItems:"center"}}>
+                      <input
+                        style={{flex:1,padding:"4px 8px",borderRadius:7,background:"var(--surf)",border:"1px solid var(--border)",color:"var(--text)",fontSize:"0.8rem"}}
+                        value={saveInput.val}
+                        onChange={e=>setSaveInput(s=>({...s,val:e.target.value}))}
+                        onKeyDown={e=>{if(e.key==="Enter")commitSave(i);}}
+                        autoFocus
+                      />
+                      <button className="action-btn primary" style={{padding:"4px 9px"}} onClick={()=>commitSave(i)}>✓</button>
+                      <button className="action-btn" style={{padding:"4px 9px"}} onClick={()=>setSaveInput({idx:-1,val:""})}>✕</button>
+                    </div>
+                  : <button className="action-btn" style={{marginTop:5,fontSize:"0.73rem"}} onClick={()=>openSave(i,m.content)}>
+                      💾 {t.save}
+                    </button>
+            )}
           </div>
-          <div className="l-langs">
-            🇳🇱 Dutch · 🇮🇹 Italian · 🇫🇷 French · 🇪🇸 Spanish · 🇩🇪 German · 🇵🇹 Portuguese · 🇯🇵 Japanese · 🇨🇳 Mandarin
-          </div>
+        ))}
+        {loading && <div className="bubble ai"><Dots/></div>}
+        <div ref={bottomRef}/>
+      </div>
+
+      {summary && (
+        <div className="summary-box">
+          <h3>📋 {t.summary}</h3>
+          <div style={{whiteSpace:"pre-wrap"}}>{summary}</div>
         </div>
       )}
+
+      <div className="chat-input">
+        <textarea
+          value={input}
+          onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}
+          placeholder={t.startChat}
+          rows={1}
+        />
+        <button className="send-btn" onClick={send} disabled={loading||!input.trim()}>{t.send}</button>
+      </div>
+      <div className="chat-actions">
+        {msgs.length>0 && (
+          <button className="action-btn" onClick={()=>{setMsgs([]);setSummary("");setSavedIdx(new Set());setSaveInput({idx:-1,val:""});sfx.click();}}>
+            {t.clear}
+          </button>
+        )}
+        {msgs.filter(m=>m.role==="assistant").length>=2 && (
+          <button className="action-btn" onClick={getSessionSummary} disabled={summLoading}>
+            {summLoading ? <Dots/> : `📋 ${t.summary}`}
+          </button>
+        )}
+      </div>
     </>
-  )
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADULT MODE
+═══════════════════════════════════════════════════════════ */
+function AdultMode({t, onStars, stars}) {
+  const [tab,setTab]         = useState("chat");
+  const [lang,setLang]       = useState("es");
+  const [scenIdx,setScenIdx] = useState(0);
+  const langObj = LANGUAGES.find(l=>l.code===lang);
+
+  return (
+    <>
+      <LevelBadge stars={stars}/>
+      <div className="tabs">
+        {[["chat",t.chat],["notebook",t.notebook],["wod",t.wordOfDay],["idiom",t.idiomOfDay]].map(([k,label])=>(
+          <button key={k} className={`tab-btn${tab===k?" active":""}`} onClick={()=>{setTab(k);sfx.click();}}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab==="chat" && <>
+        <div className="selectors">
+          <div className="sel-group">
+            <label>{t.language}</label>
+            <select value={lang} onChange={e=>{setLang(e.target.value);setScenIdx(0);}}>
+              {LANGUAGES.map(l=><option key={l.code} value={l.code}>{l.name}</option>)}
+            </select>
+          </div>
+          <div className="sel-group">
+            <label>{t.scenario}</label>
+            <select value={scenIdx} onChange={e=>setScenIdx(+e.target.value)}>
+              {langObj?.scenarios.map((s,i)=><option key={i} value={i}>{s}</option>)}
+            </select>
+          </div>
+        </div>
+        <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} t={t} onStars={onStars}/>
+      </>}
+
+      {tab==="notebook" && <AdultNotebook t={t}/>}
+      {tab==="wod"      && <WordOfDay langCode={lang} t={t}/>}
+      {tab==="idiom"    && <IdiomOfDay langCode={lang} t={t}/>}
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KIDS NOTEBOOK
+═══════════════════════════════════════════════════════════ */
+function KidsNotebook({t}) {
+  const [words,setWords] = useState(loadKNB());
+  const reload = () => setWords(loadKNB());
+  return (
+    <div className="notebook">
+      {words.length===0 && <p style={{color:"var(--muted)",fontSize:"0.86rem"}}>{t.noWords}</p>}
+      {words.map((w,i)=>(
+        <div key={i} className="nb-word">
+          <span className="word-text">{w.text}</span>
+          <span className="word-lang">{w.lang}</span>
+          <button className="tts-btn" onClick={()=>speak(w.text,KIDS_LANGS.find(l=>l.code===w.lang)?.tts||"en-US")}>🔊</button>
+          <button className="del-btn" onClick={()=>{ saveKNB(loadKNB().filter(x=>x.text!==w.text)); reload(); }}>✕</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FLASHCARDS  (SM-2, flip + type-it)
+═══════════════════════════════════════════════════════════ */
+function FlashCards({words: initWords, t, onDone}) {
+  const [queue]              = useState([...initWords].sort(()=>Math.random()-.5));
+  const [idx,setIdx]         = useState(0);
+  const [flipped,setFlipped] = useState(false);
+  const [mode,setMode]       = useState("flip");
+  const [typeVal,setTypeVal] = useState("");
+  const [typeResult,setTypeResult] = useState(null);
+
+  const current = queue[idx];
+  if (!current) return (
+    <div style={{padding:28,textAlign:"center",color:"var(--muted)",fontSize:"1.1rem"}}>
+      {t.allDone} 🎉
+    </div>
+  );
+
+  /* front = translation (cue), back = target word (answer) */
+  const front   = current.transl || current.text || "";
+  const back    = current.word   || current.text || "";
+  const answer  = back.toLowerCase().trim();
+
+  function advance(quality) {
+    /* persist SM-2 into adult notebook if word exists there */
+    const nb = loadNB();
+    const entry = nb.find(w=>w.text===back);
+    if (entry && quality!==undefined) saveNB(nb.map(w=>w.text===back?sm2Update(w,quality):w));
+    if (quality===2) sfx.correct(); else if (quality===0) sfx.wrong(); else sfx.click();
+    setFlipped(false); setTypeVal(""); setTypeResult(null);
+    if (idx+1>=queue.length) onDone?.(); else setIdx(i=>i+1);
+  }
+
+  function checkType() {
+    const ok = typeVal.trim().toLowerCase()===answer;
+    setTypeResult(ok?"ok":"err");
+    if (ok) { sfx.correct(); haptic([30,10,30]); } else { sfx.wrong(); haptic([50]); }
+  }
+
+  return (
+    <div className="fc-wrap">
+      <div className="fc-prog">{idx+1} / {queue.length}</div>
+
+      <div className="fc-mode-btns">
+        <button className={`action-btn${mode==="flip"?" primary":""}`}
+          onClick={()=>{setMode("flip");setFlipped(false);setTypeResult(null);sfx.click();}}>
+          {t.flip}
+        </button>
+        <button className={`action-btn${mode==="type"?" primary":""}`}
+          onClick={()=>{setMode("type");setFlipped(false);setTypeResult(null);sfx.click();}}>
+          {t.typeIt}
+        </button>
+      </div>
+
+      <div className="fc-container" onClick={()=>{ if(mode==="flip"){sfx.flip();haptic([15]);setFlipped(f=>!f);} }}>
+        <div className={`fc-inner${flipped?" flipped":""}`}>
+          <div className="fc-face fc-front">
+            <div className="fc-word">{front||"—"}</div>
+            <div className="fc-hint">{mode==="flip"?`👆 ${t.flip}`:t.typeIt}</div>
+          </div>
+          <div className="fc-face fc-back">
+            <div className="fc-word">{back||"—"}</div>
+          </div>
+        </div>
+      </div>
+
+      {mode==="flip" && flipped && (
+        <div className="fc-sm2-btns">
+          <button className="fc-sm2-btn hard" onClick={()=>advance(0)}>{t.hard}</button>
+          <button className="fc-sm2-btn good" onClick={()=>advance(1)}>{t.good}</button>
+          <button className="fc-sm2-btn easy" onClick={()=>advance(2)}>{t.easy}</button>
+        </div>
+      )}
+
+      {mode==="type" && !typeResult && (
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+          <input className="fc-type-input" value={typeVal}
+            onChange={e=>setTypeVal(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter")checkType();}}
+            placeholder="Type the word…" autoFocus/>
+          <button className="fc-check-btn" onClick={checkType}>{t.good}</button>
+        </div>
+      )}
+
+      {mode==="type" && typeResult && (
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+          <div className={`dict-result ${typeResult}`}>
+            {typeResult==="ok"?`✓ ${t.correct}`:`✗ ${t.tryAgain}: "${back}"`}
+          </div>
+          <button className="fc-check-btn" onClick={()=>advance(typeResult==="ok"?2:0)}>{t.next}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SET EDITOR
+═══════════════════════════════════════════════════════════ */
+function SetEditor({set: initSet, t, onSave, onCancel}) {
+  const [name,setName]   = useState(initSet?.name||"");
+  const [words,setWords] = useState(initSet?.words||[{word:"",transl:""}]);
+  const fileRef = useRef();
+
+  const addRow     = ()       => setWords(w=>[...w,{word:"",transl:""}]);
+  const updateRow  = (i,f,v)  => setWords(w=>w.map((r,j)=>j===i?{...r,[f]:v}:r));
+  const removeRow  = (i)      => setWords(w=>w.filter((_,j)=>j!==i));
+
+  function importFile(e) {
+    const file=e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      const rows = ev.target.result.split("\n").filter(Boolean).map(line=>{
+        const p = line.split(/[,\t]/);
+        return {word:(p[0]||"").trim(),transl:(p[1]||"").trim()};
+      }).filter(r=>r.word);
+      setWords(r=>[...r.filter(x=>x.word||x.transl),...rows]);
+    };
+    reader.readAsText(file);
+    e.target.value="";
+  }
+
+  function save() {
+    const clean = words.filter(w=>w.word.trim());
+    if (!name.trim()||clean.length===0) return;
+    const sets = loadVSets();
+    if (initSet) {
+      saveVSets(sets.map(s=>s.id===initSet.id?{...s,name,words:clean}:s));
+    } else {
+      sets.unshift({id:Date.now().toString(),name,words:clean,created:new Date().toISOString()});
+      saveVSets(sets);
+    }
+    sfx.save(); haptic([20,10,20]); onSave?.();
+  }
+
+  return (
+    <div className="set-editor">
+      <input className="se-input" placeholder={t.setName} value={name} onChange={e=>setName(e.target.value)}/>
+      <button className="import-btn" onClick={()=>fileRef.current.click()}>
+        📂 {t.import} (.txt / .csv — word,translation per line)
+      </button>
+      <input ref={fileRef} type="file" accept=".txt,.csv" style={{display:"none"}} onChange={importFile}/>
+      {words.map((row,i)=>(
+        <div key={i} className="word-row">
+          <input placeholder={t.wordLabel} value={row.word} onChange={e=>updateRow(i,"word",e.target.value)}/>
+          <input placeholder={t.translLabel} value={row.transl} onChange={e=>updateRow(i,"transl",e.target.value)}/>
+          <button className="del-btn" onClick={()=>removeRow(i)}>✕</button>
+        </div>
+      ))}
+      <button className="action-btn" style={{marginTop:5}} onClick={addRow}>+ {t.addWord}</button>
+      <div className="se-footer">
+        <button className="se-btn" onClick={onCancel}>{t.cancel}</button>
+        <button className="se-btn primary" onClick={save}>{t.done}</button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OLLIE PRACTICE  (for vocab sets)
+═══════════════════════════════════════════════════════════ */
+function OlliePractice({words, kidLang, t, onDone}) {
+  const [msgs,setMsgs]           = useState([]);
+  const [input,setInput]         = useState("");
+  const [loading,setLoading]     = useState(false);
+  const [ollieAnim,setOllieAnim] = useState(false);
+  const bottomRef = useRef();
+  const langObj = KIDS_LANGS.find(l=>l.code===kidLang)||KIDS_LANGS[0];
+  const wordList = words.map(w=>w.word+(w.transl?` (${w.transl})`:"")).join(", ");
+
+  const system = `You are Ollie, a friendly robot tutor. Practice these vocabulary words with the child: ${wordList}.
+Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. Keep it A1-A2 level. Be very encouraging!`;
+
+  function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
+
+  useEffect(()=>{
+    setLoading(true);
+    ai([{role:"user",content:"Start! Greet the child warmly and ask your first question about one of the vocabulary words."}],system,180)
+      .then(text=>{ setMsgs([{role:"assistant",content:text}]); bounce(); speak(text,langObj.tts,0.85); })
+      .catch(()=>{}).finally(()=>setLoading(false));
+  },[]);
+
+  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[msgs,loading]);
+
+  async function send() {
+    if (!input.trim()||loading) return;
+    sfx.send(); haptic([15]);
+    const newMsgs=[...msgs,{role:"user",content:input.trim()}];
+    setMsgs(newMsgs); setInput(""); setLoading(true);
+    try {
+      const raw=await ai(newMsgs,system,180);
+      setMsgs(m=>[...m,{role:"assistant",content:raw}]); bounce(); speak(raw,langObj.tts,0.85);
+    } catch {}
+    setLoading(false);
+  }
+
+  const lastAi = msgs.filter(m=>m.role==="assistant").slice(-1)[0];
+
+  return (
+    <>
+      <div className="ollie-block">
+        <OllieAvatar animate={ollieAnim}/>
+        {loading&&!msgs.length
+          ? <div className="ollie-speech"><Dots/></div>
+          : lastAi && <div className="ollie-speech">{lastAi.content}</div>}
+      </div>
+      <div className="chat-area" style={{maxHeight:190}}>
+        {msgs.slice(0,-1).map((m,i)=>(
+          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>{m.content}</div>
+        ))}
+        {loading&&msgs.length>0 && <div className="bubble ai"><Dots/></div>}
+        <div ref={bottomRef}/>
+      </div>
+      <div className="chat-input">
+        <textarea value={input} onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}
+          placeholder="Answer Ollie…" rows={1}/>
+        <button className="send-btn" onClick={send} disabled={loading||!input.trim()}>{t.send}</button>
+      </div>
+      <div className="chat-actions">
+        <button className="action-btn" onClick={onDone}>← {t.back}</button>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   VOCAB SETS HUB
+═══════════════════════════════════════════════════════════ */
+function VocabSets({t, kidLang}) {
+  const [view,setView]               = useState("list");
+  const [editTarget,setEditTarget]   = useState(null);
+  const [flashTarget,setFlashTarget] = useState(null);
+  const [practTarget,setPractTarget] = useState(null);
+  const [listKey,setListKey]         = useState(0);
+  const reload = () => setListKey(k=>k+1);
+
+  if (view==="edit") return (
+    <SetEditor set={editTarget} t={t}
+      onSave={()=>{ setView("list"); reload(); }}
+      onCancel={()=>setView("list")}/>
+  );
+  if (view==="flash"&&flashTarget) return (
+    <>
+      <div style={{padding:"10px 12px",display:"flex",alignItems:"center",gap:10}}>
+        <button className="action-btn" onClick={()=>setView("list")}>← {t.back}</button>
+        <span style={{fontWeight:600,fontSize:"0.88rem"}}>{flashTarget.name}</span>
+      </div>
+      <FlashCards words={flashTarget.words} t={t} onDone={()=>setView("list")}/>
+    </>
+  );
+  if (view==="practice"&&practTarget) return (
+    <OlliePractice words={practTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")}/>
+  );
+
+  const sets = loadVSets();
+  return (
+    <div className="vs-list" key={listKey}>
+      <div style={{display:"flex",gap:8,marginBottom:10}}>
+        <button className="action-btn primary"
+          onClick={()=>{ setEditTarget(null); setView("edit"); sfx.click(); }}>
+          + {t.newSet}
+        </button>
+      </div>
+      {sets.length===0 && (
+        <p style={{color:"var(--muted)",fontSize:"0.86rem"}}>No sets yet — create one to get started!</p>
+      )}
+      {sets.map(s=>(
+        <div key={s.id} className="vs-item">
+          <span className="vs-name">{s.name}</span>
+          <span className="vs-count">{s.words.length} words</span>
+          <div className="vs-actions">
+            <button className="vs-btn" title={t.flashcards}
+              onClick={()=>{ setFlashTarget(s); setView("flash"); sfx.click(); }}>🃏</button>
+            <button className="vs-btn" title={t.practice}
+              onClick={()=>{ setPractTarget(s); setView("practice"); sfx.click(); }}>🤖</button>
+            <button className="vs-btn" title={t.editSet}
+              onClick={()=>{ setEditTarget(s); setView("edit"); sfx.click(); }}>✏️</button>
+            <button className="vs-btn danger" title={t.deleteSet}
+              onClick={()=>{
+                if (confirm(`Delete "${s.name}"?`)) {
+                  saveVSets(loadVSets().filter(x=>x.id!==s.id));
+                  reload(); sfx.click();
+                }
+              }}>🗑</button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KIDS CHAT
+═══════════════════════════════════════════════════════════ */
+function KidsChat({topic, kidLang, t, onStars}) {
+  const [msgs,setMsgs]             = useState([]);
+  const [input,setInput]           = useState("");
+  const [loading,setLoading]       = useState(false);
+  const [listenMode,setListenMode] = useState(false);
+  const [dictVal,setDictVal]       = useState("");
+  const [dictResult,setDictResult] = useState(null);
+  const [currentAi,setCurrentAi]   = useState("");
+  const [ollieAnim,setOllieAnim]   = useState(false);
+  const [savedSet,setSavedSet]     = useState(new Set());
+  const bottomRef = useRef();
+  const langObj = KIDS_LANGS.find(l=>l.code===kidLang)||KIDS_LANGS[0];
+
+  useEffect(()=>{
+    setMsgs([]); setCurrentAi(""); setDictVal(""); setDictResult(null); setListenMode(false);
+  },[topic,kidLang]);
+
+  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[msgs,loading]);
+
+  const system = `You are Ollie, a fun robot friend teaching kids ${langObj.name}! Today's topic: "${topic}".
+Use short, simple ${langObj.name} sentences (A1 level). Mix in English for brand-new words like: *word* (English meaning).
+Reply in 1-2 sentences max. Use LOTS of emojis 🎉. Be super enthusiastic and encouraging!`;
+
+  function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
+
+  useEffect(()=>{
+    if (!topic) return;
+    setLoading(true);
+    ai([{role:"user",content:"Start! Introduce yourself and the topic in a super fun way."}],system,150)
+      .then(text=>{ setMsgs([{role:"assistant",content:text}]); setCurrentAi(text); bounce(); speak(text,langObj.tts,0.85); })
+      .catch(()=>{}).finally(()=>setLoading(false));
+  },[topic,kidLang]);
+
+  async function send() {
+    if (!input.trim()||loading) return;
+    sfx.send(); haptic([15]);
+    const newMsgs=[...msgs,{role:"user",content:input.trim()}];
+    setMsgs(newMsgs); setInput(""); setLoading(true);
+    try {
+      const raw=await ai(newMsgs,system,150);
+      setMsgs(m=>[...m,{role:"assistant",content:raw}]);
+      setCurrentAi(raw); bounce(); speak(raw,langObj.tts,0.85);
+      const newTotal=addStarsTo(3); onStars?.(newTotal);
+    } catch {}
+    setLoading(false);
+  }
+
+  function checkDictation() {
+    const norm = s=>s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,"").trim();
+    const ok   = norm(dictVal)===norm(currentAi);
+    setDictResult(ok?"ok":"err");
+    if (ok) { sfx.correct(); haptic([30,10,30]); } else { sfx.wrong(); haptic([50]); }
+  }
+
+  const lastAi = msgs.filter(m=>m.role==="assistant").slice(-1)[0];
+
+  return (
+    <>
+      <div className="ollie-block">
+        <OllieAvatar animate={ollieAnim}/>
+        {loading&&!msgs.length
+          ? <div className="ollie-speech"><Dots/></div>
+          : lastAi && <div className="ollie-speech">{lastAi.content}</div>}
+      </div>
+
+      {currentAi && (
+        <div className="listen-strip">
+          <button className={`listen-btn${listenMode?" active":""}`}
+            onClick={()=>{ setListenMode(l=>!l); setDictVal(""); setDictResult(null); sfx.click(); }}>
+            🎧 {t.listenMode}
+          </button>
+          <button className="listen-btn" onClick={()=>speak(currentAi,langObj.tts,0.82)}>
+            {t.speakBtn}
+          </button>
+        </div>
+      )}
+
+      {listenMode && currentAi && (
+        <div className="dictation-area">
+          <button style={{fontSize:"0.82rem",color:"var(--teal)",marginBottom:6,display:"block"}}
+            onClick={()=>speak(currentAi,langObj.tts,0.72)}>
+            🔊 Hear it again (slower)
+          </button>
+          <input className="dictation-input" value={dictVal}
+            onChange={e=>setDictVal(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter")checkDictation();}}
+            placeholder="Type what you heard…"/>
+          <button className="fc-check-btn" onClick={checkDictation}>{t.good}</button>
+          {dictResult && (
+            <div className={`dict-result ${dictResult}`} style={{marginTop:6}}>
+              {dictResult==="ok"?`✓ ${t.correct}!`:`✗ It was: "${currentAi}"`}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="chat-area" style={{minHeight:100}}>
+        {msgs.slice(0,-1).map((m,i)=>(
+          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
+            {m.content}
+            {m.role==="assistant" && !savedSet.has(i) && (
+              <button className="action-btn" style={{marginTop:4,fontSize:"0.7rem"}} onClick={()=>{
+                const kn=loadKNB();
+                const snippet=m.content.slice(0,60);
+                if (!kn.find(w=>w.text===snippet)) {
+                  kn.unshift({text:snippet,lang:kidLang,date:new Date().toISOString()});
+                  saveKNB(kn); sfx.save(); haptic([20]);
+                  setSavedSet(s=>new Set([...s,i]));
+                }
+              }}>💾</button>
+            )}
+            {m.role==="assistant"&&savedSet.has(i) && (
+              <span style={{fontSize:"0.7rem",color:"var(--green)",marginTop:4,display:"block"}}>✓</span>
+            )}
+          </div>
+        ))}
+        {loading && <div className="bubble ai"><Dots/></div>}
+        <div ref={bottomRef}/>
+      </div>
+
+      <div className="chat-input">
+        <textarea value={input} onChange={e=>setInput(e.target.value)}
+          onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}
+          placeholder={t.startChat} rows={1}/>
+        <button className="send-btn" onClick={send} disabled={loading||!input.trim()}>{t.send}</button>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KIDS MODE
+═══════════════════════════════════════════════════════════ */
+function KidsMode({t, onStars}) {
+  const [tab,setTab]         = useState("chat");
+  const [kidLang,setKidLang] = useState(loadLS(SK_KIDLG,"en"));
+  const [topic,setTopic]     = useState(KIDS_TOPICS[0]);
+
+  function selectLang(code) { setKidLang(code); saveLS(SK_KIDLG,code); sfx.click(); haptic([15]); }
+
+  return (
+    <div className="kids-wrap">
+      <div style={{background:"var(--surf2)",borderBottom:"1px solid var(--border)",padding:"8px 14px 10px"}}>
+        <p style={{fontSize:"0.75rem",color:"var(--muted)",marginBottom:6}}>{t.pickLanguage}</p>
+        <div className="kids-lang-pick">
+          {KIDS_LANGS.map(l=>(
+            <button key={l.code} className={`kids-lang-btn${kidLang===l.code?" active":""}`}
+              onClick={()=>selectLang(l.code)}>{l.name}</button>
+          ))}
+        </div>
+      </div>
+
+      <div className="tabs">
+        {[["chat",t.chat],["notebook",t.notebook],["vocab",t.vocabSets]].map(([k,label])=>(
+          <button key={k} className={`tab-btn${tab===k?" active":""}`} onClick={()=>{setTab(k);sfx.click();}}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab==="chat" && <>
+        <div className="topic-grid">
+          {KIDS_TOPICS.map(tp=>(
+            <button key={tp} className={`topic-btn${topic===tp?" active":""}`}
+              onClick={()=>{ setTopic(tp); sfx.click(); haptic([15]); }}>{tp}</button>
+          ))}
+        </div>
+        <KidsChat topic={topic} kidLang={kidLang} t={t} onStars={onStars}/>
+      </>}
+
+      {tab==="notebook" && <KidsNotebook t={t}/>}
+      {tab==="vocab"    && <VocabSets t={t} kidLang={kidLang}/>}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ROOT APP
+═══════════════════════════════════════════════════════════ */
+export default function App() {
+  const [mode,setMode]     = useState("adult");
+  const [uiLang,setUiLang] = useState(loadLS(SK_UILNG,"EN"));
+  const [stars,setStars]   = useState(getStarsData().total);
+
+  const t = T[uiLang] || T.EN;
+
+  function handleStars(newTotal) {
+    setStars(newTotal);
+    sfx.star(); haptic([20,10,20,10,40]);
+  }
+
+  return (
+    <Ctx.Provider value={{t,uiLang,setUiLang}}>
+      <style>{CSS}</style>
+      <div className="app">
+
+        <div className="top-bar">
+          <h1>Lingua 🌍</h1>
+          <div className="top-bar-right">
+            <UiLangPicker uiLang={uiLang} setUiLang={setUiLang}/>
+            <div className="mode-switch">
+              <button className={`mode-btn${mode==="adult"?" active":""}`}
+                onClick={()=>{ setMode("adult"); sfx.click(); }}>
+                {t.adultMode}
+              </button>
+              <button className={`mode-btn${mode==="kids"?" active":""}`}
+                onClick={()=>{ setMode("kids"); sfx.click(); }}>
+                {t.kidsMode}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {mode==="adult" && <AdultMode t={t} onStars={handleStars} stars={stars}/>}
+        {mode==="kids"  && <KidsMode  t={t} onStars={handleStars}/>}
+
+        <button className="update-btn" onClick={()=>window.location.reload(true)}>⟳ Update</button>
+      </div>
+    </Ctx.Provider>
+  );
 }
