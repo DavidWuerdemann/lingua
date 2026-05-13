@@ -1070,35 +1070,60 @@ function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
   const LANG_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
 
   async function importFile(e) {
-    const file = e.target.files[0]; if(!file) return;
-    const rawText = await file.text();
+    const file = e.target.files[0]; if (!file) return;
+    setImporting(true);          // show spinner immediately
     e.target.value = "";
-    if (!rawText.trim()) return;
-    setImporting(true);
-    const targetLangName = LANGUAGES.find(l=>l.code===targetLang)?.name || "English";
-    const nativeLangName = LANG_NAMES[nativeLang] || "English";
-    const prompt = `Parse this vocabulary list. The learner studies ${targetLangName} and their native language is ${nativeLangName}.
-For each entry put the ${targetLangName} word/phrase in "word" and the ${nativeLangName} meaning in "transl".
-If a translation is missing, generate the ${nativeLangName} translation yourself.
-Return ONLY a JSON array, no markdown: [{"word":"...","transl":"..."},...]
 
-Input:
-${rawText.slice(0,3000)}`;
-    try {
-      const raw = await ai([{role:"user",content:prompt}],"Parse vocabulary lists. Output only valid JSON.",500);
-      const m = raw.match(/\[[\s\S]*\]/);
-      if (m) {
-        const rows = JSON.parse(m[0]).filter(r=>r.word);
-        setWords(prev=>[...prev.filter(x=>x.word||x.transl),...rows]);
-      }
-    } catch {
-      // fallback: simple split on common delimiters
-      const rows = rawText.split("\n").filter(Boolean).map(line=>{
-        const p = line.split(/[,\t;|]/);
-        return {word:(p[0]||"").trim(),transl:(p[1]||"").trim()};
-      }).filter(r=>r.word);
-      setWords(prev=>[...prev.filter(x=>x.word||x.transl),...rows]);
+    let rawText = "";
+    try { rawText = await file.text(); } catch { setImporting(false); return; }
+    if (!rawText.trim()) { setImporting(false); return; }
+
+    // ── Phase 1: parse right away — no AI needed ────────────────────────────
+    const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const DELIMS = ["\t", ";", "|", ","];
+    const best   = DELIMS
+      .map(d => ({ d, n: lines.filter(l => l.includes(d)).length }))
+      .sort((a, b) => b.n - a.n)[0];
+    const delim  = best.n >= Math.max(1, lines.length * 0.3) ? best.d : null;
+
+    const newRows = delim
+      ? lines.map(line => {
+          const p = line.split(delim);
+          return { word: (p[0]||"").trim(), transl: (p[1]||"").trim() };
+        }).filter(r => r.word)
+      : lines.map(line => ({ word: line, transl: "" })).filter(r => r.word);
+
+    if (newRows.length === 0) { setImporting(false); return; }
+
+    // Snapshot current rows and show new ones immediately
+    const existingRows = words.filter(x => x.word || x.transl);
+    setWords([...existingRows, ...newRows]);
+
+    // ── Phase 2: AI fills missing translations ───────────────────────────────
+    if (newRows.some(r => !r.transl)) {
+      const targetLangName = LANGUAGES.find(l => l.code === targetLang)?.name || "English";
+      const nativeLangName = LANG_NAMES[nativeLang] || "English";
+      try {
+        const wordList = newRows.slice(0, 80).map((r, i) => `${i}:${r.word}`).join("\n");
+        const raw = await ai(
+          [{ role: "user", content:
+            `Translate these ${targetLangName} words/phrases into ${nativeLangName}.\n` +
+            `Return ONLY a JSON array like: [{"i":0,"t":"translation"},...]\n\n${wordList}`
+          }],
+          "Output only a valid JSON array with i (index) and t (translation) fields. No markdown.",
+          2000
+        );
+        const m = raw.match(/\[[\s\S]*\]/);
+        if (m) {
+          const updates = JSON.parse(m[0]);
+          const map = {};
+          updates.forEach(u => { if (typeof u.i === "number" && u.t) map[u.i] = String(u.t); });
+          const enriched = newRows.map((r, i) => ({ ...r, transl: map[i] ?? r.transl }));
+          setWords([...existingRows, ...enriched]);
+        }
+      } catch { /* words already displayed — translations just won't be filled */ }
     }
+
     setImporting(false);
   }
 
