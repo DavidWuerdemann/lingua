@@ -45,7 +45,7 @@ const T = {
     kidsWordBook:"⭐ My Word Book",kidsWordBookSub:"Words you've saved with Ollie!",
     kidsWordBookEmpty:"Chat and tap 💾 to start your collection!",
     kidsRecent:"Recent",kidsIdiomSub:"Cool phrases Ollie loves 🦉",
-    hearIt:"🔊 Hear it!",
+    hearIt:"🔊 Hear it!",nativeLang:"My native language",
   },
   DE:{
     adultMode:"Erwachsenen",kidsMode:"Kinder",chat:"Chat",notebook:"Notizbuch",
@@ -80,7 +80,7 @@ const T = {
     kidsWordBook:"⭐ Mein Wörterbuch",kidsWordBookSub:"Wörter, die du mit Ollie gespeichert hast!",
     kidsWordBookEmpty:"Chatte und tippe 💾 um deine Sammlung zu starten!",
     kidsRecent:"Zuletzt",kidsIdiomSub:"Coole Phrasen, die Ollie liebt 🦉",
-    hearIt:"🔊 Anhören!",
+    hearIt:"🔊 Anhören!",nativeLang:"Meine Muttersprache",
   },
   NL:{
     adultMode:"Volwassen",kidsMode:"Kinderen",chat:"Chat",notebook:"Notitieboek",
@@ -115,7 +115,7 @@ const T = {
     kidsWordBook:"⭐ Mijn Woordenboek",kidsWordBookSub:"Woorden die je met Ollie hebt opgeslagen!",
     kidsWordBookEmpty:"Chat en tik 💾 om je collectie te starten!",
     kidsRecent:"Recent",kidsIdiomSub:"Coole uitdrukkingen die Ollie geweldig vindt 🦉",
-    hearIt:"🔊 Beluisteren!",
+    hearIt:"🔊 Beluisteren!",nativeLang:"Mijn moedertaal",
   },
   FR:{
     adultMode:"Adultes",kidsMode:"Enfants",chat:"Chat",notebook:"Carnet",
@@ -150,7 +150,7 @@ const T = {
     kidsWordBook:"⭐ Mon Carnet de Mots",kidsWordBookSub:"Les mots que tu as sauvegardés avec Ollie !",
     kidsWordBookEmpty:"Discute et appuie sur 💾 pour commencer ta collection !",
     kidsRecent:"Récent",kidsIdiomSub:"Des expressions sympas qu'Ollie adore 🦉",
-    hearIt:"🔊 Écouter !",
+    hearIt:"🔊 Écouter !",nativeLang:"Ma langue maternelle",
   },
   ES:{
     adultMode:"Adultos",kidsMode:"Niños",chat:"Chat",notebook:"Cuaderno",
@@ -185,7 +185,7 @@ const T = {
     kidsWordBook:"⭐ Mi Libro de Palabras",kidsWordBookSub:"¡Palabras que has guardado con Ollie!",
     kidsWordBookEmpty:"¡Chatea y toca 💾 para empezar tu colección!",
     kidsRecent:"Reciente",kidsIdiomSub:"Frases geniales que le encantan a Ollie 🦉",
-    hearIt:"🔊 ¡Escúchalo!",
+    hearIt:"🔊 ¡Escúchalo!",nativeLang:"Mi lengua materna",
   },
 };
 
@@ -254,6 +254,7 @@ const SK_IDIOM = "lingua_idiom";
 const SK_VSETS = "lingua_vsets";
 const SK_UILNG = "lingua_uilang";
 const SK_KIDLG = "lingua_kidlang";
+const SK_NATLNG = "lingua_native_lang";
 
 /* ─────────────────────────────────────────────────────────────
    STORAGE UTILITIES
@@ -847,6 +848,20 @@ function UiLangPicker({uiLang, setUiLang}) {
   );
 }
 
+function NativeLangPicker() {
+  const {nativeLang, setNativeLang} = useContext(Ctx);
+  return (
+    <div className="ui-lang-picker">
+      {UI_LANGS_LIST.map(l=>(
+        <button key={l} className={`ui-lang-btn${nativeLang===l?" active":""}`}
+          onClick={()=>{ setNativeLang(l); sfx.click(); }}>
+          {l}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function LevelBadge({stars}) {
   const lvl  = computeLevel(stars);
   const name = LEVEL_NAMES[lvl];
@@ -962,27 +977,50 @@ function FlashCards({words: initWords, t, onDone}) {
 /* ═══════════════════════════════════════════════════════════
    SET EDITOR
 ═══════════════════════════════════════════════════════════ */
-function SetEditor({set: initSet, t, onSave, onCancel}) {
-  const [name,setName]   = useState(initSet?.name||"");
-  const [words,setWords] = useState(initSet?.words||[{word:"",transl:""}]);
+function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
+  const [name,setName]         = useState(initSet?.name||"");
+  const [words,setWords]       = useState(initSet?.words||[{word:"",transl:""}]);
+  const [importing,setImporting] = useState(false);
   const fileRef = useRef();
+  const {nativeLang} = useContext(Ctx);
 
-  const addRow     = ()       => setWords(w=>[...w,{word:"",transl:""}]);
-  const updateRow  = (i,f,v)  => setWords(w=>w.map((r,j)=>j===i?{...r,[f]:v}:r));
-  const removeRow  = (i)      => setWords(w=>w.filter((_,j)=>j!==i));
+  const addRow    = ()      => setWords(w=>[...w,{word:"",transl:""}]);
+  const updateRow = (i,f,v) => setWords(w=>w.map((r,j)=>j===i?{...r,[f]:v}:r));
+  const removeRow = (i)     => setWords(w=>w.filter((_,j)=>j!==i));
 
-  function importFile(e) {
-    const file=e.target.files[0]; if(!file) return;
-    const reader = new FileReader();
-    reader.onload = ev=>{
-      const rows = ev.target.result.split("\n").filter(Boolean).map(line=>{
-        const p = line.split(/[,\t]/);
+  const LANG_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+
+  async function importFile(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const rawText = await file.text();
+    e.target.value = "";
+    if (!rawText.trim()) return;
+    setImporting(true);
+    const targetLangName = LANGUAGES.find(l=>l.code===targetLang)?.name || "English";
+    const nativeLangName = LANG_NAMES[nativeLang] || "English";
+    const prompt = `Parse this vocabulary list. The learner studies ${targetLangName} and their native language is ${nativeLangName}.
+For each entry put the ${targetLangName} word/phrase in "word" and the ${nativeLangName} meaning in "transl".
+If a translation is missing, generate the ${nativeLangName} translation yourself.
+Return ONLY a JSON array, no markdown: [{"word":"...","transl":"..."},...]
+
+Input:
+${rawText.slice(0,3000)}`;
+    try {
+      const raw = await ai([{role:"user",content:prompt}],"Parse vocabulary lists. Output only valid JSON.",500);
+      const m = raw.match(/\[[\s\S]*\]/);
+      if (m) {
+        const rows = JSON.parse(m[0]).filter(r=>r.word);
+        setWords(prev=>[...prev.filter(x=>x.word||x.transl),...rows]);
+      }
+    } catch {
+      // fallback: simple split on common delimiters
+      const rows = rawText.split("\n").filter(Boolean).map(line=>{
+        const p = line.split(/[,\t;|]/);
         return {word:(p[0]||"").trim(),transl:(p[1]||"").trim()};
       }).filter(r=>r.word);
-      setWords(r=>[...r.filter(x=>x.word||x.transl),...rows]);
-    };
-    reader.readAsText(file);
-    e.target.value="";
+      setWords(prev=>[...prev.filter(x=>x.word||x.transl),...rows]);
+    }
+    setImporting(false);
   }
 
   function save() {
@@ -1001,21 +1039,29 @@ function SetEditor({set: initSet, t, onSave, onCancel}) {
   return (
     <div className="set-editor">
       <input className="se-input" placeholder={t.setName} value={name} onChange={e=>setName(e.target.value)}/>
-      <button className="import-btn" onClick={()=>fileRef.current.click()}>
-        📂 {t.import} (.txt / .csv — word,translation per line)
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,fontSize:12,color:"var(--a-muted)"}}>
+        <span>🗣 {LANG_NAMES[nativeLang]||"English"} → {LANGUAGES.find(l=>l.code===targetLang)?.flag||"🌐"} {LANGUAGES.find(l=>l.code===targetLang)?.name||"?"}</span>
+      </div>
+      <button className="import-btn" onClick={()=>fileRef.current.click()} disabled={importing}>
+        {importing ? <><Dots/> AI is reading your list…</> : `📂 ${t.import} — any format, AI auto-detects`}
       </button>
-      <input ref={fileRef} type="file" accept=".txt,.csv" style={{display:"none"}} onChange={importFile}/>
-      {words.map((row,i)=>(
-        <div key={i} className="word-row">
-          <input placeholder={t.wordLabel} value={row.word} onChange={e=>updateRow(i,"word",e.target.value)}/>
-          <input placeholder={t.translLabel} value={row.transl} onChange={e=>updateRow(i,"transl",e.target.value)}/>
-          <button className="del-btn" onClick={()=>removeRow(i)}>✕</button>
-        </div>
-      ))}
-      <button className="action-btn" style={{marginTop:5}} onClick={addRow}>+ {t.addWord}</button>
+      <input ref={fileRef} type="file" accept=".txt,.csv,.tsv" style={{display:"none"}} onChange={importFile}/>
+      {importing
+        ? <div style={{padding:"20px 0",textAlign:"center",color:"var(--a-muted)",fontSize:13}}>
+            <Dots/> Detecting words &amp; translating to {LANG_NAMES[nativeLang]}…
+          </div>
+        : words.map((row,i)=>(
+          <div key={i} className="word-row">
+            <input placeholder={t.wordLabel} value={row.word} onChange={e=>updateRow(i,"word",e.target.value)}/>
+            <input placeholder={t.translLabel} value={row.transl} onChange={e=>updateRow(i,"transl",e.target.value)}/>
+            <button className="del-btn" onClick={()=>removeRow(i)}>✕</button>
+          </div>
+        ))
+      }
+      {!importing && <button className="action-btn" style={{marginTop:5}} onClick={addRow}>+ {t.addWord}</button>}
       <div className="se-footer">
         <button className="se-btn" onClick={onCancel}>{t.cancel}</button>
-        <button className="se-btn primary" onClick={save}>{t.done}</button>
+        <button className="se-btn primary" onClick={save} disabled={importing}>{t.done}</button>
       </div>
     </div>
   );
@@ -1059,18 +1105,16 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
     setLoading(false);
   }
 
-  const lastAi = msgs.filter(m=>m.role==="assistant").slice(-1)[0];
-
   return (
     <>
-      <div className="ollie-block">
-        <OllieAvatar animate={ollieAnim}/>
-        {loading&&!msgs.length
-          ? <div className="ollie-speech"><Dots/></div>
-          : lastAi && <div className="ollie-speech">{lastAi.content}</div>}
-      </div>
-      <div className="chat-area" style={{maxHeight:190}}>
-        {msgs.slice(0,-1).map((m,i)=>(
+      {msgs.length===0 && (
+        <div className="ollie-block">
+          <OllieAvatar animate={ollieAnim}/>
+          {loading && <div className="ollie-speech"><Dots/></div>}
+        </div>
+      )}
+      <div className="chat-area scrollarea" style={{flex:1,overflowY:"auto",minHeight:0,maxHeight:220}}>
+        {msgs.map((m,i)=>(
           <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>{m.content}</div>
         ))}
         {loading&&msgs.length>0 && <div className="bubble ai"><Dots/></div>}
@@ -1079,7 +1123,7 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
       <div className="chat-input">
         <textarea value={input} onChange={e=>setInput(e.target.value)}
           onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}
-          placeholder="Answer Ollie…" rows={1}/>
+          placeholder={t.startChat} rows={1}/>
         <button className="send-btn" onClick={send} disabled={loading||!input.trim()}>{t.send}</button>
       </div>
       <div className="chat-actions">
@@ -1101,7 +1145,7 @@ function VocabSets({t, kidLang}) {
   const reload = () => setListKey(k=>k+1);
 
   if (view==="edit") return (
-    <SetEditor set={editTarget} t={t}
+    <SetEditor set={editTarget} t={t} targetLang={kidLang||"en"}
       onSave={()=>{ setView("list"); reload(); }}
       onCancel={()=>setView("list")}/>
   );
@@ -1218,17 +1262,42 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
     if (ok) { sfx.correct(); haptic([30,10,30]); } else { sfx.wrong(); haptic([50]); }
   }
 
-  const lastAi = msgs.filter(m=>m.role==="assistant").slice(-1)[0];
-
   return (
     <>
-      <div className="ollie-block">
-        <OllieAvatar animate={ollieAnim}/>
-        {loading&&!msgs.length
-          ? <div className="ollie-speech"><Dots/></div>
-          : lastAi && <div className="ollie-speech">{lastAi.content}</div>}
+      {/* Ollie greeting — only while waiting for first message */}
+      {msgs.length===0 && (
+        <div className="ollie-block">
+          <OllieAvatar animate={ollieAnim}/>
+          {loading && <div className="ollie-speech"><Dots/></div>}
+        </div>
+      )}
+
+      {/* Full scrollable chat thread — shows every message */}
+      <div className="chat-area scrollarea" style={{flex:1,overflowY:"auto",minHeight:0}}>
+        {msgs.map((m,i)=>(
+          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
+            {m.content}
+            {m.role==="assistant" && !savedSet.has(i) && (
+              <button className="action-btn" style={{marginTop:4,fontSize:"0.7rem"}} onClick={()=>{
+                const kn=loadKNB();
+                const snippet=m.content.slice(0,60);
+                if (!kn.find(w=>w.text===snippet)) {
+                  kn.unshift({text:snippet,lang:kidLang,date:new Date().toISOString()});
+                  saveKNB(kn); sfx.save(); haptic([20]);
+                  setSavedSet(s=>new Set([...s,i]));
+                }
+              }}>💾</button>
+            )}
+            {m.role==="assistant"&&savedSet.has(i) && (
+              <span style={{fontSize:"0.7rem",color:"var(--green)",marginTop:4,display:"block"}}>✓</span>
+            )}
+          </div>
+        ))}
+        {loading && msgs.length>0 && <div className="bubble ai"><Dots/></div>}
+        <div ref={bottomRef}/>
       </div>
 
+      {/* Listen controls — anchored above input */}
       {currentAi && (
         <div className="listen-strip">
           <button className={`listen-btn${listenMode?" active":""}`}
@@ -1259,30 +1328,6 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
           )}
         </div>
       )}
-
-      <div className="chat-area" style={{minHeight:100}}>
-        {msgs.slice(0,-1).map((m,i)=>(
-          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
-            {m.content}
-            {m.role==="assistant" && !savedSet.has(i) && (
-              <button className="action-btn" style={{marginTop:4,fontSize:"0.7rem"}} onClick={()=>{
-                const kn=loadKNB();
-                const snippet=m.content.slice(0,60);
-                if (!kn.find(w=>w.text===snippet)) {
-                  kn.unshift({text:snippet,lang:kidLang,date:new Date().toISOString()});
-                  saveKNB(kn); sfx.save(); haptic([20]);
-                  setSavedSet(s=>new Set([...s,i]));
-                }
-              }}>💾</button>
-            )}
-            {m.role==="assistant"&&savedSet.has(i) && (
-              <span style={{fontSize:"0.7rem",color:"var(--green)",marginTop:4,display:"block"}}>✓</span>
-            )}
-          </div>
-        ))}
-        {loading && <div className="bubble ai"><Dots/></div>}
-        <div ref={bottomRef}/>
-      </div>
 
       <div className="chat-input">
         <textarea value={input} onChange={e=>setInput(e.target.value)}
@@ -1572,7 +1617,7 @@ function AdultMode({t, stars}) {
       {tab==="notebook" && <AdultNotebookScreen t={t}/>}
       {tab==="wod"      && <WodScreen lang={lang} t={t}/>}
       {tab==="idiom"    && <IdiomScreen lang={lang} t={t}/>}
-      {tab==="vocab"    && <div className="scr"><VocabSets t={t} kidLang="en"/></div>}
+      {tab==="vocab"    && <div className="scr"><VocabSets t={t} kidLang={lang}/></div>}
     </div>
   );
 }
@@ -1860,15 +1905,20 @@ function KidsNotebookScreen({t}) {
    ROOT APP  (new landing page design)
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
-  const [mode,setMode]     = useState(loadLS("lingua_last_mode", null));
-  const [uiLang,setUiLang] = useState(loadLS(SK_UILNG,"EN"));
-  const [stars,setStars]   = useState(getStarsData().total);
+  const [mode,setMode]         = useState(loadLS("lingua_last_mode", null));
+  const [uiLang,setUiLang]     = useState(loadLS(SK_UILNG,"EN"));
+  const [nativeLang,setNativeLang] = useState(loadLS(SK_NATLNG,"EN"));
+  const [stars,setStars]       = useState(getStarsData().total);
   const t = T[uiLang] || T.EN;
 
   function handleStars(newTotal) { setStars(newTotal); sfx.star(); haptic([20,10,20,10,40]); }
   function goMode(m) { setMode(m); saveLS("lingua_last_mode", m); sfx.click(); }
 
-  const ctx = { t, uiLang, setUiLang: (l)=>{ setUiLang(l); saveLS(SK_UILNG,l); }, onBack:()=>{ setMode(null); saveLS("lingua_last_mode",null); } };
+  const ctx = {
+    t, uiLang, setUiLang: (l)=>{ setUiLang(l); saveLS(SK_UILNG,l); },
+    nativeLang, setNativeLang: (l)=>{ setNativeLang(l); saveLS(SK_NATLNG,l); },
+    onBack:()=>{ setMode(null); saveLS("lingua_last_mode",null); }
+  };
 
   return (
     <Ctx.Provider value={ctx}>
@@ -1904,6 +1954,16 @@ export default function App() {
                 </div>
                 <div className="p-card-arr">›</div>
               </button>
+            </div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:18,padding:"14px 0",borderTop:"1px solid var(--a-border)"}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+              <span style={{fontSize:11,color:"var(--a-muted)",fontWeight:600,minWidth:130}}>🌐 {t.uiLang}:</span>
+              <UiLangPicker uiLang={uiLang} setUiLang={ctx.setUiLang}/>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+              <span style={{fontSize:11,color:"var(--a-muted)",fontWeight:600,minWidth:130}}>🗣 {t.nativeLang}:</span>
+              <NativeLangPicker/>
             </div>
           </div>
           <div className="l-langs">🇪🇸 ES · 🇫🇷 FR · 🇩🇪 DE · 🇮🇹 IT · 🇵🇹 PT · 🇳🇱 NL · 🇯🇵 JP · 🇨🇳 ZH</div>
