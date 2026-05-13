@@ -1664,7 +1664,7 @@ function KidsMode({t, onStars}) {
   const [tab,setTab]         = useState("chat");
   const [kidLang,setKidLang] = useState(loadLS(SK_KIDLG,"en"));
   const [topic,setTopic]     = useState(null);
-  const {onBack}             = useContext(Ctx);
+  const {onBack, uiLang, setUiLang} = useContext(Ctx);
   const nbCount              = loadKNB().length;
 
   function selectLang(code) { setKidLang(code); saveLS(SK_KIDLG,code); sfx.click(); haptic([15]); }
@@ -1678,6 +1678,7 @@ function KidsMode({t, onStars}) {
           <span className="kh-title">Ollie's Language World</span>
         </div>
         {topic && <button className="khome-btn" onClick={()=>setTopic(null)}>← Topics</button>}
+        <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
       </div>
 
       <div className="ktabs">
@@ -1787,6 +1788,7 @@ export default function App() {
           <div className="logo-row">
             <div className="logo-icon">✦</div>
             <div className="logo-name">Lingua</div>
+            <UiLangPicker uiLang={uiLang} setUiLang={ctx.setUiLang}/>
           </div>
           <div className="l-hero">
             <h1 className="l-h1">Learn to <em>speak</em>,<br/>not just study.</h1>
