@@ -100,6 +100,8 @@ const T = {
    LANGUAGES  (array, with flag + tts + per-language scenarios)
 ───────────────────────────────────────────────────────────── */
 const LANGUAGES = [
+  {code:"en",flag:"🇬🇧",name:"English",  native:"English",    tts:"en-GB",accent:"#C9943A",
+   scenarios:["Job Interview","Pub Conversation","Business Meeting","Doctor's Visit","Flat Hunting","First Date","At the GP","Networking Event","Customer Service Call","Uni Lecture","Salary Negotiation","Making Small Talk"]},
   {code:"es",flag:"🇪🇸",name:"Spanish",  native:"Español",    tts:"es-ES",accent:"#AA151B",
    scenarios:["At the Tapas Bar","Flamenco Night","Beach Resort","Market Visit","Siesta Chat","Fútbol Talk","Airbnb Host","Local Festival","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
   {code:"fr",flag:"🇫🇷",name:"French",   native:"Français",   tts:"fr-FR",accent:"#0055A4",
@@ -786,9 +788,9 @@ function FlashCards({words: initWords, t, onDone}) {
     </div>
   );
 
-  /* front = translation (cue), back = target word (answer) */
-  const front   = current.transl || current.text || "";
-  const back    = current.word   || current.text || "";
+  /* front = the word to learn, back = its meaning/translation */
+  const front   = current.word   || current.text || "";
+  const back    = current.transl || current.text || "?";
   const answer  = back.toLowerCase().trim();
 
   function advance(quality) {
@@ -1074,27 +1076,33 @@ function KidsChat({topic, kidLang, t, onStars}) {
   const [ollieAnim,setOllieAnim]   = useState(false);
   const [savedSet,setSavedSet]     = useState(new Set());
   const bottomRef = useRef();
-  const langObj = KIDS_LANGS.find(l=>l.code===kidLang)||KIDS_LANGS[0];
+  const {uiLang}  = useContext(Ctx);
+  const langObj   = KIDS_LANGS.find(l=>l.code===kidLang)||KIDS_LANGS[0];
+
+  // Map UI language code to full language name for Ollie's instructions
+  const UI_LANG_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const instrLang = UI_LANG_NAMES[uiLang] || "English";
 
   useEffect(()=>{
     setMsgs([]); setCurrentAi(""); setDictVal(""); setDictResult(null); setListenMode(false);
-  },[topic,kidLang]);
+  },[topic,kidLang,uiLang]);
 
   useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[msgs,loading]);
 
-  const system = `You are Ollie, a fun owl friend teaching kids ${langObj.name}! Today's topic: "${topic}".
-Use short, simple ${langObj.name} sentences (A1 level). Mix in English for brand-new words like: *word* (English meaning).
-Reply in 1-2 sentences max. Use LOTS of emojis 🎉. Be super enthusiastic and encouraging!`;
+  const system = `You are Ollie the owl 🦉, a fun tutor teaching children ${langObj.name}! Topic: "${topic}".
+IMPORTANT: Give ALL explanations and instructions in ${instrLang}. Teach ${langObj.name} words/phrases.
+Rules: max 2 SHORT sentences. Lots of emojis. Super encouraging. Always end with ONE simple question.
+New words: bold them and give the ${instrLang} meaning in brackets like **word** [meaning].`;
 
   function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
 
   useEffect(()=>{
     if (!topic) return;
     setLoading(true);
-    ai([{role:"user",content:"Start! Introduce yourself and the topic in a super fun way."}],system,150)
+    ai([{role:"user",content:"Start now — greet the child and introduce the topic with one fun fact or question!"}],system,120)
       .then(text=>{ setMsgs([{role:"assistant",content:text}]); setCurrentAi(text); bounce(); })
       .catch(()=>{}).finally(()=>setLoading(false));
-  },[topic,kidLang]);
+  },[topic,kidLang,uiLang]);
 
   async function send() {
     if (!input.trim()||loading) return;
@@ -1102,7 +1110,7 @@ Reply in 1-2 sentences max. Use LOTS of emojis 🎉. Be super enthusiastic and e
     const newMsgs=[...msgs,{role:"user",content:input.trim()}];
     setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
-      const raw=await ai(newMsgs,system,150);
+      const raw=await ai(newMsgs,system,120);
       setMsgs(m=>[...m,{role:"assistant",content:raw}]);
       setCurrentAi(raw); bounce();
       const newTotal=addStarsTo(3); onStars?.(newTotal);
@@ -1235,16 +1243,17 @@ function AdultChat({lang, scenario, t}) {
   const endRef = useRef();
   const langObj = LANGUAGES.find(l=>l.code===lang);
 
-  const sysPrompt = `You are a friendly ${langObj?.name} language tutor in scenario: "${scenario}".
-Reply mainly in ${langObj?.name} at B1-B2 level. Keep replies to 2-3 short sentences.
-If the user makes a language error, append EXACTLY this at the very end:
-<fix>{"err":"[their exact error]","fix":"[correct form]","tip":"[brief tip in English]"}</fix>
-Omit the <fix> block when there are no errors.`;
+  const sysPrompt = `You are a native ${langObj?.name} speaker in this real-life scenario: "${scenario}".
+CRITICAL: Reply ONLY in ${langObj?.name}. Max 2 short punchy sentences — this is a live conversation, not a lesson.
+Stay in character, be natural and spontaneous. React to what the user says.
+If they make a grammar/vocabulary error, append this AFTER your reply (no blank line):
+<fix>{"err":"exact wrong phrase","fix":"correct form","tip":"one-line English tip"}</fix>
+No <fix> if no error.`;
 
   useEffect(()=>{
     setMsgs([]); setSummary(""); setInput(""); setPanels({});
     setLoading(true);
-    ai([{role:"user",content:"Start the conversation naturally."}], sysPrompt, 350)
+    ai([{role:"user",content:"Start the conversation right now with one short opening line — stay in character!"}], sysPrompt, 120)
       .then(raw=>{ const {text}=parseAiResponse(raw); setMsgs([{role:"assistant",content:text,id:1}]); })
       .catch(()=>setMsgs([{role:"assistant",content:"Connection error. Please try again.",id:1}]))
       .finally(()=>setLoading(false));
@@ -1259,7 +1268,7 @@ Omit the <fix> block when there are no errors.`;
     const next = [...msgs, userMsg]; setMsgs(next); setInput(""); setLoading(true);
     try {
       const apiMsgs = next.map(m=>({role:m.role,content:m.content}));
-      const raw = await ai(apiMsgs, sysPrompt, 400);
+      const raw = await ai(apiMsgs, sysPrompt, 220);
       const {text,fix} = parseAiResponse(raw);
       if (fix) addError(fix);
       addStarsTo(2);
@@ -1604,6 +1613,53 @@ function IdiomScreen({lang, t}) {
 /* ═══════════════════════════════════════════════════════════
    KIDS MODE  (new shell + all old features)
 ═══════════════════════════════════════════════════════════ */
+function KidsIdiomScreen({kidLang, t}) {
+  const {uiLang} = useContext(Ctx);
+  const KIDS_IDIOM_CATS = ["Animals 🐾","Food 🍕","Weather ☁️","Feelings 😊","Colours 🎨"];
+  const [cat,setCat]         = useState(KIDS_IDIOM_CATS[0]);
+  const [data,setData]       = useState(null);
+  const [loading,setLoading] = useState(false);
+  const langObj = KIDS_LANGS.find(l=>l.code===kidLang)||KIDS_LANGS[0];
+  const UI_LANG_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const instrLang = UI_LANG_NAMES[uiLang]||"English";
+
+  useEffect(()=>{
+    const key = `kids_idiom_${cat}_${kidLang}_${new Date().toISOString().slice(0,10)}`;
+    const cached = loadLS(key,null);
+    if (cached) { setData(cached); return; }
+    setLoading(true);
+    ai([{role:"user",content:`Give a fun, child-friendly ${cat} idiom in ${langObj.name} for kids aged 5-12. Explain it in simple ${instrLang}. JSON only: {"phrase":"...","meaning":"(in ${instrLang}, simple)","example":"(in ${langObj.name}, simple)","emoji":"one emoji"}`}],
+       "You explain idioms to children in a fun way. Output only valid JSON.",180)
+      .then(raw=>{const m=raw.match(/\{[\s\S]*\}/);if(m){const d=JSON.parse(m[0]);saveLS(key,d);setData(d);}})
+      .catch(()=>{}).finally(()=>setLoading(false));
+  },[cat,kidLang,uiLang]);
+
+  return (
+    <div className="knb" style={{overflowY:"auto",flex:1}}>
+      <div className="knb-title">💬 Fun Expressions!</div>
+      <div className="knb-sub">Cool phrases Ollie loves 🦉</div>
+      <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
+        {KIDS_IDIOM_CATS.map(c=>(
+          <button key={c} className={`kids-lang-btn${cat===c?" active":""}`}
+            onClick={()=>{setCat(c);setData(null);sfx.click();}}>
+            {c}
+          </button>
+        ))}
+      </div>
+      {loading && <div style={{padding:20,color:"var(--k-mute)",fontFamily:"var(--k-sans)",fontWeight:700}}><Dots/> Ollie is thinking…</div>}
+      {!loading && data && (
+        <div className="kwcard" style={{flexDirection:"column",gap:8}}>
+          <div style={{fontSize:48,textAlign:"center"}}>{data.emoji}</div>
+          <div style={{fontFamily:"var(--k-display)",fontSize:22,fontWeight:600,color:"var(--k-ink)",textAlign:"center"}}>{data.phrase}</div>
+          <div style={{fontFamily:"var(--k-sans)",fontSize:14,color:"var(--k-inkSoft)",fontWeight:600,textAlign:"center"}}>{data.meaning}</div>
+          {data.example && <div style={{background:"var(--k-paper2)",border:"2px solid var(--k-border)",borderRadius:12,padding:"10px 14px",fontFamily:"var(--k-sans)",fontSize:13,color:"var(--k-ink)",fontWeight:700,marginTop:4}}>{data.example}</div>}
+          <button className="listen-btn" style={{alignSelf:"center",marginTop:4}} onClick={()=>speak(data.phrase,langObj.tts,0.85)}>🔊 Hear it!</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function KidsMode({t, onStars}) {
   const [tab,setTab]         = useState("chat");
   const [kidLang,setKidLang] = useState(loadLS(SK_KIDLG,"en"));
@@ -1625,7 +1681,7 @@ function KidsMode({t, onStars}) {
       </div>
 
       <div className="ktabs">
-        {[["chat","📚 Learn"],["notebook","⭐ "+t.notebook],["vocab","🃏 "+t.vocabSets]].map(([k,l])=>(
+        {[["chat","📚 Learn"],["idiom","💬 Expressions"],["notebook","⭐ "+t.notebook],["vocab","🃏 "+t.vocabSets]].map(([k,l])=>(
           <button key={k} className={`ktab${tab===k?" on":""}`}
             onClick={()=>{setTab(k);setTopic(null);sfx.click();}}>
             {l}
@@ -1676,6 +1732,7 @@ function KidsMode({t, onStars}) {
           )}
         </>
       )}
+      {tab==="idiom"    && <KidsIdiomScreen kidLang={kidLang} t={t}/>}
       {tab==="notebook" && <KidsNotebookScreen t={t}/>}
       {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang}/></div>}
     </div>
@@ -1708,20 +1765,22 @@ function KidsNotebookScreen({t}) {
    ROOT APP  (new landing page design)
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
-  const [mode,setMode]     = useState(null);
+  const [mode,setMode]     = useState(loadLS("lingua_last_mode", null));
   const [uiLang,setUiLang] = useState(loadLS(SK_UILNG,"EN"));
   const [stars,setStars]   = useState(getStarsData().total);
   const t = T[uiLang] || T.EN;
 
   function handleStars(newTotal) { setStars(newTotal); sfx.star(); haptic([20,10,20,10,40]); }
+  function goMode(m) { setMode(m); saveLS("lingua_last_mode", m); sfx.click(); }
 
-  const ctx = { t, uiLang, setUiLang: (l)=>{ setUiLang(l); saveLS(SK_UILNG,l); }, onBack:()=>setMode(null) };
+  const ctx = { t, uiLang, setUiLang: (l)=>{ setUiLang(l); saveLS(SK_UILNG,l); }, onBack:()=>{ setMode(null); saveLS("lingua_last_mode",null); } };
 
   return (
     <Ctx.Provider value={ctx}>
       <style>{CSS}{LOGIN_CSS}</style>
       {mode==="adult" && <AdultMode t={t} stars={stars} onStars={handleStars}/>}
       {mode==="kids"  && <KidsMode  t={t} onStars={handleStars}/>}
+
       {!mode && (
         <div className="landing">
           <div className="l-orb1"/><div className="l-orb2"/>
@@ -1731,21 +1790,21 @@ export default function App() {
           </div>
           <div className="l-hero">
             <h1 className="l-h1">Learn to <em>speak</em>,<br/>not just study.</h1>
-            <p className="l-sub">Conversation-first learning. Vocab sets, spaced repetition, daily words — no streaks, no points.</p>
+            <p className="l-sub">Jump into a real conversation in seconds. No streaks, no points — just talking.</p>
             <div className="p-cards">
-              <button className="p-card" onClick={()=>setMode("adult")}>
+              <button className="p-card" onClick={()=>goMode("adult")}>
                 <div className="p-card-icon adult">✈</div>
                 <div className="p-card-body">
                   <h3>{t.adultMode}</h3>
-                  <p>8 languages · scenarios · flashcards · notebook</p>
+                  <p>9 languages · scenarios · flashcards · notebook</p>
                 </div>
                 <div className="p-card-arr">›</div>
               </button>
-              <button className="p-card" onClick={()=>setMode("kids")}>
+              <button className="p-card" onClick={()=>goMode("kids")}>
                 <div className="p-card-icon kids">🦉</div>
                 <div className="p-card-body">
                   <h3>{t.kidsMode}</h3>
-                  <p>Chat with Ollie · 12 topics · word book</p>
+                  <p>Chat with Ollie · 12 topics · fun expressions</p>
                 </div>
                 <div className="p-card-arr">›</div>
               </button>
