@@ -367,7 +367,14 @@ const haptic = (p=[30]) => { try { navigator.vibrate?.(p); } catch {} };
 function speak(text, lang="en-US", rate=0.95) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
+  // Strip emoji and other pictographic symbols before speaking
+  const clean = text
+    .replace(/\p{Emoji_Presentation}/gu, "")
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  if (!clean) return;
+  const u = new SpeechSynthesisUtterance(clean);
   u.lang=lang; u.rate=rate; u.pitch=1; u.volume=1;
   window.speechSynthesis.speak(u);
 }
