@@ -216,18 +216,18 @@ const KIDS_LANGS = [
 ];
 
 const KIDS_TOPICS = [
-  {id:"animals",   label:"Animals",      emoji:"🐾", color:"#E8B4A0"},
-  {id:"food",      label:"Food & Drink", emoji:"🍎", color:"#F4C28A"},
-  {id:"school",    label:"School Stuff", emoji:"✏️", color:"#B7C9DC"},
-  {id:"body",      label:"Body Parts",   emoji:"🦷", color:"#B9D4B5"},
-  {id:"weather",   label:"Weather",      emoji:"⛅", color:"#F4D998"},
-  {id:"numbers",   label:"Numbers",      emoji:"🔢", color:"#C9B4D6"},
-  {id:"colors",    label:"Colors",       emoji:"🎨", color:"#E8C5BC"},
-  {id:"transport", label:"Transport",    emoji:"🚗", color:"#ACBBC9"},
-  {id:"sports",    label:"Sports",       emoji:"⚽", color:"#A8C4B5"},
-  {id:"stories",   label:"Story Time",   emoji:"📖", color:"#DCC9A8"},
-  {id:"opposites", label:"Opposites",    emoji:"↔️", color:"#C7BBC4"},
-  {id:"free",      label:"Free Chat",    emoji:"💬", color:"#DDB89E"},
+  {id:"animals",   emoji:"🐾", color:"#E8B4A0", labels:{en:"Animals",       es:"Animales",          de:"Tiere"}},
+  {id:"food",      emoji:"🍎", color:"#F4C28A", labels:{en:"Food & Drink",  es:"Comida y bebida",   de:"Essen & Trinken"}},
+  {id:"school",    emoji:"✏️", color:"#B7C9DC", labels:{en:"School Stuff",  es:"La escuela",        de:"Schule"}},
+  {id:"body",      emoji:"🦷", color:"#B9D4B5", labels:{en:"Body Parts",    es:"El cuerpo",         de:"Körperteile"}},
+  {id:"weather",   emoji:"⛅", color:"#F4D998", labels:{en:"Weather",       es:"El tiempo",         de:"Das Wetter"}},
+  {id:"numbers",   emoji:"🔢", color:"#C9B4D6", labels:{en:"Numbers",       es:"Los números",       de:"Zahlen"}},
+  {id:"colors",    emoji:"🎨", color:"#E8C5BC", labels:{en:"Colors",        es:"Los colores",       de:"Farben"}},
+  {id:"transport", emoji:"🚗", color:"#ACBBC9", labels:{en:"Transport",     es:"Transporte",        de:"Verkehrsmittel"}},
+  {id:"sports",    emoji:"⚽", color:"#A8C4B5", labels:{en:"Sports",        es:"Los deportes",      de:"Sport"}},
+  {id:"stories",   emoji:"📖", color:"#DCC9A8", labels:{en:"Story Time",    es:"Cuentos",           de:"Geschichten"}},
+  {id:"opposites", emoji:"↔️", color:"#C7BBC4", labels:{en:"Opposites",     es:"Los contrarios",    de:"Gegensätze"}},
+  {id:"free",      emoji:"💬", color:"#DDB89E", labels:{en:"Free Chat",     es:"Conversación libre",de:"Freies Gespräch"}},
 ];
 
 const IDIOM_CATS = ["Business","Travel","Emotions","Nature","Pop Culture"];
@@ -1921,7 +1921,7 @@ function KidsMode({t, onStars}) {
                   <button key={tp.id} className="tcard" style={{background:tp.color}}
                     onClick={()=>{setTopic(tp);sfx.click();haptic([15]);}}>
                     <span className="temoji">{tp.emoji}</span>
-                    <span>{tp.label}</span>
+                    <span>{tp.labels[kidLang]||tp.labels.en}</span>
                   </button>
                 ))}
               </div>
@@ -1940,7 +1940,7 @@ function KidsMode({t, onStars}) {
               )}
             </div>
           ) : (
-            <KidsChat topic={topic.label} kidLang={kidLang} t={t} onStars={onStars}/>
+            <KidsChat topic={topic.labels[kidLang]||topic.labels.en} kidLang={kidLang} t={t} onStars={onStars}/>
           )}
         </>
       )}
