@@ -30,10 +30,10 @@ const T = {
     // landing
     landingH1:"Learn to <em>speak</em>,<br/>not just study.",
     landingSub:"Jump into a real conversation in seconds. No streaks, no points — just talking.",
-    adultDesc:"9 languages · scenarios · flashcards · notebook",
+    adultDesc:"6 languages · scenarios · flashcards · notebook",
     kidsDesc:"Chat with Ollie · 12 topics · fun expressions",
     // adult mode
-    langSubhead:"Nine languages · scenario-based conversations",
+    langSubhead:"Six languages · scenario-based conversations",
     scenSub:"Each gives you a native partner with real context",
     startConv:"Start conversation →",home:"Home",topics:"Topics",
     translate:"Translate",pronounce:"Pronounce",
@@ -67,9 +67,9 @@ const T = {
     collocations:"Kollokationen",tip:"Tipp",fix:"Korrektur",uiLang:"Sprache",idiomCat:"Kategorie",
     landingH1:"Lern zu <em>sprechen</em>,<br/>nicht nur zu büffeln.",
     landingSub:"Starte ein echtes Gespräch in Sekunden. Kein Streak, keine Punkte — einfach reden.",
-    adultDesc:"9 Sprachen · Szenarien · Karteikarten · Notizbuch",
+    adultDesc:"6 Sprachen · Szenarien · Karteikarten · Notizbuch",
     kidsDesc:"Chat mit Ollie · 12 Themen · witzige Phrasen",
-    langSubhead:"Neun Sprachen · szenariobasierte Gespräche",
+    langSubhead:"Sechs Sprachen · szenariobasierte Gespräche",
     scenSub:"Jedes gibt dir einen Muttersprachler mit echtem Kontext",
     startConv:"Gespräch starten →",home:"Startseite",topics:"Themen",
     translate:"Übersetzen",pronounce:"Aussprache",
@@ -102,9 +102,9 @@ const T = {
     collocations:"Collocaties",tip:"Tip",fix:"Correctie",uiLang:"Taal",idiomCat:"Categorie",
     landingH1:"Leer <em>spreken</em>,<br/>niet alleen studeren.",
     landingSub:"Start in seconden een echt gesprek. Geen reeksen, geen punten — gewoon praten.",
-    adultDesc:"9 talen · scenario's · flashkaarten · notitieboek",
+    adultDesc:"6 talen · scenario's · flashkaarten · notitieboek",
     kidsDesc:"Chat met Ollie · 12 onderwerpen · grappige uitdrukkingen",
-    langSubhead:"Negen talen · scenario-gebaseerde gesprekken",
+    langSubhead:"Zes talen · scenario-gebaseerde gesprekken",
     scenSub:"Elk geeft je een moedertaalspreker in een echte context",
     startConv:"Gesprek starten →",home:"Home",topics:"Onderwerpen",
     translate:"Vertalen",pronounce:"Uitspreken",
@@ -137,9 +137,9 @@ const T = {
     collocations:"Collocations",tip:"Conseil",fix:"Correction",uiLang:"Langue",idiomCat:"Catégorie",
     landingH1:"Apprends à <em>parler</em>,<br/>pas seulement à étudier.",
     landingSub:"Lance une vraie conversation en quelques secondes. Pas de séries, pas de points — juste parler.",
-    adultDesc:"9 langues · scénarios · fiches · carnet",
+    adultDesc:"6 langues · scénarios · fiches · carnet",
     kidsDesc:"Chat avec Ollie · 12 sujets · expressions amusantes",
-    langSubhead:"Neuf langues · conversations par scénario",
+    langSubhead:"Six langues · conversations par scénario",
     scenSub:"Chacun te donne un partenaire natif avec un vrai contexte",
     startConv:"Démarrer la conversation →",home:"Accueil",topics:"Sujets",
     translate:"Traduire",pronounce:"Prononcer",
@@ -172,9 +172,9 @@ const T = {
     collocations:"Colocaciones",tip:"Consejo",fix:"Corrección",uiLang:"Idioma",idiomCat:"Categoría",
     landingH1:"Aprende a <em>hablar</em>,<br/>no sólo a estudiar.",
     landingSub:"Empieza una conversación real en segundos. Sin rachas, sin puntos — solo hablar.",
-    adultDesc:"9 idiomas · escenarios · tarjetas · cuaderno",
+    adultDesc:"6 idiomas · escenarios · tarjetas · cuaderno",
     kidsDesc:"Chat con Ollie · 12 temas · expresiones divertidas",
-    langSubhead:"Nueve idiomas · conversaciones por escenario",
+    langSubhead:"Seis idiomas · conversaciones por escenario",
     scenSub:"Cada uno te da un hablante nativo con contexto real",
     startConv:"Iniciar conversación →",home:"Inicio",topics:"Temas",
     translate:"Traducir",pronounce:"Pronunciar",
@@ -205,14 +205,8 @@ const LANGUAGES = [
    scenarios:["Biergarten Visit","At the Bakery","Taking the U-Bahn","Office Small Talk","Christmas Market","Museum Visit","Renting a Car","At the Pharmacy","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
   {code:"it",flag:"🇮🇹",name:"Italian",  native:"Italiano",   tts:"it-IT",accent:"#009246",
    scenarios:["Ordering Pasta","At the Gelateria","Asking Directions","Shopping in Milano","Hotel Check-in","Family Dinner","At the Beach","Football Talk","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
-  {code:"pt",flag:"🇧🇷",name:"Portuguese",native:"Português", tts:"pt-BR",accent:"#006600",
-   scenarios:["Petiscos Bar","Pastéis de Nata Café","Fado Night","Lisbon Tram","At the Beach","Mercado Visit","Booking a Tour","Football Chat","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
   {code:"nl",flag:"🇳🇱",name:"Dutch",    native:"Nederlands", tts:"nl-NL",accent:"#E8552A",
    scenarios:["At the Market","Café Visit","Meeting Neighbours","Train Station","Doctor's Visit","Work Meeting","At a Party","Booking a Hotel","At the Airport","Ordering Food","Asking Directions","Job Interview"]},
-  {code:"ja",flag:"🇯🇵",name:"Japanese", native:"日本語",      tts:"ja-JP",accent:"#BC002D",
-   scenarios:["Convenience Store","Ramen Restaurant","Train Journey","Temple Visit","Karaoke Night","Onsen Etiquette","Harajuku Shopping","Business Meeting","At the Airport","Ordering Food","Doctor's Visit","Shopping"]},
-  {code:"zh",flag:"🇨🇳",name:"Chinese",  native:"普通话",      tts:"zh-CN",accent:"#DE2910",
-   scenarios:["Dim Sum Brunch","Night Market","Tea House","Taxi Ride","Shopping & Bargaining","Visiting Friends","Street Food Tour","Business Dinner","At the Airport","Ordering Food","Doctor's Visit","Making Friends"]},
 ];
 
 const KIDS_LANGS = [
@@ -2045,7 +2039,7 @@ export default function App() {
               <NativeLangPicker/>
             </div>
           </div>
-          <div className="l-langs">🇪🇸 ES · 🇫🇷 FR · 🇩🇪 DE · 🇮🇹 IT · 🇵🇹 PT · 🇳🇱 NL · 🇯🇵 JP · 🇨🇳 ZH</div>
+          <div className="l-langs">🇬🇧 EN · 🇪🇸 ES · 🇫🇷 FR · 🇩🇪 DE · 🇮🇹 IT · 🇳🇱 NL</div>
         </div>
       )}
     </Ctx.Provider>
