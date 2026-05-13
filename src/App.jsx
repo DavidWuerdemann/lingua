@@ -22,9 +22,30 @@ const T = {
     listenMode:"Listen & Type",speakBtn:"🔊 Speak",correct:"Correct!",tryAgain:"Try again",
     flip:"Flip",typeIt:"Type it",easy:"Easy",good:"Good",hard:"Hard",
     next:"Next",back:"Back",allDone:"All done!",
-    pickLanguage:"Pick a language to practise:",funIdioms:"Fun Idioms 🌈",
+    pickLanguage:"Pick a language to practise:",funIdioms:"Fun Expressions 🌈",
     close:"Close",setName:"Set name",cancel:"Cancel",done:"Done",
     collocations:"Collocations",tip:"Tip",fix:"Correction",uiLang:"Language",idiomCat:"Category",
+    // landing
+    landingH1:"Learn to <em>speak</em>,<br/>not just study.",
+    landingSub:"Jump into a real conversation in seconds. No streaks, no points — just talking.",
+    adultDesc:"9 languages · scenarios · flashcards · notebook",
+    kidsDesc:"Chat with Ollie · 12 topics · fun expressions",
+    // adult mode
+    langSubhead:"Nine languages · scenario-based conversations",
+    scenSub:"Each gives you a native partner with real context",
+    startConv:"Start conversation →",home:"Home",topics:"Topics",
+    translate:"Translate",pronounce:"Pronounce",
+    englishTransl:"English Translation",pronGuide:"Pronunciation Guide",
+    hearSlower:"Hear it again (slower)",typeHeard:"Type what you heard…",
+    watch:"🎯 Watch:",
+    saveToNotebook:"Save to Notebook",saveToNbSub:"Edit the word you want to remember",
+    // kids
+    kidsWelH1:"What shall we<br/>learn today?",
+    kidsWelSub:"Pick a topic and chat with Ollie 🦉",
+    kidsWordBook:"⭐ My Word Book",kidsWordBookSub:"Words you've saved with Ollie!",
+    kidsWordBookEmpty:"Chat and tap 💾 to start your collection!",
+    kidsRecent:"Recent",kidsIdiomSub:"Cool phrases Ollie loves 🦉",
+    hearIt:"🔊 Hear it!",
   },
   DE:{
     adultMode:"Erwachsenen",kidsMode:"Kinder",chat:"Chat",notebook:"Notizbuch",
@@ -42,6 +63,24 @@ const T = {
     pickLanguage:"Wähle eine Sprache:",funIdioms:"Witzige Redewendungen 🌈",
     close:"Schließen",setName:"Listenname",cancel:"Abbrechen",done:"Fertig",
     collocations:"Kollokationen",tip:"Tipp",fix:"Korrektur",uiLang:"Sprache",idiomCat:"Kategorie",
+    landingH1:"Lern zu <em>sprechen</em>,<br/>nicht nur zu büffeln.",
+    landingSub:"Starte ein echtes Gespräch in Sekunden. Kein Streak, keine Punkte — einfach reden.",
+    adultDesc:"9 Sprachen · Szenarien · Karteikarten · Notizbuch",
+    kidsDesc:"Chat mit Ollie · 12 Themen · witzige Phrasen",
+    langSubhead:"Neun Sprachen · szenariobasierte Gespräche",
+    scenSub:"Jedes gibt dir einen Muttersprachler mit echtem Kontext",
+    startConv:"Gespräch starten →",home:"Startseite",topics:"Themen",
+    translate:"Übersetzen",pronounce:"Aussprache",
+    englishTransl:"Englische Übersetzung",pronGuide:"Ausspracheführer",
+    hearSlower:"Nochmal hören (langsamer)",typeHeard:"Tippe, was du gehört hast…",
+    watch:"🎯 Achte auf:",
+    saveToNotebook:"Im Notizbuch speichern",saveToNbSub:"Bearbeite das Wort, das du behalten möchtest",
+    kidsWelH1:"Was lernen wir<br/>heute?",
+    kidsWelSub:"Wähle ein Thema und chatte mit Ollie 🦉",
+    kidsWordBook:"⭐ Mein Wörterbuch",kidsWordBookSub:"Wörter, die du mit Ollie gespeichert hast!",
+    kidsWordBookEmpty:"Chatte und tippe 💾 um deine Sammlung zu starten!",
+    kidsRecent:"Zuletzt",kidsIdiomSub:"Coole Phrasen, die Ollie liebt 🦉",
+    hearIt:"🔊 Anhören!",
   },
   NL:{
     adultMode:"Volwassen",kidsMode:"Kinderen",chat:"Chat",notebook:"Notitieboek",
@@ -59,6 +98,24 @@ const T = {
     pickLanguage:"Kies een taal:",funIdioms:"Grappige uitdrukkingen 🌈",
     close:"Sluiten",setName:"Lijstnaam",cancel:"Annuleren",done:"Klaar",
     collocations:"Collocaties",tip:"Tip",fix:"Correctie",uiLang:"Taal",idiomCat:"Categorie",
+    landingH1:"Leer <em>spreken</em>,<br/>niet alleen studeren.",
+    landingSub:"Start in seconden een echt gesprek. Geen reeksen, geen punten — gewoon praten.",
+    adultDesc:"9 talen · scenario's · flashkaarten · notitieboek",
+    kidsDesc:"Chat met Ollie · 12 onderwerpen · grappige uitdrukkingen",
+    langSubhead:"Negen talen · scenario-gebaseerde gesprekken",
+    scenSub:"Elk geeft je een moedertaalspreker in een echte context",
+    startConv:"Gesprek starten →",home:"Home",topics:"Onderwerpen",
+    translate:"Vertalen",pronounce:"Uitspreken",
+    englishTransl:"Engelse vertaling",pronGuide:"Uitspraakgids",
+    hearSlower:"Nog eens horen (langzamer)",typeHeard:"Typ wat je hoorde…",
+    watch:"🎯 Let op:",
+    saveToNotebook:"Opslaan in notitieboek",saveToNbSub:"Bewerk het woord dat je wilt onthouden",
+    kidsWelH1:"Wat leren we<br/>vandaag?",
+    kidsWelSub:"Kies een onderwerp en chat met Ollie 🦉",
+    kidsWordBook:"⭐ Mijn Woordenboek",kidsWordBookSub:"Woorden die je met Ollie hebt opgeslagen!",
+    kidsWordBookEmpty:"Chat en tik 💾 om je collectie te starten!",
+    kidsRecent:"Recent",kidsIdiomSub:"Coole uitdrukkingen die Ollie geweldig vindt 🦉",
+    hearIt:"🔊 Beluisteren!",
   },
   FR:{
     adultMode:"Adultes",kidsMode:"Enfants",chat:"Chat",notebook:"Carnet",
@@ -70,12 +127,30 @@ const T = {
     newSet:"Nouvelle liste",import:"Importer",flashcards:"Fiches",
     practice:"Pratiquer avec Ollie",editSet:"Modifier",deleteSet:"Supprimer",
     addWord:"Ajouter un mot",wordLabel:"Mot / Phrase",translLabel:"Traduction",
-    listenMode:"Écouter & Taper",speakBtn:"🔊 Écouter",correct:"Correct!",
+    listenMode:"Écouter & Taper",speakBtn:"🔊 Écouter",correct:"Correct !",
     tryAgain:"Réessayer",flip:"Retourner",typeIt:"Taper",easy:"Facile",good:"Bien",
-    hard:"Difficile",next:"Suivant",back:"Retour",allDone:"Tout fait!",
-    pickLanguage:"Choisissez une langue:",funIdioms:"Expressions amusantes 🌈",
+    hard:"Difficile",next:"Suivant",back:"Retour",allDone:"Tout fait !",
+    pickLanguage:"Choisissez une langue :",funIdioms:"Expressions amusantes 🌈",
     close:"Fermer",setName:"Nom de la liste",cancel:"Annuler",done:"Terminé",
     collocations:"Collocations",tip:"Conseil",fix:"Correction",uiLang:"Langue",idiomCat:"Catégorie",
+    landingH1:"Apprends à <em>parler</em>,<br/>pas seulement à étudier.",
+    landingSub:"Lance une vraie conversation en quelques secondes. Pas de séries, pas de points — juste parler.",
+    adultDesc:"9 langues · scénarios · fiches · carnet",
+    kidsDesc:"Chat avec Ollie · 12 sujets · expressions amusantes",
+    langSubhead:"Neuf langues · conversations par scénario",
+    scenSub:"Chacun te donne un partenaire natif avec un vrai contexte",
+    startConv:"Démarrer la conversation →",home:"Accueil",topics:"Sujets",
+    translate:"Traduire",pronounce:"Prononcer",
+    englishTransl:"Traduction anglaise",pronGuide:"Guide de prononciation",
+    hearSlower:"Réécouter (plus lentement)",typeHeard:"Tapez ce que vous avez entendu…",
+    watch:"🎯 Attention :",
+    saveToNotebook:"Enregistrer dans le carnet",saveToNbSub:"Modifie le mot que tu veux retenir",
+    kidsWelH1:"Qu'allons-nous<br/>apprendre aujourd'hui ?",
+    kidsWelSub:"Choisis un sujet et discute avec Ollie 🦉",
+    kidsWordBook:"⭐ Mon Carnet de Mots",kidsWordBookSub:"Les mots que tu as sauvegardés avec Ollie !",
+    kidsWordBookEmpty:"Discute et appuie sur 💾 pour commencer ta collection !",
+    kidsRecent:"Récent",kidsIdiomSub:"Des expressions sympas qu'Ollie adore 🦉",
+    hearIt:"🔊 Écouter !",
   },
   ES:{
     adultMode:"Adultos",kidsMode:"Niños",chat:"Chat",notebook:"Cuaderno",
@@ -93,6 +168,24 @@ const T = {
     pickLanguage:"Elige un idioma:",funIdioms:"Expresiones divertidas 🌈",
     close:"Cerrar",setName:"Nombre de lista",cancel:"Cancelar",done:"Hecho",
     collocations:"Colocaciones",tip:"Consejo",fix:"Corrección",uiLang:"Idioma",idiomCat:"Categoría",
+    landingH1:"Aprende a <em>hablar</em>,<br/>no sólo a estudiar.",
+    landingSub:"Empieza una conversación real en segundos. Sin rachas, sin puntos — solo hablar.",
+    adultDesc:"9 idiomas · escenarios · tarjetas · cuaderno",
+    kidsDesc:"Chat con Ollie · 12 temas · expresiones divertidas",
+    langSubhead:"Nueve idiomas · conversaciones por escenario",
+    scenSub:"Cada uno te da un hablante nativo con contexto real",
+    startConv:"Iniciar conversación →",home:"Inicio",topics:"Temas",
+    translate:"Traducir",pronounce:"Pronunciar",
+    englishTransl:"Traducción al inglés",pronGuide:"Guía de pronunciación",
+    hearSlower:"Escuchar de nuevo (más lento)",typeHeard:"Escribe lo que escuchaste…",
+    watch:"🎯 Observa:",
+    saveToNotebook:"Guardar en cuaderno",saveToNbSub:"Edita la palabra que quieres recordar",
+    kidsWelH1:"¿Qué aprendemos<br/>hoy?",
+    kidsWelSub:"Elige un tema y chatea con Ollie 🦉",
+    kidsWordBook:"⭐ Mi Libro de Palabras",kidsWordBookSub:"¡Palabras que has guardado con Ollie!",
+    kidsWordBookEmpty:"¡Chatea y toca 💾 para empezar tu colección!",
+    kidsRecent:"Reciente",kidsIdiomSub:"Frases geniales que le encantan a Ollie 🦉",
+    hearIt:"🔊 ¡Escúchalo!",
   },
 };
 
@@ -1152,12 +1245,12 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
         <div className="dictation-area">
           <button style={{fontSize:"0.82rem",color:"var(--teal)",marginBottom:6,display:"block"}}
             onClick={()=>speak(currentAi,langObj.tts,0.72)}>
-            🔊 Hear it again (slower)
+            {t.hearSlower}
           </button>
           <input className="dictation-input" value={dictVal}
             onChange={e=>setDictVal(e.target.value)}
             onKeyDown={e=>{if(e.key==="Enter")checkDictation();}}
-            placeholder="Type what you heard…"/>
+            placeholder={t.typeHeard}/>
           <button className="fc-check-btn" onClick={checkDictation}>{t.good}</button>
           {dictResult && (
             <div className={`dict-result ${dictResult}`} style={{marginTop:6}}>
@@ -1210,19 +1303,20 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
 ═══════════════════════════════════════════════════════════ */
 function SaveModal({ text, lang, onClose }) {
   const [word, setWord] = useState(text?.split(/[\s,!?.]+/).find(w=>w.length>1)||"");
+  const {t} = useContext(Ctx);
   return (
     <div className="mbdrop" onClick={onClose}>
       <div className="modal" onClick={e=>e.stopPropagation()}>
-        <h3>Save to Notebook</h3>
-        <p>Edit the word you want to remember</p>
+        <h3>{t.saveToNotebook}</h3>
+        <p>{t.saveToNbSub}</p>
         <input className="minput" value={word} onChange={e=>setWord(e.target.value)}
-          placeholder="Word / phrase…" autoFocus/>
+          placeholder={t.wordLabel} autoFocus/>
         <div className="mrow2">
-          <button className="mcancel" onClick={onClose}>Cancel</button>
+          <button className="mcancel" onClick={onClose}>{t.cancel}</button>
           <button className="msave" onClick={()=>{
             if (!word.trim()) return;
             addAdultWord(word.trim(), lang||""); onClose();
-          }}>Save →</button>
+          }}>{t.save} →</button>
         </div>
       </div>
     </div>
@@ -1344,21 +1438,21 @@ No <fix> if no error.`;
               {m.role==="assistant" && (
                 <div className="macts">
                   <button className={`mact${panels[m.id]?.type==="translation"?" on":""}`}
-                    onClick={()=>togglePanel(m.id,m.content,"translation")}>🇬🇧 Translate</button>
+                    onClick={()=>togglePanel(m.id,m.content,"translation")}>🇬🇧 {t.translate}</button>
                   <button className={`mact${panels[m.id]?.type==="pronunciation"?" on":""}`}
-                    onClick={()=>togglePanel(m.id,m.content,"pronunciation")}>🔉 Pronounce</button>
+                    onClick={()=>togglePanel(m.id,m.content,"pronunciation")}>🔉 {t.pronounce}</button>
                   <button className="mact" onClick={()=>setModal({text:m.content,lang})}>📌 {t.save}</button>
                 </div>
               )}
               {panels[m.id] && (
                 <div className="mpanel">
                   {panels[m.id].loading ? <Dots/> : panels[m.id].type==="translation"
-                    ? <><div className="plabel">English Translation</div>{panels[m.id].content}</>
+                    ? <><div className="plabel">{t.englishTransl}</div>{panels[m.id].content}</>
                     : (()=>{const c=panels[m.id].content; return (<>
-                        <div className="plabel">Pronunciation Guide</div>
+                        <div className="plabel">{t.pronGuide}</div>
                         {c.phonetic && <div className="pph">/{c.phonetic}/</div>}
                         {c.tips && <div className="ptip">{c.tips}</div>}
-                        {c.sounds && <div className="ptip" style={{marginTop:6}}>🎯 Watch: {c.sounds}</div>}
+                        {c.sounds && <div className="ptip" style={{marginTop:6}}>{t.watch} {c.sounds}</div>}
                       </>);})()}
                 </div>
               )}
@@ -1421,7 +1515,7 @@ function AdultMode({t, stars}) {
         <div className="topbar-logo">✦</div>
         <span className="topbar-title">Lingua</span>
         <button className="ghost" onClick={()=>setInChat(false)}>← {t.scenario}</button>
-        <button className="ghost" onClick={onBack}>Home</button>
+        <button className="ghost" onClick={onBack}>{t.home}</button>
       </div>
       <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} t={t}/>
     </div>
@@ -1433,7 +1527,7 @@ function AdultMode({t, stars}) {
         <div className="topbar-logo">✦</div>
         <span className="topbar-title">Lingua</span>
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
-        <button className="ghost" onClick={onBack}>← Home</button>
+        <button className="ghost" onClick={onBack}>← {t.home}</button>
       </div>
       <LevelBadge stars={stars}/>
       <div className="tabs">
@@ -1447,7 +1541,7 @@ function AdultMode({t, stars}) {
       {tab==="chat" && (
         <div className="scr">
           <h2 className="sh">{t.language}</h2>
-          <p className="ss">Eight languages · scenario-based conversation</p>
+          <p className="ss">{t.langSubhead}</p>
           <div className="lgrid">
             {LANGUAGES.map(l=>(
               <div key={l.code} className={`lcard${lang===l.code?" on":""}`}
@@ -1459,7 +1553,7 @@ function AdultMode({t, stars}) {
             ))}
           </div>
           <div className="scen-head">{t.scenario}</div>
-          <div className="scen-sub">Each gives you a native partner with real context</div>
+          <div className="scen-sub">{t.scenSub}</div>
           <div className="sgrid">
             {langObj?.scenarios.map((s,i)=>(
               <button key={s} className={`sbtn${scenIdx===i?" on":""}`} onClick={()=>{setScenIdx(i);sfx.click();}}>
@@ -1470,7 +1564,7 @@ function AdultMode({t, stars}) {
           </div>
           <div className="cta-wrap">
             <button className="cta" onClick={()=>{setInChat(true);sfx.click();}}>
-              Start conversation →
+              {t.startConv}
             </button>
           </div>
         </div>
@@ -1636,8 +1730,8 @@ function KidsIdiomScreen({kidLang, t}) {
 
   return (
     <div className="knb" style={{overflowY:"auto",flex:1}}>
-      <div className="knb-title">💬 Fun Expressions!</div>
-      <div className="knb-sub">Cool phrases Ollie loves 🦉</div>
+      <div className="knb-title">{t.funIdioms}</div>
+      <div className="knb-sub">{t.kidsIdiomSub}</div>
       <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
         {KIDS_IDIOM_CATS.map(c=>(
           <button key={c} className={`kids-lang-btn${cat===c?" active":""}`}
@@ -1646,14 +1740,14 @@ function KidsIdiomScreen({kidLang, t}) {
           </button>
         ))}
       </div>
-      {loading && <div style={{padding:20,color:"var(--k-mute)",fontFamily:"var(--k-sans)",fontWeight:700}}><Dots/> Ollie is thinking…</div>}
+      {loading && <div style={{padding:20,color:"var(--k-mute)",fontFamily:"var(--k-sans)",fontWeight:700}}><Dots/> {t.loading}</div>}
       {!loading && data && (
         <div className="kwcard" style={{flexDirection:"column",gap:8}}>
           <div style={{fontSize:48,textAlign:"center"}}>{data.emoji}</div>
           <div style={{fontFamily:"var(--k-display)",fontSize:22,fontWeight:600,color:"var(--k-ink)",textAlign:"center"}}>{data.phrase}</div>
           <div style={{fontFamily:"var(--k-sans)",fontSize:14,color:"var(--k-inkSoft)",fontWeight:600,textAlign:"center"}}>{data.meaning}</div>
           {data.example && <div style={{background:"var(--k-paper2)",border:"2px solid var(--k-border)",borderRadius:12,padding:"10px 14px",fontFamily:"var(--k-sans)",fontSize:13,color:"var(--k-ink)",fontWeight:700,marginTop:4}}>{data.example}</div>}
-          <button className="listen-btn" style={{alignSelf:"center",marginTop:4}} onClick={()=>speak(data.phrase,langObj.tts,0.85)}>🔊 Hear it!</button>
+          <button className="listen-btn" style={{alignSelf:"center",marginTop:4}} onClick={()=>speak(data.phrase,langObj.tts,0.85)}>{t.hearIt}</button>
         </div>
       )}
     </div>
@@ -1672,12 +1766,12 @@ function KidsMode({t, onStars}) {
   return (
     <div className="ks">
       <div className="kh">
-        <button className="khome-btn" onClick={onBack}>← Home</button>
+        <button className="khome-btn" onClick={onBack}>← {t.home}</button>
         <div className="kh-ollie">
           <OllieAvatar size={28}/>
           <span className="kh-title">Ollie's Language World</span>
         </div>
-        {topic && <button className="khome-btn" onClick={()=>setTopic(null)}>← Topics</button>}
+        {topic && <button className="khome-btn" onClick={()=>setTopic(null)}>← {t.topics}</button>}
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
       </div>
 
@@ -1702,8 +1796,8 @@ function KidsMode({t, onStars}) {
           {!topic ? (
             <div style={{overflowY:"auto",flex:1}}>
               <div className="kwel">
-                <h1>What shall we<br/>learn today?</h1>
-                <p>Pick a topic and chat with Ollie 🦉</p>
+                <h1 dangerouslySetInnerHTML={{__html:t.kidsWelH1}}/>
+                <p>{t.kidsWelSub}</p>
               </div>
               <div className="ktgrid">
                 {KIDS_TOPICS.map(tp=>(
@@ -1716,11 +1810,11 @@ function KidsMode({t, onStars}) {
               </div>
               {nbCount>0 && (
                 <div className="kids-recent">
-                  <div className="kids-recent-label">Recent</div>
+                  <div className="kids-recent-label">{t.kidsRecent}</div>
                   <div className="kids-recent-card" onClick={()=>{setTab("notebook");setTopic(null);}}>
                     <span style={{fontSize:24}}>{KIDS_TOPICS[0].emoji}</span>
                     <div className="kids-recent-info">
-                      <div className="kids-recent-name">My Word Book</div>
+                      <div className="kids-recent-name">{t.kidsWordBook}</div>
                       <div className="kids-recent-sub">{nbCount} word{nbCount!==1?"s":""} saved</div>
                     </div>
                     <div className="kids-recent-arr">›</div>
@@ -1744,9 +1838,9 @@ function KidsNotebookScreen({t}) {
   const [words,setWords] = useState(loadKNB());
   return (
     <div className="knb" style={{overflowY:"auto",flex:1}}>
-      <div className="knb-title">⭐ My Word Book</div>
-      <div className="knb-sub">Words you've saved with Ollie!</div>
-      {words.length===0 && <div className="knempty"><div className="ei">📖</div><p>Chat and tap "Save" to start your collection!</p></div>}
+      <div className="knb-title">{t.kidsWordBook}</div>
+      <div className="knb-sub">{t.kidsWordBookSub}</div>
+      {words.length===0 && <div className="knempty"><div className="ei">📖</div><p>{t.kidsWordBookEmpty}</p></div>}
       {words.map((w,i)=>(
         <div key={i} className="kwcard">
           <div className="kwe">{w.emoji||"⭐"}</div>
@@ -1791,14 +1885,14 @@ export default function App() {
             <UiLangPicker uiLang={uiLang} setUiLang={ctx.setUiLang}/>
           </div>
           <div className="l-hero">
-            <h1 className="l-h1">Learn to <em>speak</em>,<br/>not just study.</h1>
-            <p className="l-sub">Jump into a real conversation in seconds. No streaks, no points — just talking.</p>
+            <h1 className="l-h1" dangerouslySetInnerHTML={{__html:t.landingH1}}/>
+            <p className="l-sub">{t.landingSub}</p>
             <div className="p-cards">
               <button className="p-card" onClick={()=>goMode("adult")}>
                 <div className="p-card-icon adult">✈</div>
                 <div className="p-card-body">
                   <h3>{t.adultMode}</h3>
-                  <p>9 languages · scenarios · flashcards · notebook</p>
+                  <p>{t.adultDesc}</p>
                 </div>
                 <div className="p-card-arr">›</div>
               </button>
@@ -1806,7 +1900,7 @@ export default function App() {
                 <div className="p-card-icon kids">🦉</div>
                 <div className="p-card-body">
                   <h3>{t.kidsMode}</h3>
-                  <p>Chat with Ollie · 12 topics · fun expressions</p>
+                  <p>{t.kidsDesc}</p>
                 </div>
                 <div className="p-card-arr">›</div>
               </button>
