@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, createContext, useContext } from "react";
+import { createPortal } from "react-dom";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 /* ─────────────────────────────────────────────────────────────
    CONTEXT
@@ -387,6 +389,82 @@ function parseAiResponse(raw) {
   return {text, fix};
 }
 
+/* ─────────────────────────────────────────────────────────────
+   UPDATE PROMPT  (PWA service-worker update toast)
+───────────────────────────────────────────────────────────── */
+const CHECK_INTERVAL_MS = 60 * 60 * 1000; // re-check every hour
+
+function UpdatePrompt() {
+  const [reloading, setReloading] = useState(false);
+  const { needRefresh: [needRefresh, setNeedRefresh] } = useRegisterSW({
+    onRegisteredSW(_swUrl, reg) {
+      if (!reg) return;
+      const tick = () => reg.update().catch(() => {});
+      const id = setInterval(tick, CHECK_INTERVAL_MS);
+      const onVis = () => { if (document.visibilityState === "visible") tick(); };
+      document.addEventListener("visibilitychange", onVis);
+      window.addEventListener("focus", tick);
+      return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("focus", tick); };
+    },
+  });
+
+  async function applyUpdate() {
+    if (reloading) return;
+    setReloading(true);
+    try {
+      const reg = await navigator.serviceWorker?.getRegistration();
+      const target = reg?.waiting || reg?.installing;
+      if (target) {
+        const done = { fired: false };
+        const reload = () => { if (!done.fired) { done.fired = true; window.location.reload(); } };
+        navigator.serviceWorker.addEventListener("controllerchange", reload, { once: true });
+        target.postMessage({ type: "SKIP_WAITING" });
+        setTimeout(reload, 1500);
+      } else {
+        window.location.reload();
+      }
+    } catch { window.location.reload(); }
+  }
+
+  if (!needRefresh) return null;
+
+  return createPortal(
+    <div onClick={e => e.stopPropagation()} style={{
+      position:"fixed", left:"50%", bottom:"calc(16px + env(safe-area-inset-bottom))",
+      transform:"translateX(-50%)", width:"calc(100% - 32px)", maxWidth:480,
+      display:"flex", alignItems:"center", gap:12, padding:"12px 14px",
+      background:"var(--a-surf)", color:"var(--a-cream)",
+      border:"1px solid var(--a-border)",
+      boxShadow:"0 10px 30px rgba(0,0,0,.35)",
+      borderRadius:14, zIndex:2147483647,
+    }}>
+      <span style={{fontSize:20, flexShrink:0}}>⟳</span>
+      <div style={{flex:1, minWidth:0}}>
+        <div style={{fontFamily:"var(--a-sans)", fontSize:14, fontWeight:600, lineHeight:1.3}}>
+          A new version is available
+        </div>
+        <div style={{fontFamily:"var(--a-sans)", fontSize:12, opacity:.65, marginTop:2}}>
+          Reload to get the latest fixes and features.
+        </div>
+      </div>
+      <button onClick={applyUpdate} disabled={reloading} style={{
+        flexShrink:0, border:"none", background:"var(--a-gold)", color:"var(--a-bg)",
+        fontFamily:"var(--a-sans)", fontWeight:700, fontSize:12,
+        letterSpacing:".06em", textTransform:"uppercase",
+        padding:"10px 16px", borderRadius:8, cursor: reloading ? "not-allowed" : "pointer",
+        opacity: reloading ? .7 : 1, whiteSpace:"nowrap",
+      }}>
+        {reloading ? "Updating…" : "Update"}
+      </button>
+      <button onClick={() => setNeedRefresh(false)} aria-label="Dismiss" style={{
+        flexShrink:0, border:"none", background:"transparent",
+        color:"rgba(255,255,255,.45)", cursor:"pointer",
+        padding:8, fontSize:16, lineHeight:1,
+      }}>✕</button>
+    </div>,
+    document.body
+  );
+}
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Nunito:wght@400;600;700;800;900&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
@@ -1923,6 +2001,7 @@ export default function App() {
   return (
     <Ctx.Provider value={ctx}>
       <style>{CSS}{LOGIN_CSS}</style>
+      <UpdatePrompt/>
       {mode==="adult" && <AdultMode t={t} stars={stars} onStars={handleStars}/>}
       {mode==="kids"  && <KidsMode  t={t} onStars={handleStars}/>}
 
