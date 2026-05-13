@@ -551,7 +551,23 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .star-ct{color:var(--a-gold);font-weight:700;}
 .lvl-badge{background:var(--a-goldT);border:1px solid rgba(201,148,58,.3);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--a-gold);}
 .prog-bar{flex:1;height:4px;background:var(--a-surf2);border-radius:4px;overflow:hidden;}
-.prog-fill{height:100%;background:var(--a-gold);border-radius:4px;transition:width .4s ease;}
+.prog-fill{height:100%;background:var(--a-gold);border-radius:4px;transition:width .6s ease;}
+
+/* ═══ STAR FLASH & LEVEL-UP TOAST ═══ */
+@keyframes starFloat{0%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}60%{opacity:1;transform:translateX(-50%) translateY(-32px) scale(1.12)}100%{opacity:0;transform:translateX(-50%) translateY(-52px) scale(.9)}}
+.star-flash{position:fixed;left:50%;z-index:9999;pointer-events:none;
+  font:700 13px/1 var(--a-sans);color:var(--a-gold);
+  background:var(--a-surf2);border:1px solid rgba(201,148,58,.45);
+  border-radius:20px;padding:5px 13px;
+  box-shadow:0 4px 18px rgba(0,0,0,.35);
+  animation:starFloat 1.8s cubic-bezier(.2,.8,.4,1) forwards;}
+@keyframes levelSlide{0%{opacity:0;transform:translateX(-50%) translateY(-10px) scale(.95)}12%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}82%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-6px)}}
+.level-toast{position:fixed;top:64px;left:50%;z-index:9999;pointer-events:none;
+  background:linear-gradient(135deg,#C9943A 0%,#E5B86A 100%);
+  color:#0F1B2D;border-radius:24px;padding:10px 24px;
+  font:700 13.5px/1 var(--a-sans);letter-spacing:.01em;
+  box-shadow:0 8px 28px rgba(201,148,58,.45);
+  animation:levelSlide 3.2s ease forwards;white-space:nowrap;}
 
 /* ═══ UI LANG PICKER ═══ */
 .ui-lang-picker{display:flex;gap:4px;}
@@ -957,10 +973,30 @@ function LevelBadge({stars}) {
   );
 }
 
+function StarFlash({flashes}) {
+  if (!flashes.length) return null;
+  return createPortal(
+    <>{flashes.map(f=>(
+      <div key={f.id} className="star-flash" style={{top: f.top ?? 72}}>
+        +{f.n} ⭐
+      </div>
+    ))}</>,
+    document.body
+  );
+}
+
+function LevelUpToast({msg}) {
+  if (!msg) return null;
+  return createPortal(
+    <div className="level-toast">🎉 {msg}</div>,
+    document.body
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════
    WORD OF DAY
 ═══════════════════════════════════════════════════════════ */
-function FlashCards({words: initWords, t, onDone}) {
+function FlashCards({words: initWords, t, onDone, onStars}) {
   const [queue]              = useState([...initWords].sort(()=>Math.random()-.5));
   const [idx,setIdx]         = useState(0);
   const [flipped,setFlipped] = useState(false);
@@ -969,7 +1005,11 @@ function FlashCards({words: initWords, t, onDone}) {
   const [typeResult,setTypeResult] = useState(null);
 
   const current = queue[idx];
-  if (!current) return (
+  const done = !current;
+  // Award stars once when the session completes
+  useEffect(()=>{ if (done) { const total=addStarsTo(5); onStars?.(total,5); } },[done]); // eslint-disable-line
+
+  if (done) return (
     <div style={{padding:28,textAlign:"center",color:"var(--muted)",fontSize:"1.1rem"}}>
       {t.allDone} 🎉
     </div>
@@ -1175,7 +1215,7 @@ function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
 /* ═══════════════════════════════════════════════════════════
    OLLIE PRACTICE  (for vocab sets)
 ═══════════════════════════════════════════════════════════ */
-function OlliePractice({words, kidLang, t, onDone}) {
+function OlliePractice({words, kidLang, t, onDone, onStars}) {
   const [msgs,setMsgs]           = useState([]);
   const [input,setInput]         = useState("");
   const [loading,setLoading]     = useState(false);
@@ -1206,6 +1246,7 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
     try {
       const raw=await ai(newMsgs,system,180);
       setMsgs(m=>[...m,{role:"assistant",content:raw}]); bounce();
+      const total=addStarsTo(2); onStars?.(total,2);
     } catch {}
     setLoading(false);
   }
@@ -1241,7 +1282,7 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
 /* ═══════════════════════════════════════════════════════════
    VOCAB SETS HUB
 ═══════════════════════════════════════════════════════════ */
-function VocabSets({t, kidLang}) {
+function VocabSets({t, kidLang, onStars}) {
   const [view,setView]               = useState("list");
   const [editTarget,setEditTarget]   = useState(null);
   const [flashTarget,setFlashTarget] = useState(null);
@@ -1260,11 +1301,11 @@ function VocabSets({t, kidLang}) {
         <button className="action-btn" onClick={()=>setView("list")}>← {t.back}</button>
         <span style={{fontWeight:600,fontSize:"0.88rem"}}>{flashTarget.name}</span>
       </div>
-      <FlashCards words={flashTarget.words} t={t} onDone={()=>setView("list")}/>
+      <FlashCards words={flashTarget.words} t={t} onDone={()=>setView("list")} onStars={onStars}/>
     </>
   );
   if (view==="practice"&&practTarget) return (
-    <OlliePractice words={practTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")}/>
+    <OlliePractice words={practTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")} onStars={onStars}/>
   );
 
   const sets = loadVSets();
@@ -1355,7 +1396,7 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
       const raw=await ai(newMsgs,system,120);
       setMsgs(m=>[...m,{role:"assistant",content:raw}]);
       setCurrentAi(raw); bounce();
-      const newTotal=addStarsTo(3); onStars?.(newTotal);
+      const newTotal=addStarsTo(1); onStars?.(newTotal,1);
     } catch {}
     setLoading(false);
   }
@@ -1390,6 +1431,7 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
                   kn.unshift({text:snippet,lang:kidLang,date:new Date().toISOString()});
                   saveKNB(kn); sfx.save(); haptic([20]);
                   setSavedSet(s=>new Set([...s,i]));
+                  const total=addStarsTo(3); onStars?.(total,3);
                 }
               }}>💾</button>
             )}
@@ -1451,7 +1493,7 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
 /* ═══════════════════════════════════════════════════════════
    SAVE MODAL
 ═══════════════════════════════════════════════════════════ */
-function SaveModal({ text, lang, onClose }) {
+function SaveModal({ text, lang, onClose, onStars }) {
   const [word, setWord] = useState(text?.split(/[\s,!?.]+/).find(w=>w.length>1)||"");
   const {t} = useContext(Ctx);
   return (
@@ -1465,7 +1507,9 @@ function SaveModal({ text, lang, onClose }) {
           <button className="mcancel" onClick={onClose}>{t.cancel}</button>
           <button className="msave" onClick={()=>{
             if (!word.trim()) return;
-            addAdultWord(word.trim(), lang||""); onClose();
+            const added = addAdultWord(word.trim(), lang||"");
+            if (added) { const total=addStarsTo(3); onStars?.(total,3); }
+            onClose();
           }}>{t.save} →</button>
         </div>
       </div>
@@ -1476,7 +1520,7 @@ function SaveModal({ text, lang, onClose }) {
 /* ═══════════════════════════════════════════════════════════
    ADULT CHAT  (new design, all old features)
 ═══════════════════════════════════════════════════════════ */
-function AdultChat({lang, scenario, t}) {
+function AdultChat({lang, scenario, t, onStars}) {
   const [msgs,setMsgs]         = useState([]);
   const [input,setInput]       = useState("");
   const [loading,setLoading]   = useState(false);
@@ -1515,7 +1559,7 @@ No <fix> if no error.`;
       const raw = await ai(apiMsgs, sysPrompt, 220);
       const {text,fix} = parseAiResponse(raw);
       if (fix) addError(fix);
-      addStarsTo(2);
+      const newTotal = addStarsTo(2); onStars?.(newTotal, 2);
       setMsgs(p=>[...p,{role:"assistant",content:text,fix,id:Date.now()+1}]);
     } catch(e) {
       setMsgs(p=>[...p,{role:"assistant",content:`Error: ${e.message}`,id:Date.now()}]);
@@ -1643,7 +1687,7 @@ No <fix> if no error.`;
           <button className="sbtn-send" onClick={send} disabled={loading||!input.trim()}>↑</button>
         </div>
       </div>
-      {modal && <SaveModal text={modal.text} lang={modal.lang} onClose={()=>{ setModal(null); sfx.save(); haptic([20,10,20]); }}/>}
+      {modal && <SaveModal text={modal.text} lang={modal.lang} onStars={onStars} onClose={()=>{ setModal(null); sfx.save(); haptic([20,10,20]); }}/>}
     </div>
   );
 }
@@ -1651,7 +1695,7 @@ No <fix> if no error.`;
 /* ═══════════════════════════════════════════════════════════
    ADULT MODE  (new shell + all tabs)
 ═══════════════════════════════════════════════════════════ */
-function AdultMode({t, stars}) {
+function AdultMode({t, stars, onStars}) {
   const [tab,setTab]         = useState("chat");
   const [lang,setLang]       = useState("es");
   const [scenIdx,setScenIdx] = useState(0);
@@ -1667,7 +1711,7 @@ function AdultMode({t, stars}) {
         <button className="ghost" onClick={()=>setInChat(false)}>← {t.scenario}</button>
         <button className="ghost" onClick={onBack}>{t.home}</button>
       </div>
-      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} t={t}/>
+      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} t={t} onStars={onStars}/>
     </div>
   );
 
@@ -1722,7 +1766,7 @@ function AdultMode({t, stars}) {
       {tab==="notebook" && <AdultNotebookScreen t={t}/>}
       {tab==="wod"      && <WodScreen lang={lang} t={t}/>}
       {tab==="idiom"    && <IdiomScreen lang={lang} t={t}/>}
-      {tab==="vocab"    && <div className="scr"><VocabSets t={t} kidLang={lang}/></div>}
+      {tab==="vocab"    && <div className="scr"><VocabSets t={t} kidLang={lang} onStars={onStars}/></div>}
     </div>
   );
 }
@@ -1979,7 +2023,7 @@ function KidsMode({t, onStars}) {
       )}
       {tab==="idiom"    && <KidsIdiomScreen kidLang={kidLang} t={t}/>}
       {tab==="notebook" && <KidsNotebookScreen t={t}/>}
-      {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang}/></div>}
+      {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang} onStars={onStars}/></div>}
     </div>
   );
 }
@@ -2014,9 +2058,29 @@ export default function App() {
   const [uiLang,setUiLang]     = useState(loadLS(SK_UILNG,"EN"));
   const [nativeLang,setNativeLang] = useState(loadLS(SK_NATLNG,"EN"));
   const [stars,setStars]       = useState(getStarsData().total);
+  const [flashes,setFlashes]   = useState([]);
+  const [levelToast,setLevelToast] = useState("");
   const t = T[uiLang] || T.EN;
 
-  function handleStars(newTotal) { setStars(newTotal); sfx.star(); haptic([20,10,20,10,40]); }
+  function handleStars(newTotal, n=1) {
+    const prevLvl = computeLevel(stars);
+    const newLvl  = computeLevel(newTotal);
+    setStars(newTotal);
+    sfx.star();
+    haptic([20,10,20,10,40]);
+    // Floating "+N ⭐" toast
+    const id = Date.now() + Math.random();
+    setFlashes(f => [...f, {id, n}]);
+    setTimeout(() => setFlashes(f => f.filter(x => x.id !== id)), 2100);
+    // Level-up banner
+    if (newLvl > prevLvl) {
+      setTimeout(() => {
+        setLevelToast(`${LEVEL_NAMES[newLvl]}! 🌟`);
+        setTimeout(() => setLevelToast(""), 3400);
+      }, 700);
+    }
+  }
+
   function goMode(m) { setMode(m); saveLS("lingua_last_mode", m); sfx.click(); }
 
   const ctx = {
@@ -2029,6 +2093,8 @@ export default function App() {
     <Ctx.Provider value={ctx}>
       <style>{CSS}{LOGIN_CSS}</style>
       <UpdatePrompt/>
+      <StarFlash flashes={flashes}/>
+      <LevelUpToast msg={levelToast}/>
       {mode==="adult" && <AdultMode t={t} stars={stars} onStars={handleStars}/>}
       {mode==="kids"  && <KidsMode  t={t} onStars={handleStars}/>}
 
