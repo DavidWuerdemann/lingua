@@ -1078,51 +1078,52 @@ function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
     try { rawText = await file.text(); } catch { setImporting(false); return; }
     if (!rawText.trim()) { setImporting(false); return; }
 
-    // ── Phase 1: parse right away — no AI needed ────────────────────────────
+    const targetLangName = LANGUAGES.find(l => l.code === targetLang)?.name || "English";
+    const nativeLangName = LANG_NAMES[nativeLang] || "English";
+
+    // ── Phase 1: instant display with simple delimiter parse ─────────────────
     const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const DELIMS = ["\t", ";", "|", ","];
     const best   = DELIMS
       .map(d => ({ d, n: lines.filter(l => l.includes(d)).length }))
       .sort((a, b) => b.n - a.n)[0];
     const delim  = best.n >= Math.max(1, lines.length * 0.3) ? best.d : null;
-
-    const newRows = delim
-      ? lines.map(line => {
-          const p = line.split(delim);
-          return { word: (p[0]||"").trim(), transl: (p[1]||"").trim() };
-        }).filter(r => r.word)
+    const quickRows = delim
+      ? lines.map(line => { const p = line.split(delim); return { word:(p[0]||"").trim(), transl:(p[1]||"").trim() }; }).filter(r => r.word)
       : lines.map(line => ({ word: line, transl: "" })).filter(r => r.word);
 
-    if (newRows.length === 0) { setImporting(false); return; }
-
-    // Snapshot current rows and show new ones immediately
+    if (quickRows.length === 0) { setImporting(false); return; }
     const existingRows = words.filter(x => x.word || x.transl);
-    setWords([...existingRows, ...newRows]);
+    setWords([...existingRows, ...quickRows]);   // shown instantly while AI works
 
-    // ── Phase 2: AI fills missing translations ───────────────────────────────
-    if (newRows.some(r => !r.transl)) {
-      const targetLangName = LANGUAGES.find(l => l.code === targetLang)?.name || "English";
-      const nativeLangName = LANG_NAMES[nativeLang] || "English";
-      try {
-        const wordList = newRows.slice(0, 80).map((r, i) => `${i}:${r.word}`).join("\n");
-        const raw = await ai(
-          [{ role: "user", content:
-            `Translate these ${targetLangName} words/phrases into ${nativeLangName}.\n` +
-            `Return ONLY a JSON array like: [{"i":0,"t":"translation"},...]\n\n${wordList}`
-          }],
-          "Output only a valid JSON array with i (index) and t (translation) fields. No markdown.",
-          2000
-        );
-        const m = raw.match(/\[[\s\S]*\]/);
-        if (m) {
-          const updates = JSON.parse(m[0]);
-          const map = {};
-          updates.forEach(u => { if (typeof u.i === "number" && u.t) map[u.i] = String(u.t); });
-          const enriched = newRows.map((r, i) => ({ ...r, transl: map[i] ?? r.transl }));
-          setWords([...existingRows, ...enriched]);
+    // ── Phase 2: AI always re-parses — fixes column order + fills translations
+    // (two-column files may have native lang first; single-column needs translation)
+    try {
+      const raw = await ai(
+        [{ role: "user", content:
+          `Parse this vocabulary file. The learner studies ${targetLangName}; their native language is ${nativeLangName}.\n` +
+          `Rules:\n` +
+          `- "word" = the ${targetLangName} word or phrase\n` +
+          `- "transl" = the ${nativeLangName} translation\n` +
+          `- Auto-detect which column is which (either language can appear first)\n` +
+          `- If translation is missing, generate the correct ${nativeLangName} translation\n` +
+          `- Skip any header rows\n` +
+          `Return ONLY a JSON array, no markdown: [{"word":"...","transl":"..."},...]\n\n` +
+          rawText.slice(0, 2500)
+        }],
+        "Output only a valid JSON array with word and transl fields. No markdown, no explanation.",
+        2000
+      );
+      const m = raw.match(/\[[\s\S]*\]/);
+      if (m) {
+        const rows = JSON.parse(m[0]).filter(r => r.word);
+        if (rows.length > 0) {
+          setWords([...existingRows, ...rows]);   // replace Phase 1 with smart result
+          setImporting(false);
+          return;
         }
-      } catch { /* words already displayed — translations just won't be filled */ }
-    }
+      }
+    } catch { /* Phase 1 results stay — better than nothing */ }
 
     setImporting(false);
   }
