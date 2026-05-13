@@ -554,13 +554,13 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .prog-fill{height:100%;background:var(--a-gold);border-radius:4px;transition:width .6s ease;}
 
 /* ═══ STAR FLASH & LEVEL-UP TOAST ═══ */
-@keyframes starFloat{0%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}60%{opacity:1;transform:translateX(-50%) translateY(-32px) scale(1.12)}100%{opacity:0;transform:translateX(-50%) translateY(-52px) scale(.9)}}
-.star-flash{position:fixed;left:50%;z-index:9999;pointer-events:none;
-  font:700 13px/1 var(--a-sans);color:var(--a-gold);
-  background:var(--a-surf2);border:1px solid rgba(201,148,58,.45);
-  border-radius:20px;padding:5px 13px;
-  box-shadow:0 4px 18px rgba(0,0,0,.35);
-  animation:starFloat 1.8s cubic-bezier(.2,.8,.4,1) forwards;}
+@keyframes starFloat{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}80%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-60%) scale(.9)}}
+.star-flash{position:fixed;left:50%;top:48%;z-index:9999;pointer-events:none;
+  font:800 18px/1 var(--a-sans);color:var(--a-gold);
+  background:var(--a-surf2);border:1.5px solid rgba(201,148,58,.55);
+  border-radius:24px;padding:8px 18px;
+  box-shadow:0 6px 28px rgba(0,0,0,.45);
+  animation:starFloat 2s ease both;}
 @keyframes levelSlide{0%{opacity:0;transform:translateX(-50%) translateY(-10px) scale(.95)}12%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}82%{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-6px)}}
 .level-toast{position:fixed;top:64px;left:50%;z-index:9999;pointer-events:none;
   background:linear-gradient(135deg,#C9943A 0%,#E5B86A 100%);
@@ -568,6 +568,9 @@ input,textarea,select{font-family:inherit;font-size:16px;}
   font:700 13.5px/1 var(--a-sans);letter-spacing:.01em;
   box-shadow:0 8px 28px rgba(201,148,58,.45);
   animation:levelSlide 3.2s ease forwards;white-space:nowrap;}
+@keyframes starPop{0%,100%{transform:scale(1)}50%{transform:scale(1.35)}}
+.star-count{color:var(--a-gold);font-weight:700;font-size:13px;letter-spacing:.01em;transition:color .2s;}
+.star-count.pop{animation:starPop .35s ease;}
 
 /* ═══ UI LANG PICKER ═══ */
 .ui-lang-picker{display:flex;gap:4px;}
@@ -977,9 +980,7 @@ function StarFlash({flashes}) {
   if (!flashes.length) return null;
   return createPortal(
     <>{flashes.map(f=>(
-      <div key={f.id} className="star-flash" style={{top: f.top ?? 72}}>
-        +{f.n} ⭐
-      </div>
+      <div key={f.id} className="star-flash">+{f.n} ⭐</div>
     ))}</>,
     document.body
   );
@@ -1708,6 +1709,7 @@ function AdultMode({t, stars, onStars}) {
       <div className="topbar">
         <div className="topbar-logo">✦</div>
         <span className="topbar-title">Lingua</span>
+        <span className="star-count">⭐ {stars}</span>
         <button className="ghost" onClick={()=>setInChat(false)}>← {t.scenario}</button>
         <button className="ghost" onClick={onBack}>{t.home}</button>
       </div>
@@ -1948,7 +1950,7 @@ function KidsIdiomScreen({kidLang, t}) {
   );
 }
 
-function KidsMode({t, onStars}) {
+function KidsMode({t, onStars, stars=0}) {
   const [tab,setTab]         = useState("chat");
   const [kidLang,setKidLang] = useState(loadLS(SK_KIDLG,"en"));
   const [topic,setTopic]     = useState(null);
@@ -1966,6 +1968,7 @@ function KidsMode({t, onStars}) {
           <span className="kh-title">Ollie's Language World</span>
         </div>
         {topic && <button className="khome-btn" onClick={()=>setTopic(null)}>← {t.topics}</button>}
+        <span className="star-count" style={{color:"#C9943A"}}>⭐ {stars}</span>
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
       </div>
 
@@ -2096,7 +2099,7 @@ export default function App() {
       <StarFlash flashes={flashes}/>
       <LevelUpToast msg={levelToast}/>
       {mode==="adult" && <AdultMode t={t} stars={stars} onStars={handleStars}/>}
-      {mode==="kids"  && <KidsMode  t={t} onStars={handleStars}/>}
+      {mode==="kids"  && <KidsMode  t={t} onStars={handleStars} stars={stars}/>}
 
       {!mode && (
         <div className="landing">
