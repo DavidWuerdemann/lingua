@@ -1519,11 +1519,20 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
 
   function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
 
+  // The trigger that starts the chat — kept in msgs so all subsequent sends
+  // produce a valid API history (Anthropic requires first message = user role).
+  const GREET_TRIGGER = {role:"user",
+    content:"Start now — greet the child and introduce the topic with one fun fact or question!"};
+
   useEffect(()=>{
     if (!topic) return;
     setLoading(true); setGreetFailed(false);
-    ai([{role:"user",content:"Start now — greet the child and introduce the topic with one fun fact or question!"}],system,256)
-      .then(text=>{ setMsgs([{role:"assistant",content:text}]); setCurrentAi(text); bounce(); })
+    ai([GREET_TRIGGER], system, 256)
+      .then(text=>{
+        // Store trigger + greeting so history is always user-first
+        setMsgs([GREET_TRIGGER, {role:"assistant",content:text}]);
+        setCurrentAi(text); bounce();
+      })
       .catch(()=>{ setGreetFailed(true); })
       .finally(()=>setLoading(false));
   },[topic,kidLang,uiLang,retryKey]); // eslint-disable-line
@@ -1540,10 +1549,10 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
       setCurrentAi(text); bounce();
       const newTotal=addStarsTo(1); onStars?.(newTotal,1);
     } catch(err) {
-      // Show the failed user message is still there; AI reply just won't appear
-      console.warn("AI send failed:", err);
+      console.warn("Kids chat send failed:", err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   function checkDictation() {
@@ -1556,8 +1565,8 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
   return (
     /* Bounded flex column — fills whatever space KidsMode gives it */
     <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}}>
-      {/* Ollie greeting — only while waiting for first message */}
-      {msgs.length===0 && (
+      {/* Ollie greeting — only while waiting for first AI response */}
+      {!msgs.some(m=>m.role==="assistant") && (
         <div className="ollie-block">
           <OllieAvatar animate={ollieAnim}/>
           {loading  && <div className="ollie-speech"><Dots/></div>}
@@ -1575,9 +1584,9 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
         </div>
       )}
 
-      {/* Full scrollable chat thread — shows every message */}
+      {/* Full scrollable chat thread — hide the internal trigger message */}
       <div className="chat-area scrollarea" style={{flex:1,overflowY:"auto",minHeight:0}}>
-        {msgs.map((m,i)=>(
+        {msgs.filter(m=>m.content!==GREET_TRIGGER.content).map((m,i)=>(
           <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
             {m.content}
             {/* Kids-friendly correction pill */}
@@ -1591,24 +1600,24 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
                 {m.fix.tip && <span style={{color:"var(--a-muted)",fontStyle:"italic",marginLeft:4}}>({m.fix.tip})</span>}
               </div>
             )}
-            {m.role==="assistant" && !savedSet.has(i) && (
+            {m.role==="assistant" && !savedSet.has(m.content.slice(0,60)) && (
               <button className="action-btn" style={{marginTop:4,fontSize:"0.7rem"}} onClick={()=>{
                 const kn=loadKNB();
                 const snippet=m.content.slice(0,60);
                 if (!kn.find(w=>w.text===snippet)) {
                   kn.unshift({text:snippet,lang:kidLang,date:new Date().toISOString()});
                   saveKNB(kn); sfx.save(); haptic([20]);
-                  setSavedSet(s=>new Set([...s,i]));
+                  setSavedSet(s=>new Set([...s,snippet]));
                   const total=addStarsTo(3); onStars?.(total,3);
                 }
               }}>💾</button>
             )}
-            {m.role==="assistant"&&savedSet.has(i) && (
+            {m.role==="assistant" && savedSet.has(m.content.slice(0,60)) && (
               <span style={{fontSize:"0.7rem",color:"var(--green)",marginTop:4,display:"block"}}>✓</span>
             )}
           </div>
         ))}
-        {loading && msgs.length>0 && <div className="bubble ai"><Dots/></div>}
+        {loading && msgs.some(m=>m.role==="assistant") && <div className="bubble ai"><Dots/></div>}
         <div ref={bottomRef}/>
       </div>
 
