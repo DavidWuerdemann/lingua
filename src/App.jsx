@@ -1376,7 +1376,10 @@ function KidsChat({topic, kidLang, t, onStars}) {
   const system = `You are Ollie the owl 🦉, a fun tutor teaching children ${langObj.name}! Topic: "${topic}".
 IMPORTANT: Give ALL explanations and instructions in ${instrLang}. Teach ${langObj.name} words/phrases.
 Rules: max 2 SHORT sentences. Lots of emojis. Super encouraging. Always end with ONE simple question.
-New words: bold them and give the ${instrLang} meaning in brackets like **word** [meaning].`;
+New words: bold them and give the ${instrLang} meaning in brackets like **word** [meaning].
+If the child makes a ${langObj.name} grammar or spelling mistake, AFTER your reply append (no blank line):
+<fix>{"err":"what they wrote","fix":"correct form","tip":"one short gentle tip in ${instrLang}"}</fix>
+Only add <fix> for clear errors. Be very warm — never make them feel bad! No <fix> if no error.`;
 
   function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
 
@@ -1394,9 +1397,10 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
     const newMsgs=[...msgs,{role:"user",content:input.trim()}];
     setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
-      const raw=await ai(newMsgs,system,120);
-      setMsgs(m=>[...m,{role:"assistant",content:raw}]);
-      setCurrentAi(raw); bounce();
+      const raw=await ai(newMsgs,system,150);
+      const {text,fix}=parseAiResponse(raw);
+      setMsgs(m=>[...m,{role:"assistant",content:text,fix}]);
+      setCurrentAi(text); bounce();
       const newTotal=addStarsTo(1); onStars?.(newTotal,1);
     } catch {}
     setLoading(false);
@@ -1424,6 +1428,17 @@ New words: bold them and give the ${instrLang} meaning in brackets like **word**
         {msgs.map((m,i)=>(
           <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
             {m.content}
+            {/* Kids-friendly correction pill */}
+            {m.role==="assistant" && m.fix && (
+              <div style={{marginTop:6,background:"rgba(248,224,180,.18)",border:"1px solid rgba(232,148,59,.35)",
+                borderRadius:8,padding:"5px 9px",fontSize:"0.72rem",lineHeight:1.5}}>
+                <span style={{fontSize:"0.75rem"}}>💡 </span>
+                <span style={{color:"#E08030",textDecoration:"line-through",marginRight:4}}>{m.fix.err}</span>
+                {"→ "}
+                <span style={{color:"#4CAF82",fontWeight:700}}>{m.fix.fix}</span>
+                {m.fix.tip && <span style={{color:"var(--a-muted)",fontStyle:"italic",marginLeft:4}}>({m.fix.tip})</span>}
+              </div>
+            )}
             {m.role==="assistant" && !savedSet.has(i) && (
               <button className="action-btn" style={{marginTop:4,fontSize:"0.7rem"}} onClick={()=>{
                 const kn=loadKNB();
@@ -1576,8 +1591,12 @@ No <fix> if no error.`;
       if (type==="translation") {
         content = await ai([{role:"user",content:`Translate to English. Translation only:\n"${text}"`}],null,250);
       } else {
-        const raw = await ai([{role:"user",content:`Pronunciation guide for an English speaker. JSON only: {"phonetic":"...","tips":"...","sounds":"..."}\nText: "${text}"`}],null,250);
-        try { content=JSON.parse(raw.replace(/```json|```/g,"").trim()); } catch { content={phonetic:"",tips:raw,sounds:""}; }
+        const raw = await ai([{role:"user",content:
+          `Pronunciation guide. JSON only, no markdown:\n` +
+          `{"phonetic":"IPA transcription","british":"British English note or empty","american":"American English note or empty","tips":"1-2 sentence tip for learners"}\n` +
+          `Text: "${text}"`}],null,300);
+        try { content=JSON.parse(raw.replace(/```json|```/g,"").trim()); }
+        catch { content={phonetic:"",british:"",american:"",tips:raw}; }
       }
       setPanels(p=>({...p,[id]:{type,loading:false,content}}));
     } catch { setPanels(p=>({...p,[id]:{type,loading:false,content:"Could not load."}})); }
@@ -1646,7 +1665,9 @@ No <fix> if no error.`;
                     : (()=>{const c=panels[m.id].content; return (<>
                         <div className="plabel">{t.pronGuide}</div>
                         {c.phonetic && <div className="pph">/{c.phonetic}/</div>}
-                        {c.tips && <div className="ptip">{c.tips}</div>}
+                        {c.british  && <div className="ptip"><span style={{opacity:.6,fontSize:"0.75em"}}>🇬🇧 </span>{c.british}</div>}
+                        {c.american && <div className="ptip"><span style={{opacity:.6,fontSize:"0.75em"}}>🇺🇸 </span>{c.american}</div>}
+                        {c.tips && <div className="ptip" style={{marginTop:c.british||c.american?6:0}}>{c.tips}</div>}
                         {c.sounds && <div className="ptip" style={{marginTop:6}}>{t.watch} {c.sounds}</div>}
                       </>);})()}
                 </div>
