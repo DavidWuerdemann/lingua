@@ -239,6 +239,43 @@ const LEVEL_NAMES = [
 ];
 
 /* ─────────────────────────────────────────────────────────────
+   DEFAULT VOCABULARY SET  (seeded once on first launch)
+───────────────────────────────────────────────────────────── */
+const DEFAULT_VSET_ID = "lingua_default_en_de_v1";
+const DEFAULT_VSET = {
+  id: DEFAULT_VSET_ID,
+  name: "English Essentials 🇬🇧",
+  created: "2026-01-01T00:00:00.000Z",
+  words: [
+    {word:"adventure",   transl:"Abenteuer"},  {word:"arrive",      transl:"ankommen"},
+    {word:"believe",     transl:"glauben"},     {word:"borrow",      transl:"ausleihen"},
+    {word:"brave",       transl:"mutig"},       {word:"careful",     transl:"vorsichtig"},
+    {word:"clever",      transl:"schlau"},      {word:"collect",     transl:"sammeln"},
+    {word:"comfortable", transl:"bequem"},      {word:"compare",     transl:"vergleichen"},
+    {word:"complete",    transl:"vollständig"}, {word:"decide",      transl:"entscheiden"},
+    {word:"describe",    transl:"beschreiben"}, {word:"difficult",   transl:"schwierig"},
+    {word:"discover",    transl:"entdecken"},   {word:"empty",       transl:"leer"},
+    {word:"explain",     transl:"erklären"},    {word:"famous",      transl:"berühmt"},
+    {word:"favorite",    transl:"Lieblings-"},  {word:"friendly",    transl:"freundlich"},
+    {word:"healthy",     transl:"gesund"},      {word:"imagine",     transl:"sich vorstellen"},
+    {word:"improve",     transl:"verbessern"},  {word:"include",     transl:"beinhalten"},
+    {word:"important",   transl:"wichtig"},     {word:"interesting", transl:"interessant"},
+    {word:"journey",     transl:"Reise"},       {word:"language",    transl:"Sprache"},
+    {word:"library",     transl:"Bibliothek"},  {word:"mistake",     transl:"Fehler"},
+    {word:"nervous",     transl:"nervös"},      {word:"opinion",     transl:"Meinung"},
+    {word:"polite",      transl:"höflich"},     {word:"practice",    transl:"üben"},
+    {word:"promise",     transl:"versprechen"}, {word:"question",    transl:"Frage"},
+    {word:"remember",    transl:"erinnern"},    {word:"repair",      transl:"reparieren"},
+    {word:"safe",        transl:"sicher"},      {word:"strange",     transl:"seltsam"},
+    {word:"suddenly",    transl:"plötzlich"},   {word:"surprise",    transl:"Überraschung"},
+    {word:"travel",      transl:"reisen"},      {word:"understand",  transl:"verstehen"},
+    {word:"useful",      transl:"nützlich"},    {word:"village",     transl:"Dorf"},
+    {word:"weather",     transl:"Wetter"},      {word:"whisper",     transl:"flüstern"},
+    {word:"wonderful",   transl:"wunderbar"},   {word:"yesterday",   transl:"gestern"},
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
    STORAGE KEYS
 ───────────────────────────────────────────────────────────── */
 const SK_NB    = "lingua_notebook";
@@ -309,6 +346,14 @@ function addError(entry) {
 const loadVSets = () => loadLS(SK_VSETS, []);
 const saveVSets = (v) => saveLS(SK_VSETS, v);
 
+// Seed the built-in set once — idempotent (checks by id)
+function seedDefaultVSet() {
+  const sets = loadVSets();
+  if (!sets.find(s => s.id === DEFAULT_VSET_ID)) {
+    saveVSets([...sets, DEFAULT_VSET]);
+  }
+}
+
 /* SM-2 lite */
 function sm2Update(word, quality) {
   let ease = word.ease ?? 2.5, interval = word.interval ?? 1;
@@ -328,6 +373,25 @@ async function ai(messages, system="You are a helpful language tutor.", maxToken
     method:"POST",
     headers:{"Content-Type":"application/json"},
     body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,system,messages}),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message||"API error");
+  return data.content?.[0]?.text || "";
+}
+
+// Vision variant — sends an image + text prompt, returns text
+async function aiImage(base64, mediaType, prompt, maxTokens=2000) {
+  const res = await fetch("/api/chat",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:maxTokens,
+      messages:[{role:"user",content:[
+        {type:"image",source:{type:"base64",media_type:mediaType,data:base64}},
+        {type:"text",text:prompt},
+      ]}],
+    }),
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message||"API error");
@@ -976,6 +1040,30 @@ function LevelBadge({stars}) {
   );
 }
 
+// Kids-mode level bar — same logic, warm honey palette
+function KidsLevelBar({stars}) {
+  const lvl  = computeLevel(stars);
+  const name = LEVEL_NAMES[lvl];
+  const curr = LEVEL_THRESHOLDS[lvl];
+  const next = LEVEL_THRESHOLDS[lvl+1] ?? curr+1000;
+  const pct  = Math.min(100,((stars-curr)/(next-curr))*100);
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:8,padding:"5px 16px",
+      background:"var(--k-paper)",borderBottom:"2px solid var(--k-border)",fontSize:12}}>
+      <span style={{color:"#E8943B",fontWeight:800,fontFamily:"var(--k-sans)"}}>⭐ {stars}</span>
+      <span style={{background:"#FFF0CC",border:"1.5px solid #F4D060",borderRadius:20,
+        padding:"2px 9px",fontSize:11,fontWeight:800,color:"#9A6010",fontFamily:"var(--k-sans)"}}>
+        {name}
+      </span>
+      <div style={{flex:1,height:5,background:"var(--k-border)",borderRadius:5,overflow:"hidden"}}>
+        <div style={{width:`${pct}%`,height:"100%",background:"#E8943B",
+          borderRadius:5,transition:"width .6s ease"}}/>
+      </div>
+      <span style={{fontSize:"0.68rem",color:"var(--k-mute)",fontFamily:"var(--k-sans)"}}>Lv{lvl+1}</span>
+    </div>
+  );
+}
+
 function StarFlash({flashes}) {
   if (!flashes.length) return null;
   return createPortal(
@@ -1109,6 +1197,7 @@ function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
   const removeRow = (i)     => setWords(w=>w.filter((_,j)=>j!==i));
 
   const LANG_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const imgRef = useRef();
 
   async function importFile(e) {
     const file = e.target.files[0]; if (!file) return;
@@ -1169,6 +1258,43 @@ function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
     setImporting(false);
   }
 
+  async function importImage(e) {
+    const file = e.target.files[0]; if (!file) return;
+    setImporting(true);
+    e.target.value = "";
+    const targetLangName = LANGUAGES.find(l => l.code === targetLang)?.name || "English";
+    const nativeLangName = LANG_NAMES[nativeLang] || "English";
+    try {
+      // Read as base64
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload  = () => res(r.result.split(",")[1]); // strip data: prefix
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
+      const mediaType = file.type || "image/jpeg";
+      const prompt =
+        `This image shows a vocabulary list from a textbook or worksheet.\n` +
+        `The learner studies ${targetLangName}; their native language is ${nativeLangName}.\n` +
+        `Extract every vocabulary pair you can see:\n` +
+        `- "word" = the ${targetLangName} word or phrase\n` +
+        `- "transl" = the ${nativeLangName} translation\n` +
+        `If only one language column is visible, generate the ${nativeLangName} translation yourself.\n` +
+        `Return ONLY a JSON array, no markdown: [{"word":"...","transl":"..."},...]`;
+      const raw  = await aiImage(base64, mediaType, prompt, 2000);
+      const m    = raw.match(/\[[\s\S]*\]/);
+      if (m) {
+        const rows = JSON.parse(m[0]).filter(r => r.word);
+        if (rows.length > 0) {
+          setWords(prev => [...prev.filter(x => x.word || x.transl), ...rows]);
+          setImporting(false);
+          return;
+        }
+      }
+    } catch(err) { console.warn("Image import failed:", err); }
+    setImporting(false);
+  }
+
   function save() {
     const clean = words.filter(w=>w.word.trim());
     if (!name.trim()||clean.length===0) return;
@@ -1188,10 +1314,17 @@ function SetEditor({set: initSet, t, targetLang, onSave, onCancel}) {
       <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,fontSize:12,color:"var(--a-muted)"}}>
         <span>🗣 {LANG_NAMES[nativeLang]||"English"} → {LANGUAGES.find(l=>l.code===targetLang)?.flag||"🌐"} {LANGUAGES.find(l=>l.code===targetLang)?.name||"?"}</span>
       </div>
-      <button className="import-btn" onClick={()=>fileRef.current.click()} disabled={importing}>
-        {importing ? <><Dots/> AI is reading your list…</> : `📂 ${t.import} — any format, AI auto-detects`}
-      </button>
+      <div style={{display:"flex",gap:7,marginBottom:0}}>
+        <button className="import-btn" style={{flex:1}} onClick={()=>fileRef.current.click()} disabled={importing}>
+          {importing ? <><Dots/> Reading…</> : `📂 ${t.import}`}
+        </button>
+        <button className="import-btn" style={{flex:1,background:"rgba(201,148,58,.13)",borderColor:"rgba(201,148,58,.35)"}}
+          onClick={()=>imgRef.current.click()} disabled={importing} title="Import from photo or image">
+          {importing ? <><Dots/> Reading…</> : "📷 Photo / Scan"}
+        </button>
+      </div>
       <input ref={fileRef} type="file" accept=".txt,.csv,.tsv" style={{display:"none"}} onChange={importFile}/>
+      <input ref={imgRef}  type="file" accept="image/*" capture="environment" style={{display:"none"}} onChange={importImage}/>
       {importing
         ? <div style={{padding:"20px 0",textAlign:"center",color:"var(--a-muted)",fontSize:13}}>
             <Dots/> Detecting words &amp; translating to {LANG_NAMES[nativeLang]}…
@@ -1989,7 +2122,6 @@ function KidsMode({t, onStars, stars=0}) {
           <span className="kh-title">Ollie's Language World</span>
         </div>
         {topic && <button className="khome-btn" onClick={()=>setTopic(null)}>← {t.topics}</button>}
-        <span className="star-count" style={{color:"#C9943A"}}>⭐ {stars}</span>
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
       </div>
 
@@ -2001,6 +2133,7 @@ function KidsMode({t, onStars, stars=0}) {
           </button>
         ))}
       </div>
+      <KidsLevelBar stars={stars}/>
 
       {tab==="chat" && (
         <>
@@ -2071,6 +2204,7 @@ function KidsNotebookScreen({t}) {
    ROOT APP  (new landing page design)
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
+  seedDefaultVSet(); // idempotent — adds built-in set if not already present
   const [mode,setMode]         = useState(loadLS("lingua_last_mode", null));
   const [uiLang,setUiLang]     = useState(loadLS(SK_UILNG,"EN"));
   const [nativeLang,setNativeLang] = useState(loadLS(SK_NATLNG,"EN"));
