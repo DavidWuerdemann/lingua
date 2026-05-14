@@ -837,7 +837,7 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .send-btn:disabled{opacity:.35;cursor:not-allowed;}
 
 /* ═══ KIDS SHELL ═══ */
-.ks{min-height:100svh;display:flex;flex-direction:column;background:var(--k-bg);font-family:var(--k-sans);}
+.ks{height:100svh;overflow:hidden;display:flex;flex-direction:column;background:var(--k-bg);font-family:var(--k-sans);}
 .kh{background:var(--k-ink);padding:8px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;flex-wrap:wrap;}
 .khome-btn{color:#fff;font-size:13px;padding:5px 10px;background:rgba(255,255,255,.1);border-radius:8px;font-family:var(--k-sans);font-weight:700;cursor:pointer;border:none;}
 .kh-ollie{display:flex;align-items:center;gap:8px;flex:1;margin-left:4px;}
@@ -1486,6 +1486,8 @@ function KidsChat({topic, kidLang, t, onStars}) {
   const [msgs,setMsgs]             = useState([]);
   const [input,setInput]           = useState("");
   const [loading,setLoading]       = useState(false);
+  const [greetFailed,setGreetFailed] = useState(false);
+  const [retryKey,setRetryKey]     = useState(0);
   const [listenMode,setListenMode] = useState(false);
   const [dictVal,setDictVal]       = useState("");
   const [dictResult,setDictResult] = useState(null);
@@ -1501,7 +1503,8 @@ function KidsChat({topic, kidLang, t, onStars}) {
   const instrLang = UI_LANG_NAMES[uiLang] || "English";
 
   useEffect(()=>{
-    setMsgs([]); setCurrentAi(""); setDictVal(""); setDictResult(null); setListenMode(false);
+    setMsgs([]); setCurrentAi(""); setDictVal(""); setDictResult(null);
+    setListenMode(false); setGreetFailed(false);
   },[topic,kidLang,uiLang]);
 
   useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[msgs,loading]);
@@ -1518,11 +1521,12 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
 
   useEffect(()=>{
     if (!topic) return;
-    setLoading(true);
-    ai([{role:"user",content:"Start now — greet the child and introduce the topic with one fun fact or question!"}],system,120)
+    setLoading(true); setGreetFailed(false);
+    ai([{role:"user",content:"Start now — greet the child and introduce the topic with one fun fact or question!"}],system,256)
       .then(text=>{ setMsgs([{role:"assistant",content:text}]); setCurrentAi(text); bounce(); })
-      .catch(()=>{}).finally(()=>setLoading(false));
-  },[topic,kidLang,uiLang]);
+      .catch(()=>{ setGreetFailed(true); })
+      .finally(()=>setLoading(false));
+  },[topic,kidLang,uiLang,retryKey]); // eslint-disable-line
 
   async function send() {
     if (!input.trim()||loading) return;
@@ -1530,12 +1534,15 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
     const newMsgs=[...msgs,{role:"user",content:input.trim()}];
     setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
-      const raw=await ai(newMsgs,system,150);
+      const raw=await ai(newMsgs,system,256);
       const {text,fix}=parseAiResponse(raw);
       setMsgs(m=>[...m,{role:"assistant",content:text,fix}]);
       setCurrentAi(text); bounce();
       const newTotal=addStarsTo(1); onStars?.(newTotal,1);
-    } catch {}
+    } catch(err) {
+      // Show the failed user message is still there; AI reply just won't appear
+      console.warn("AI send failed:", err);
+    }
     setLoading(false);
   }
 
@@ -1547,12 +1554,24 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
   }
 
   return (
-    <>
+    /* Bounded flex column — fills whatever space KidsMode gives it */
+    <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden"}}>
       {/* Ollie greeting — only while waiting for first message */}
       {msgs.length===0 && (
         <div className="ollie-block">
           <OllieAvatar animate={ollieAnim}/>
-          {loading && <div className="ollie-speech"><Dots/></div>}
+          {loading  && <div className="ollie-speech"><Dots/></div>}
+          {greetFailed && !loading && (
+            <div style={{textAlign:"center",marginTop:8}}>
+              <div style={{fontSize:"0.82rem",color:"var(--k-mute)",marginBottom:8,fontFamily:"var(--k-sans)"}}>
+                😕 Oops, couldn't connect…
+              </div>
+              <button className="action-btn" style={{background:"var(--k-accent)",color:"#fff",border:"none"}}
+                onClick={()=>setRetryKey(k=>k+1)}>
+                🔄 Try again
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -1631,7 +1650,7 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
           placeholder={t.startChat} rows={1}/>
         <button className="send-btn" onClick={send} disabled={loading||!input.trim()}>{t.send}</button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -2204,7 +2223,7 @@ function KidsNotebookScreen({t}) {
    ROOT APP  (new landing page design)
 ═══════════════════════════════════════════════════════════ */
 export default function App() {
-  seedDefaultVSet(); // idempotent — adds built-in set if not already present
+  useEffect(()=>{ seedDefaultVSet(); }, []); // seed once on first mount
   const [mode,setMode]         = useState(loadLS("lingua_last_mode", null));
   const [uiLang,setUiLang]     = useState(loadLS(SK_UILNG,"EN"));
   const [nativeLang,setNativeLang] = useState(loadLS(SK_NATLNG,"EN"));
