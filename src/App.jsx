@@ -451,7 +451,13 @@ function parseAiResponse(raw) {
   const text = raw.replace(/<fix>[\s\S]*?<\/fix>/g,"").trim();
   let fix = null;
   if (m) try { fix = JSON.parse(m[1].trim()); } catch {}
-  return {text, fix};
+  // Never return empty text — strip any remaining tags and fall back to ellipsis
+  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix};
+}
+
+// Strip extra props so Anthropic never sees fields like `fix` or `id`
+function toApiMsgs(msgs) {
+  return msgs.map(m => ({role: m.role, content: m.content}));
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1497,6 +1503,14 @@ function VocabSets({t, kidLang, onStars}) {
 /* ═══════════════════════════════════════════════════════════
    KIDS CHAT
 ═══════════════════════════════════════════════════════════ */
+
+// Module-level constant — stable reference so filter comparisons never miss.
+// Kept in the msgs array so the API history always starts with role:"user".
+const GREET_TRIGGER = {
+  role:"user",
+  content:"Start now — greet the child and introduce the topic with one fun fact or question!",
+};
+
 function KidsChat({topic, kidLang, t, onStars}) {
   const [msgs,setMsgs]             = useState([]);
   const [input,setInput]           = useState("");
@@ -1534,10 +1548,6 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
 
   function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
 
-  // The trigger that starts the chat — kept in msgs so all subsequent sends
-  // produce a valid API history (Anthropic requires first message = user role).
-  const GREET_TRIGGER = {role:"user",
-    content:"Start now — greet the child and introduce the topic with one fun fact or question!"};
 
   useEffect(()=>{
     if (!topic) return;
@@ -1555,16 +1565,22 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
   async function send() {
     if (!input.trim()||loading) return;
     sfx.send(); haptic([15]);
-    const newMsgs=[...msgs,{role:"user",content:input.trim()}];
+    const savedInput = input.trim();
+    const prevMsgs   = msgs;
+    const newMsgs    = [...msgs, {role:"user", content:savedInput}];
     setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
-      const raw=await ai(newMsgs,system,256);
-      const {text,fix}=parseAiResponse(raw);
-      setMsgs(m=>[...m,{role:"assistant",content:text,fix}]);
+      // Strip extra props (fix, id, …) — Anthropic rejects unknown fields
+      const apiMsgs = toApiMsgs(newMsgs);
+      const raw  = await ai(apiMsgs, system, 400);
+      const {text,fix} = parseAiResponse(raw);
+      setMsgs(m=>[...m, {role:"assistant", content:text, fix}]);
       setCurrentAi(text); bounce();
-      const newTotal=addStarsTo(1); onStars?.(newTotal,1);
+      const newTotal = addStarsTo(1); onStars?.(newTotal, 1);
     } catch(err) {
       console.warn("Kids chat send failed:", err);
+      setMsgs(prevMsgs);      // roll back the optimistic user bubble
+      setInput(savedInput);   // restore what the child typed
     } finally {
       setLoading(false);
     }
