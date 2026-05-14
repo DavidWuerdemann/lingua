@@ -1086,7 +1086,7 @@ function LevelUpToast({msg}) {
    WORD OF DAY
 ═══════════════════════════════════════════════════════════ */
 function FlashCards({words: initWords, t, onDone, onStars}) {
-  const [queue]              = useState([...initWords].sort(()=>Math.random()-.5));
+  const [queue,setQueue]     = useState(()=>[...initWords].sort(()=>Math.random()-.5));
   const [idx,setIdx]         = useState(0);
   const [flipped,setFlipped] = useState(false);
   const [mode,setMode]       = useState("flip");
@@ -1095,12 +1095,26 @@ function FlashCards({words: initWords, t, onDone, onStars}) {
 
   const current = queue[idx];
   const done = !current;
-  // Award stars once when the session completes
-  useEffect(()=>{ if (done) { const total=addStarsTo(5); onStars?.(total,5); } },[done]); // eslint-disable-line
+
+  // Award stars once when the session completes (done flips true)
+  useEffect(()=>{
+    if (done && queue.length > 0) { const total=addStarsTo(5); onStars?.(total,5); }
+  },[done]); // eslint-disable-line
+
+  function resetDeck() {
+    setQueue([...initWords].sort(()=>Math.random()-.5));
+    setIdx(0); setFlipped(false); setTypeVal(""); setTypeResult(null);
+  }
 
   if (done) return (
-    <div style={{padding:28,textAlign:"center",color:"var(--muted)",fontSize:"1.1rem"}}>
-      {t.allDone} 🎉
+    <div style={{padding:28,textAlign:"center"}}>
+      <div style={{fontSize:"2.5rem",marginBottom:8}}>🎉</div>
+      <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--a-cream)",marginBottom:4}}>{t.allDone}</div>
+      <div style={{fontSize:"0.85rem",color:"var(--a-muted)",marginBottom:20}}>+5 ⭐ earned!</div>
+      <div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap"}}>
+        <button className="action-btn" onClick={onDone}>← {t.back}</button>
+        <button className="action-btn primary" onClick={resetDeck}>🔄 Practice Again</button>
+      </div>
     </div>
   );
 
@@ -1116,7 +1130,7 @@ function FlashCards({words: initWords, t, onDone, onStars}) {
     if (entry && quality!==undefined) saveNB(nb.map(w=>w.text===back?sm2Update(w,quality):w));
     if (quality===2) sfx.correct(); else if (quality===0) sfx.wrong(); else sfx.click();
     setFlipped(false); setTypeVal(""); setTypeResult(null);
-    if (idx+1>=queue.length) onDone?.(); else setIdx(i=>i+1);
+    setIdx(i=>i+1); // when i+1 >= queue.length → done=true → shows completion screen
   }
 
   function checkType() {
@@ -1422,6 +1436,7 @@ function VocabSets({t, kidLang, onStars}) {
   const [flashTarget,setFlashTarget] = useState(null);
   const [practTarget,setPractTarget] = useState(null);
   const [listKey,setListKey]         = useState(0);
+  const [flashSession,setFlashSession] = useState(0); // incremented each time a set is opened
   const reload = () => setListKey(k=>k+1);
 
   if (view==="edit") return (
@@ -1435,7 +1450,7 @@ function VocabSets({t, kidLang, onStars}) {
         <button className="action-btn" onClick={()=>setView("list")}>← {t.back}</button>
         <span style={{fontWeight:600,fontSize:"0.88rem"}}>{flashTarget.name}</span>
       </div>
-      <FlashCards words={flashTarget.words} t={t} onDone={()=>setView("list")} onStars={onStars}/>
+      <FlashCards key={flashSession} words={flashTarget.words} t={t} onDone={()=>setView("list")} onStars={onStars}/>
     </>
   );
   if (view==="practice"&&practTarget) return (
@@ -1460,7 +1475,7 @@ function VocabSets({t, kidLang, onStars}) {
           <span className="vs-count">{s.words.length} words</span>
           <div className="vs-actions">
             <button className="vs-btn" title={t.flashcards}
-              onClick={()=>{ setFlashTarget(s); setView("flash"); sfx.click(); }}>🃏</button>
+              onClick={()=>{ setFlashTarget(s); setFlashSession(n=>n+1); setView("flash"); sfx.click(); }}>🃏</button>
             <button className="vs-btn" title={t.practice}
               onClick={()=>{ setPractTarget(s); setView("practice"); sfx.click(); }}>🤖</button>
             <button className="vs-btn" title={t.editSet}
