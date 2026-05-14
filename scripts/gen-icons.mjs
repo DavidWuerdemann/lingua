@@ -1,138 +1,140 @@
-// Generate icon-192.png and icon-512.png with Ollie the owl on a navy background
+// Generates public/icon-192.png and public/icon-512.png with Ollie the owl.
+// Runs automatically as "prebuild" before every `npm run build`.
 import { Resvg } from '@resvg/resvg-js';
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
 
-const __dir = dirname(fileURLToPath(import.meta.url));
-const publicDir = join(__dir, '..', 'public');
+const __dir  = dirname(fileURLToPath(import.meta.url));
+const outDir = join(__dir, '..', 'public');
 
-// Full Ollie owl SVG — navy background, friendly owl face
-// Designed to be clear at both 192×192 and 512×512
-const svgTemplate = (size) => {
-  const s = size;
-  const cx = s / 2;
-  const cy = s / 2;
-  // Scale factor: original design at 512
-  const sc = s / 512;
-  const t = (v) => (v * sc).toFixed(2);
+// ── SVG source ────────────────────────────────────────────────────────────────
+// Designed to stay crisp at 192 px:
+//  • Face-forward Ollie, big eyes, bold shapes, minimal fine detail
+//  • Navy squircle background  ·  gold accent ring  ·  warm brown owl
+const SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" shape-rendering="geometricPrecision">
+<defs>
+  <!-- Background: deep navy, subtle centre glow -->
+  <radialGradient id="bgGrad" cx="50%" cy="40%" r="70%">
+    <stop offset="0%"   stop-color="#1A2D45"/>
+    <stop offset="100%" stop-color="#0B1522"/>
+  </radialGradient>
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">
-  <defs>
-    <radialGradient id="bg" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#1D2E44"/>
-      <stop offset="100%" stop-color="#0F1B2D"/>
-    </radialGradient>
-    <radialGradient id="body" cx="50%" cy="38%" r="60%">
-      <stop offset="0%" stop-color="#C49570"/>
-      <stop offset="100%" stop-color="#7A5535"/>
-    </radialGradient>
-    <radialGradient id="belly" cx="50%" cy="40%" r="55%">
-      <stop offset="0%" stop-color="#F5E8D5"/>
-      <stop offset="100%" stop-color="#E4CCA8"/>
-    </radialGradient>
-    <radialGradient id="eye-l" cx="38%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#E8E0D8"/>
-    </radialGradient>
-    <radialGradient id="eye-r" cx="38%" cy="35%" r="60%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#E8E0D8"/>
-    </radialGradient>
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="${t(8)}" stdDeviation="${t(12)}" flood-color="#000" flood-opacity="0.35"/>
-    </filter>
-    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="${t(6)}" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
+  <!-- Owl body: warm amber-brown -->
+  <radialGradient id="bodyGrad" cx="42%" cy="32%" r="68%">
+    <stop offset="0%"   stop-color="#C9935A"/>
+    <stop offset="60%"  stop-color="#9E6A38"/>
+    <stop offset="100%" stop-color="#6E4420"/>
+  </radialGradient>
 
-  <!-- Background circle -->
-  <rect width="${s}" height="${s}" fill="url(#bg)" rx="${t(96)}"/>
+  <!-- Facial disc: creamy -->
+  <radialGradient id="faceGrad" cx="45%" cy="38%" r="62%">
+    <stop offset="0%"   stop-color="#F5E8D0"/>
+    <stop offset="100%" stop-color="#DFC9A4"/>
+  </radialGradient>
 
-  <!-- Subtle glow behind Ollie -->
-  <ellipse cx="${cx}" cy="${cy}" rx="${t(185)}" ry="${t(175)}" fill="rgba(201,148,58,0.07)"/>
+  <!-- Eye whites -->
+  <radialGradient id="eyeGrad" cx="35%" cy="30%" r="65%">
+    <stop offset="0%"   stop-color="#FFFFFF"/>
+    <stop offset="100%" stop-color="#EDE4D8"/>
+  </radialGradient>
 
-  <!-- Ollie's body (centred, shifted down slightly) -->
-  <g transform="translate(${cx}, ${cy + s * 0.04})" filter="url(#shadow)">
-    <!-- Main body oval -->
-    <ellipse cx="0" cy="${t(30)}" rx="${t(148)}" ry="${t(155)}" fill="url(#body)"/>
+  <!-- Gold ring glow behind owl -->
+  <radialGradient id="haloGrad" cx="50%" cy="50%" r="50%">
+    <stop offset="60%"  stop-color="rgba(201,148,58,0)"  />
+    <stop offset="100%" stop-color="rgba(201,148,58,0.28)"/>
+  </radialGradient>
 
-    <!-- Wing feathers (left) -->
-    <ellipse cx="${t(-128)}" cy="${t(80)}" rx="${t(40)}" ry="${t(80)}" fill="#8B6242" transform="rotate(-22 ${t(-128)} ${t(80)})"/>
-    <ellipse cx="${t(-110)}" cy="${t(88)}" rx="${t(32)}" ry="${t(68)}" fill="#9E7050" transform="rotate(-18 ${t(-110)} ${t(88)})"/>
+  <!-- Drop shadow filter -->
+  <filter id="dropShadow" x="-15%" y="-10%" width="130%" height="130%">
+    <feDropShadow dx="0" dy="6" stdDeviation="14" flood-color="#000" flood-opacity="0.55"/>
+  </filter>
+  <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+    <feDropShadow dx="0" dy="3" stdDeviation="7" flood-color="#000" flood-opacity="0.40"/>
+  </filter>
+</defs>
 
-    <!-- Wing feathers (right) -->
-    <ellipse cx="${t(128)}" cy="${t(80)}" rx="${t(40)}" ry="${t(80)}" fill="#8B6242" transform="rotate(22 ${t(128)} ${t(80)})"/>
-    <ellipse cx="${t(110)}" cy="${t(88)}" rx="${t(32)}" ry="${t(68)}" fill="#9E7050" transform="rotate(18 ${t(110)} ${t(88)})"/>
+<!-- ── Background squircle ── -->
+<rect width="512" height="512" rx="108" ry="108" fill="url(#bgGrad)"/>
 
-    <!-- Belly -->
-    <ellipse cx="0" cy="${t(68)}" rx="${t(90)}" ry="${t(108)}" fill="url(#belly)"/>
+<!-- Gold halo ring (subtle, decorative) -->
+<ellipse cx="256" cy="272" rx="198" ry="195" fill="url(#haloGrad)"/>
 
-    <!-- Belly feather lines -->
-    <path d="M 0 ${t(-10)} Q ${t(-40)} ${t(30)} 0 ${t(60)}" stroke="#D4B890" stroke-width="${t(2)}" fill="none" opacity="0.5"/>
-    <path d="M 0 ${t(-10)} Q ${t(40)} ${t(30)} 0 ${t(60)}" stroke="#D4B890" stroke-width="${t(2)}" fill="none" opacity="0.5"/>
+<!-- ── Ollie group ── -->
+<g filter="url(#dropShadow)">
 
-    <!-- Ear tufts -->
-    <path d="M ${t(-72)} ${t(-110)} L ${t(-90)} ${t(-175)} L ${t(-38)} ${t(-118)} Z" fill="#8B6242"/>
-    <path d="M ${t(72)} ${t(-110)} L ${t(90)} ${t(-175)} L ${t(38)} ${t(-118)} Z" fill="#8B6242"/>
-    <!-- Tuft highlights -->
-    <path d="M ${t(-72)} ${t(-115)} L ${t(-82)} ${t(-158)} L ${t(-50)} ${t(-120)} Z" fill="#A07548"/>
-    <path d="M ${t(72)} ${t(-115)} L ${t(82)} ${t(-158)} L ${t(50)} ${t(-120)} Z" fill="#A07548"/>
+  <!-- Body -->
+  <ellipse cx="256" cy="318" rx="152" ry="168" fill="url(#bodyGrad)"/>
 
-    <!-- Facial disc (lighter ring around face) -->
-    <ellipse cx="0" cy="${t(-20)}" rx="${t(115)}" ry="${t(108)}" fill="#A87F58" opacity="0.35"/>
+  <!-- Ear tufts (drawn behind the head) -->
+  <polygon points="166,175 148,84 208,168" fill="#7A4E22"/>
+  <polygon points="346,175 364,84 304,168" fill="#7A4E22"/>
+  <!-- Tuft highlight -->
+  <polygon points="172,172 156,100 205,170" fill="#A06836"/>
+  <polygon points="340,172 356,100 307,170" fill="#A06836"/>
 
-    <!-- Left eye white -->
-    <circle cx="${t(-48)}" cy="${t(-30)}" r="${t(52)}" fill="url(#eye-l)"/>
-    <!-- Left eye ring -->
-    <circle cx="${t(-48)}" cy="${t(-30)}" r="${t(52)}" fill="none" stroke="#C9943A" stroke-width="${t(4)}" opacity="0.6"/>
-    <!-- Left pupil -->
-    <circle cx="${t(-42)}" cy="${t(-26)}" r="${t(28)}" fill="#2D2521"/>
-    <!-- Left pupil shine -->
-    <circle cx="${t(-36)}" cy="${t(-36)}" r="${t(9)}" fill="#FFFFFF"/>
-    <circle cx="${t(-28)}" cy="${t(-22)}" r="${t(4)}" fill="rgba(255,255,255,0.5)"/>
+  <!-- Facial disc (warm cream oval covering front of face) -->
+  <ellipse cx="256" cy="265" rx="128" ry="122" fill="url(#faceGrad)"/>
 
-    <!-- Right eye white -->
-    <circle cx="${t(48)}" cy="${t(-30)}" r="${t(52)}" fill="url(#eye-r)"/>
-    <!-- Right eye ring -->
-    <circle cx="${t(48)}" cy="${t(-30)}" r="${t(52)}" fill="none" stroke="#C9943A" stroke-width="${t(4)}" opacity="0.6"/>
-    <!-- Right pupil -->
-    <circle cx="${t(54)}" cy="${t(-26)}" r="${t(28)}" fill="#2D2521"/>
-    <!-- Right pupil shine -->
-    <circle cx="${t(60)}" cy="${t(-36)}" r="${t(9)}" fill="#FFFFFF"/>
-    <circle cx="${t(68)}" cy="${t(-22)}" r="${t(4)}" fill="rgba(255,255,255,0.5)"/>
+  <!-- Wing hints (small rounded patches on sides) -->
+  <ellipse cx="116" cy="340" rx="46" ry="88" fill="#7A4E22" transform="rotate(-18,116,340)"/>
+  <ellipse cx="396" cy="340" rx="46" ry="88" fill="#7A4E22" transform="rotate(18,396,340)"/>
 
-    <!-- Beak -->
-    <path d="M ${t(-22)} ${t(22)} L 0 ${t(62)} L ${t(22)} ${t(22)} Q 0 ${t(12)} ${t(-22)} ${t(22)} Z" fill="#E8943B"/>
-    <path d="M ${t(-22)} ${t(22)} Q 0 ${t(38)} ${t(22)} ${t(22)}" stroke="#C97820" stroke-width="${t(2.5)}" fill="none"/>
-    <!-- Beak highlight -->
-    <path d="M ${t(-12)} ${t(26)} Q 0 ${t(20)} ${t(12)} ${t(26)}" stroke="#F4B060" stroke-width="${t(2)}" fill="none" opacity="0.6"/>
+  <!-- Belly feather texture (very subtle arcs) -->
+  <ellipse cx="256" cy="348" rx="88" ry="96" fill="#EBD9B8" opacity="0.55"/>
 
-    <!-- Feet -->
-    <g fill="#C97820">
-      <ellipse cx="${t(-38)}" cy="${t(168)}" rx="${t(16)}" ry="${t(8)}" transform="rotate(-10 ${t(-38)} ${t(168)})"/>
-      <ellipse cx="${t(-20)}" cy="${t(170)}" rx="${t(16)}" ry="${t(8)}" transform="rotate(5 ${t(-20)} ${t(170)})"/>
-      <ellipse cx="${t(20)}" cy="${t(170)}" rx="${t(16)}" ry="${t(8)}" transform="rotate(-5 ${t(20)} ${t(170)})"/>
-      <ellipse cx="${t(38)}" cy="${t(168)}" rx="${t(16)}" ry="${t(8)}" transform="rotate(10 ${t(38)} ${t(168)})"/>
-    </g>
+  <!-- ── Eyes ── -->
+  <!-- Left eye -->
+  <circle cx="204" cy="258" r="58" fill="url(#eyeGrad)" filter="url(#softShadow)"/>
+  <circle cx="204" cy="258" r="58" fill="none" stroke="#C9943A" stroke-width="5" opacity="0.9"/>
+  <!-- Left pupil -->
+  <circle cx="210" cy="263" r="34" fill="#1A1008"/>
+  <!-- Left pupil shine (large) -->
+  <circle cx="196" cy="248" r="11" fill="#FFFFFF"/>
+  <!-- Left pupil shine (small) -->
+  <circle cx="220" cy="266" r="5"  fill="rgba(255,255,255,0.55)"/>
+
+  <!-- Right eye -->
+  <circle cx="308" cy="258" r="58" fill="url(#eyeGrad)" filter="url(#softShadow)"/>
+  <circle cx="308" cy="258" r="58" fill="none" stroke="#C9943A" stroke-width="5" opacity="0.9"/>
+  <!-- Right pupil -->
+  <circle cx="314" cy="263" r="34" fill="#1A1008"/>
+  <!-- Right pupil shine (large) -->
+  <circle cx="300" cy="248" r="11" fill="#FFFFFF"/>
+  <!-- Right pupil shine (small) -->
+  <circle cx="324" cy="266" r="5"  fill="rgba(255,255,255,0.55)"/>
+
+  <!-- Beak -->
+  <path d="M 230,298 L 256,340 L 282,298 Q 256,285 230,298 Z" fill="#E8943B"/>
+  <path d="M 230,298 Q 256,310 282,298" stroke="#C07020" stroke-width="2.5" fill="none"/>
+  <!-- Beak highlight -->
+  <path d="M 238,300 Q 256,293 274,300" stroke="#F5B060" stroke-width="2" fill="none" opacity="0.7"/>
+
+  <!-- Feet (small, peeking at bottom) -->
+  <g fill="#C07820" opacity="0.85">
+    <ellipse cx="224" cy="472" rx="18" ry="8" transform="rotate(-12,224,472)"/>
+    <ellipse cx="244" cy="476" rx="18" ry="8" transform="rotate(-4,244,476)"/>
+    <ellipse cx="268" cy="476" rx="18" ry="8" transform="rotate(4,268,476)"/>
+    <ellipse cx="288" cy="472" rx="18" ry="8" transform="rotate(12,288,472)"/>
   </g>
+</g>
 
-  <!-- Gold accent star bottom-right -->
-  <text x="${t(390)}" y="${t(460)}" font-size="${t(56)}" text-anchor="middle" fill="#C9943A" opacity="0.7">✦</text>
+<!-- ── Lingua ✦ badge (bottom-right) ── -->
+<circle cx="404" cy="412" r="46" fill="#C9943A"/>
+<circle cx="404" cy="412" r="46" fill="none" stroke="#0F1B2D" stroke-width="4" opacity="0.4"/>
+<text x="404" y="422" font-family="Georgia, serif" font-size="42" font-weight="700"
+      text-anchor="middle" fill="#0F1B2D" opacity="0.9">✦</text>
 </svg>`;
-};
 
+// ── Render & save ─────────────────────────────────────────────────────────────
 for (const size of [192, 512]) {
-  const svg = svgTemplate(size);
-  const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: size },
-    font: { loadSystemFonts: false },
+  const resvg = new Resvg(SVG, {
+    fitTo:  { mode: 'width', value: size },
+    font:   { loadSystemFonts: false },
   });
-  const png = resvg.render().asPng();
-  const outPath = join(publicDir, `icon-${size}.png`);
+  const png     = resvg.render().asPng();
+  const outPath = join(outDir, `icon-${size}.png`);
   writeFileSync(outPath, png);
-  console.log(`✓ icon-${size}.png (${png.length} bytes)`);
+  console.log(`✓ icon-${size}.png  (${(png.length / 1024).toFixed(0)} KB)`);
 }
-console.log('Done!');
+console.log('Icons ready.');
