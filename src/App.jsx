@@ -241,37 +241,149 @@ const LEVEL_NAMES = [
 /* ─────────────────────────────────────────────────────────────
    DEFAULT VOCABULARY SET  (seeded once on first launch)
 ───────────────────────────────────────────────────────────── */
-const DEFAULT_VSET_ID = "lingua_default_en_de_v1";
+const DEFAULT_VSET_ID = "lingua_default_en_de_v2";
 const DEFAULT_VSET = {
   id: DEFAULT_VSET_ID,
   name: "English Essentials 🇬🇧",
   created: "2026-01-01T00:00:00.000Z",
   words: [
-    {word:"adventure",   transl:"Abenteuer"},  {word:"arrive",      transl:"ankommen"},
-    {word:"believe",     transl:"glauben"},     {word:"borrow",      transl:"ausleihen"},
-    {word:"brave",       transl:"mutig"},       {word:"careful",     transl:"vorsichtig"},
-    {word:"clever",      transl:"schlau"},      {word:"collect",     transl:"sammeln"},
-    {word:"comfortable", transl:"bequem"},      {word:"compare",     transl:"vergleichen"},
-    {word:"complete",    transl:"vollständig"}, {word:"decide",      transl:"entscheiden"},
-    {word:"describe",    transl:"beschreiben"}, {word:"difficult",   transl:"schwierig"},
-    {word:"discover",    transl:"entdecken"},   {word:"empty",       transl:"leer"},
-    {word:"explain",     transl:"erklären"},    {word:"famous",      transl:"berühmt"},
-    {word:"favorite",    transl:"Lieblings-"},  {word:"friendly",    transl:"freundlich"},
-    {word:"healthy",     transl:"gesund"},      {word:"imagine",     transl:"sich vorstellen"},
-    {word:"improve",     transl:"verbessern"},  {word:"include",     transl:"beinhalten"},
-    {word:"important",   transl:"wichtig"},     {word:"interesting", transl:"interessant"},
-    {word:"journey",     transl:"Reise"},       {word:"language",    transl:"Sprache"},
-    {word:"library",     transl:"Bibliothek"},  {word:"mistake",     transl:"Fehler"},
-    {word:"nervous",     transl:"nervös"},      {word:"opinion",     transl:"Meinung"},
-    {word:"polite",      transl:"höflich"},     {word:"practice",    transl:"üben"},
-    {word:"promise",     transl:"versprechen"}, {word:"question",    transl:"Frage"},
-    {word:"remember",    transl:"erinnern"},    {word:"repair",      transl:"reparieren"},
-    {word:"safe",        transl:"sicher"},      {word:"strange",     transl:"seltsam"},
-    {word:"suddenly",    transl:"plötzlich"},   {word:"surprise",    transl:"Überraschung"},
-    {word:"travel",      transl:"reisen"},      {word:"understand",  transl:"verstehen"},
-    {word:"useful",      transl:"nützlich"},    {word:"village",     transl:"Dorf"},
-    {word:"weather",     transl:"Wetter"},      {word:"whisper",     transl:"flüstern"},
-    {word:"wonderful",   transl:"wunderbar"},   {word:"yesterday",   transl:"gestern"},
+    // ── Original 50 ──────────────────────────────────────────────────────────
+    {word:"adventure",      transl:"Abenteuer"},         {word:"arrive",        transl:"ankommen"},
+    {word:"believe",        transl:"glauben"},            {word:"borrow",        transl:"ausleihen"},
+    {word:"brave",          transl:"mutig"},              {word:"careful",       transl:"vorsichtig"},
+    {word:"clever",         transl:"schlau"},             {word:"collect",       transl:"sammeln"},
+    {word:"comfortable",    transl:"bequem"},             {word:"compare",       transl:"vergleichen"},
+    {word:"complete",       transl:"vollständig"},        {word:"decide",        transl:"entscheiden"},
+    {word:"describe",       transl:"beschreiben"},        {word:"difficult",     transl:"schwierig"},
+    {word:"discover",       transl:"entdecken"},          {word:"empty",         transl:"leer"},
+    {word:"explain",        transl:"erklären"},           {word:"famous",        transl:"berühmt"},
+    {word:"favorite",       transl:"Lieblings-"},         {word:"friendly",      transl:"freundlich"},
+    {word:"healthy",        transl:"gesund"},             {word:"imagine",       transl:"sich vorstellen"},
+    {word:"improve",        transl:"verbessern"},         {word:"include",       transl:"beinhalten"},
+    {word:"important",      transl:"wichtig"},            {word:"interesting",   transl:"interessant"},
+    {word:"journey",        transl:"Reise"},              {word:"language",      transl:"Sprache"},
+    {word:"library",        transl:"Bibliothek"},         {word:"mistake",       transl:"Fehler"},
+    {word:"nervous",        transl:"nervös"},             {word:"opinion",       transl:"Meinung"},
+    {word:"polite",         transl:"höflich"},            {word:"practice",      transl:"üben"},
+    {word:"promise",        transl:"versprechen"},        {word:"question",      transl:"Frage"},
+    {word:"remember",       transl:"erinnern"},           {word:"repair",        transl:"reparieren"},
+    {word:"safe",           transl:"sicher"},             {word:"strange",       transl:"seltsam"},
+    {word:"suddenly",       transl:"plötzlich"},          {word:"surprise",      transl:"Überraschung"},
+    {word:"travel",         transl:"reisen"},             {word:"understand",    transl:"verstehen"},
+    {word:"useful",         transl:"nützlich"},           {word:"village",       transl:"Dorf"},
+    {word:"weather",        transl:"Wetter"},             {word:"whisper",       transl:"flüstern"},
+    {word:"wonderful",      transl:"wunderbar"},          {word:"yesterday",     transl:"gestern"},
+
+    // ── 17 shopping / everyday words (user) ──────────────────────────────────
+    {word:"have to buy",    transl:"ich muss … kaufen"},
+    {word:"list",           transl:"die Liste"},
+    {word:"biscuit",        transl:"der Keks, das Plätzchen"},
+    {word:"sweet",          transl:"die Süßigkeit"},
+    {word:"excited",        transl:"aufgeregt, gespannt"},
+    {word:"fruit",          transl:"das Obst / die Frucht"},
+    {word:"grape",          transl:"die Weintraube"},
+    {word:"a few",          transl:"ein paar, einige"},
+    {word:"fizzy",          transl:"sprudelnd"},
+    {word:"much",           transl:"viel"},
+    {word:"juice",          transl:"der Saft"},
+    {word:"orange",         transl:"die Orange, die Apfelsine"},
+    {word:"enough",         transl:"genug"},
+    {word:"money",          transl:"das Geld"},
+    {word:"of course",      transl:"natürlich, selbstverständlich"},
+    {word:"forget",         transl:"vergessen"},
+    {word:"trolley",        transl:"der Einkaufswagen"},
+
+    // ── 100 5th-grade essentials ─────────────────────────────────────────────
+    // Food & meals
+    {word:"breakfast",      transl:"das Frühstück"},       {word:"lunch",         transl:"das Mittagessen"},
+    {word:"dinner",         transl:"das Abendessen"},      {word:"vegetable",     transl:"das Gemüse"},
+    {word:"chicken",        transl:"das Hähnchen"},        {word:"bread",         transl:"das Brot"},
+    {word:"butter",         transl:"die Butter"},          {word:"cheese",        transl:"der Käse"},
+    {word:"milk",           transl:"die Milch"},           {word:"sugar",         transl:"der Zucker"},
+    {word:"salt",           transl:"das Salz"},            {word:"pepper",        transl:"der Pfeffer"},
+    {word:"tea",            transl:"der Tee"},             {word:"coffee",        transl:"der Kaffee"},
+    {word:"water",          transl:"das Wasser"},
+
+    // School & learning
+    {word:"lesson",         transl:"die Stunde, der Unterricht"},
+    {word:"homework",       transl:"die Hausaufgabe(n)"},
+    {word:"subject",        transl:"das Fach"},
+    {word:"science",        transl:"die Naturwissenschaft"},
+    {word:"history",        transl:"die Geschichte"},
+    {word:"geography",      transl:"die Erdkunde"},
+    {word:"art",            transl:"die Kunst"},
+    {word:"music",          transl:"die Musik"},
+    {word:"sport",          transl:"der Sport"},
+    {word:"dictionary",     transl:"das Wörterbuch"},
+    {word:"sentence",       transl:"der Satz"},
+    {word:"paragraph",      transl:"der Absatz"},
+    {word:"chapter",        transl:"das Kapitel"},
+    {word:"notebook",       transl:"das Heft"},
+    {word:"pencil",         transl:"der Bleistift"},
+
+    // Feelings & character
+    {word:"angry",          transl:"wütend, böse"},        {word:"sad",           transl:"traurig"},
+    {word:"happy",          transl:"glücklich"},           {word:"tired",         transl:"müde"},
+    {word:"bored",          transl:"gelangweilt"},         {word:"proud",         transl:"stolz"},
+    {word:"worried",        transl:"besorgt"},             {word:"lonely",        transl:"einsam"},
+    {word:"shy",            transl:"schüchtern"},          {word:"kind",          transl:"nett, freundlich"},
+    {word:"honest",         transl:"ehrlich"},             {word:"patient",       transl:"geduldig"},
+    {word:"lazy",           transl:"faul"},                {word:"hard-working",  transl:"fleißig"},
+    {word:"generous",       transl:"großzügig"},
+
+    // Time & routine
+    {word:"morning",        transl:"der Morgen"},          {word:"afternoon",     transl:"der Nachmittag"},
+    {word:"evening",        transl:"der Abend"},           {word:"midnight",      transl:"die Mitternacht"},
+    {word:"weekend",        transl:"das Wochenende"},      {word:"holiday",       transl:"der Feiertag, der Urlaub"},
+    {word:"birthday",       transl:"der Geburtstag"},      {word:"season",        transl:"die Jahreszeit"},
+    {word:"spring",         transl:"der Frühling"},        {word:"autumn",        transl:"der Herbst"},
+
+    // Nature & environment
+    {word:"forest",         transl:"der Wald"},            {word:"mountain",      transl:"der Berg"},
+    {word:"river",          transl:"der Fluss"},           {word:"ocean",         transl:"der Ozean, das Meer"},
+    {word:"island",         transl:"die Insel"},           {word:"cloud",         transl:"die Wolke"},
+    {word:"storm",          transl:"der Sturm"},           {word:"rain",          transl:"der Regen"},
+    {word:"snow",           transl:"der Schnee"},          {word:"flower",        transl:"die Blume"},
+    {word:"tree",           transl:"der Baum"},            {word:"grass",         transl:"das Gras"},
+    {word:"animal",         transl:"das Tier"},            {word:"bird",          transl:"der Vogel"},
+    {word:"fish",           transl:"der Fisch"},
+
+    // Body & health
+    {word:"headache",       transl:"die Kopfschmerzen"},
+    {word:"stomachache",    transl:"die Bauchschmerzen"},
+    {word:"medicine",       transl:"das Medikament, die Medizin"},
+    {word:"hospital",       transl:"das Krankenhaus"},
+    {word:"doctor",         transl:"der Arzt, die Ärztin"},
+    {word:"tooth",          transl:"der Zahn"},
+    {word:"heart",          transl:"das Herz"},
+    {word:"shoulder",       transl:"die Schulter"},
+    {word:"knee",           transl:"das Knie"},
+    {word:"elbow",          transl:"der Ellenbogen"},
+
+    // Home & daily life
+    {word:"kitchen",        transl:"die Küche"},           {word:"bedroom",       transl:"das Schlafzimmer"},
+    {word:"bathroom",       transl:"das Badezimmer"},      {word:"garden",        transl:"der Garten"},
+    {word:"stairs",         transl:"die Treppe"},          {word:"window",        transl:"das Fenster"},
+    {word:"door",           transl:"die Tür"},             {word:"floor",         transl:"der Boden, das Stockwerk"},
+    {word:"ceiling",        transl:"die Decke"},           {word:"wall",          transl:"die Wand"},
+
+    // Social & communication
+    {word:"neighbour",      transl:"der Nachbar, die Nachbarin"},
+    {word:"message",        transl:"die Nachricht"},
+    {word:"telephone",      transl:"das Telefon"},
+    {word:"address",        transl:"die Adresse"},
+    {word:"invite",         transl:"einladen"},
+    {word:"meeting",        transl:"das Treffen, die Besprechung"},
+
+    // Common verbs
+    {word:"carry",          transl:"tragen"},              {word:"drop",          transl:"fallen lassen"},
+    {word:"catch",          transl:"fangen"},              {word:"throw",         transl:"werfen"},
+    {word:"push",           transl:"schieben, drücken"},   {word:"pull",          transl:"ziehen"},
+    {word:"share",          transl:"teilen"},              {word:"choose",        transl:"wählen, auswählen"},
+    {word:"allow",          transl:"erlauben"},            {word:"suggest",       transl:"vorschlagen"},
+    {word:"spend",          transl:"ausgeben, verbringen"},{word:"check",         transl:"überprüfen"},
+    {word:"follow",         transl:"folgen"},              {word:"miss",          transl:"vermissen, verpassen"},
+    {word:"pretend",        transl:"so tun als ob"},
   ],
 };
 
@@ -346,12 +458,13 @@ function addError(entry) {
 const loadVSets = () => loadLS(SK_VSETS, []);
 const saveVSets = (v) => saveLS(SK_VSETS, v);
 
-// Seed the built-in set once — idempotent (checks by id)
+// Seed the built-in set — replaces any previous default version on upgrade
 function seedDefaultVSet() {
   const sets = loadVSets();
-  if (!sets.find(s => s.id === DEFAULT_VSET_ID)) {
-    saveVSets([...sets, DEFAULT_VSET]);
-  }
+  if (sets.find(s => s.id === DEFAULT_VSET_ID)) return; // already current
+  // Remove any stale default (ids start with "lingua_default_en_de_")
+  const others = sets.filter(s => !s.id.startsWith("lingua_default_en_de_"));
+  saveVSets([...others, DEFAULT_VSET]);
 }
 
 /* SM-2 lite */
