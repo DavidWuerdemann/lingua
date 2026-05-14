@@ -2004,13 +2004,6 @@ function KidsMode({t, onStars, stars=0}) {
 
       {tab==="chat" && (
         <>
-          {/* Language picker */}
-          <div className="kids-lang-row">
-            {KIDS_LANGS.map(l=>(
-              <button key={l.code} className={`kids-lang-btn${kidLang===l.code?" active":""}`}
-                onClick={()=>selectLang(l.code)}>{l.name}</button>
-            ))}
-          </div>
           {!topic ? (
             <div style={{overflowY:"auto",flex:1}}>
               <div className="kwel">
