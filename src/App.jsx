@@ -27,6 +27,7 @@ const T = {
     pickLanguage:"Pick a language to practise:",funIdioms:"Fun Expressions 🌈",
     close:"Close",setName:"Set name",cancel:"Cancel",done:"Done",
     collocations:"Collocations",tip:"Tip",fix:"Correction",uiLang:"Language",idiomCat:"Category",
+    appLang:"App language",learnLang:"I'm learning",myNativeLang:"My native language",
     // landing
     landingH1:"Learn to <em>speak</em>,<br/>not just study.",
     landingSub:"Jump into a real conversation in seconds. No streaks, no points — just talking.",
@@ -65,6 +66,7 @@ const T = {
     pickLanguage:"Wähle eine Sprache:",funIdioms:"Witzige Redewendungen 🌈",
     close:"Schließen",setName:"Listenname",cancel:"Abbrechen",done:"Fertig",
     collocations:"Kollokationen",tip:"Tipp",fix:"Korrektur",uiLang:"Sprache",idiomCat:"Kategorie",
+    appLang:"App-Sprache",learnLang:"Ich lerne",myNativeLang:"Meine Muttersprache",
     landingH1:"Lern zu <em>sprechen</em>,<br/>nicht nur zu büffeln.",
     landingSub:"Starte ein echtes Gespräch in Sekunden. Kein Streak, keine Punkte — einfach reden.",
     adultDesc:"6 Sprachen · Szenarien · Karteikarten · Notizbuch",
@@ -100,6 +102,7 @@ const T = {
     pickLanguage:"Kies een taal:",funIdioms:"Grappige uitdrukkingen 🌈",
     close:"Sluiten",setName:"Lijstnaam",cancel:"Annuleren",done:"Klaar",
     collocations:"Collocaties",tip:"Tip",fix:"Correctie",uiLang:"Taal",idiomCat:"Categorie",
+    appLang:"App-taal",learnLang:"Ik leer",myNativeLang:"Mijn moedertaal",
     landingH1:"Leer <em>spreken</em>,<br/>niet alleen studeren.",
     landingSub:"Start in seconden een echt gesprek. Geen reeksen, geen punten — gewoon praten.",
     adultDesc:"6 talen · scenario's · flashkaarten · notitieboek",
@@ -135,6 +138,7 @@ const T = {
     pickLanguage:"Choisissez une langue :",funIdioms:"Expressions amusantes 🌈",
     close:"Fermer",setName:"Nom de la liste",cancel:"Annuler",done:"Terminé",
     collocations:"Collocations",tip:"Conseil",fix:"Correction",uiLang:"Langue",idiomCat:"Catégorie",
+    appLang:"Langue de l'app",learnLang:"J'apprends",myNativeLang:"Ma langue maternelle",
     landingH1:"Apprends à <em>parler</em>,<br/>pas seulement à étudier.",
     landingSub:"Lance une vraie conversation en quelques secondes. Pas de séries, pas de points — juste parler.",
     adultDesc:"6 langues · scénarios · fiches · carnet",
@@ -170,6 +174,7 @@ const T = {
     pickLanguage:"Elige un idioma:",funIdioms:"Expresiones divertidas 🌈",
     close:"Cerrar",setName:"Nombre de lista",cancel:"Cancelar",done:"Hecho",
     collocations:"Colocaciones",tip:"Consejo",fix:"Corrección",uiLang:"Idioma",idiomCat:"Categoría",
+    appLang:"Idioma de la app",learnLang:"Estoy aprendiendo",myNativeLang:"Mi lengua materna",
     landingH1:"Aprende a <em>hablar</em>,<br/>no sólo a estudiar.",
     landingSub:"Empieza una conversación real en segundos. Sin rachas, sin puntos — solo hablar.",
     adultDesc:"6 idiomas · escenarios · tarjetas · cuaderno",
@@ -1320,15 +1325,23 @@ function OllieAvatar({animate}) {
   );
 }
 
-function UiLangPicker({uiLang, setUiLang}) {
+function UiLangPicker({uiLang, setUiLang, label}) {
   return (
-    <div className="ui-lang-picker">
-      {UI_LANGS_LIST.map(l=>(
-        <button key={l} className={`ui-lang-btn${uiLang===l?" active":""}`}
-          onClick={()=>{ setUiLang(l); saveLS(SK_UILNG,l); sfx.click(); }}>
-          {l}
-        </button>
-      ))}
+    <div style={{display:"flex",alignItems:"center",gap:5}}>
+      {label && (
+        <span style={{fontSize:10,fontWeight:700,color:"var(--a-muted)",
+          textTransform:"uppercase",letterSpacing:".06em",whiteSpace:"nowrap"}}>
+          {label}
+        </span>
+      )}
+      <div className="ui-lang-picker">
+        {UI_LANGS_LIST.map(l=>(
+          <button key={l} className={`ui-lang-btn${uiLang===l?" active":""}`}
+            onClick={()=>{ setUiLang(l); saveLS(SK_UILNG,l); sfx.click(); }}>
+            {l}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -2293,7 +2306,8 @@ function AdultMode({t, stars, onStars}) {
       <div className="topbar">
         <div className="topbar-logo">✦</div>
         <span className="topbar-title">Lingua</span>
-        <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
+        <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}
+          label={`🌐 ${t.appLang}`}/>
         <button className="ghost" onClick={onBack}>← {t.home}</button>
       </div>
       <LevelBadge stars={stars}/>
@@ -2730,7 +2744,8 @@ function KidsMode({t, onStars, stars=0}) {
           <span className="kh-title">Ollie's Language World</span>
         </div>
         {topic && <button className="khome-btn" onClick={leaveTopic}>← {t.topics}</button>}
-        <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
+        <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}
+          label="🌐 App"/>
       </div>
 
       <div className="ktabs">
@@ -2750,6 +2765,21 @@ function KidsMode({t, onStars, stars=0}) {
               <div className="kwel">
                 <h1 dangerouslySetInnerHTML={{__html:t.kidsWelH1}}/>
                 <p>{t.kidsWelSub}</p>
+              </div>
+              {/* Language-to-learn picker */}
+              <div style={{padding:"4px 16px 8px",display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+                <span style={{fontFamily:"var(--k-sans)",fontSize:11,fontWeight:800,
+                  color:"var(--k-mute)",textTransform:"uppercase",letterSpacing:".07em",whiteSpace:"nowrap"}}>
+                  🗣 {t.learnLang}:
+                </span>
+                <div className="kids-lang-row" style={{padding:0,margin:0}}>
+                  {KIDS_LANGS.map(l=>(
+                    <button key={l.code} className={`kids-lang-btn${kidLang===l.code?" active":""}`}
+                      onClick={()=>selectLang(l.code)}>
+                      {l.name}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className="ktgrid">
                 {KIDS_TOPICS.map(tp=>(
@@ -2898,11 +2928,11 @@ export default function App() {
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:18,padding:"14px 0",borderTop:"1px solid var(--a-border)"}}>
             <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-              <span style={{fontSize:11,color:"var(--a-muted)",fontWeight:600,minWidth:130}}>🌐 {t.uiLang}:</span>
+              <span style={{fontSize:11,color:"var(--a-muted)",fontWeight:600,minWidth:140}}>🌐 {t.appLang}:</span>
               <UiLangPicker uiLang={uiLang} setUiLang={ctx.setUiLang}/>
             </div>
             <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-              <span style={{fontSize:11,color:"var(--a-muted)",fontWeight:600,minWidth:130}}>🗣 {t.nativeLang}:</span>
+              <span style={{fontSize:11,color:"var(--a-muted)",fontWeight:600,minWidth:140}}>🗣 {t.myNativeLang}:</span>
               <NativeLangPicker/>
             </div>
           </div>
