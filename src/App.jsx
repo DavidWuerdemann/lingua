@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, createContext, useContext } from "react";
+import { useState, useRef, useEffect, createContext, useContext, Fragment } from "react";
 import { createPortal } from "react-dom";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
@@ -1972,7 +1972,7 @@ function WordMatch({ words, t, onDone }) {
       {/* Card grid — two columns, one row per pair position */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
         {lOrd.map((_, pos) => (
-          <React.Fragment key={pos}>
+          <Fragment key={pos}>
             <button className={cls('L', pos)} onClick={() => handleL(pos)}>
               {txt('L', pos)}
               {matched.has(lOrd[pos]) && expFlash[lOrd[pos]] != null && (
@@ -1984,7 +1984,7 @@ function WordMatch({ words, t, onDone }) {
             <button className={cls('R', pos)} onClick={() => handleR(pos)}>
               {txt('R', pos)}
             </button>
-          </React.Fragment>
+          </Fragment>
         ))}
       </div>
 
