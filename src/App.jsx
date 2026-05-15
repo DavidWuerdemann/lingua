@@ -222,6 +222,12 @@ const LANGUAGES = [
    scenarios:["ראיון עבודה","שיחת בר","ביקור אצל הרופא","קניות בשוק","תוכניות לסוף שבוע","בבית קפה","בשדה התעופה","הזמנת אוכל","פגישה עם שכנים","פגישה ראשונה","פגישה עסקית","מצגת למשקיעים","משא ומתן על חוזה","ביקור בנכס","שכירת משרד","בסט הצילומים","פגישת תסריטאים","אודישן","בנמל","שיעור הפלגה","השכרת סירה"]},
   {code:"ar",flag:"🇸🇦",name:"Arabic",   native:"العربية",    tts:"ar-SA",accent:"#16A34A", rtl:true, script:true,
    scenarios:["مقابلة عمل","في المقهى","عند الطبيب","التسوق في السوق","خطط نهاية الأسبوع","في المطار","طلب الطعام","في الفندق","لقاء جديد","التعرف على الجيران","اجتماع عمل","عرض تجاري للمستثمرين","التفاوض على عقد","معاينة عقار","استئجار مكتب","في موقع التصوير","اجتماع كتّاب السيناريو","التجارب","في الميناء","درس الإبحار","استئجار قارب"]},
+  {code:"tr",flag:"🇹🇷",name:"Turkish",  native:"Türkçe",     tts:"tr-TR",accent:"#E30A17",
+   scenarios:["İş Görüşmesi","Çay Bahçesinde","Doktorda","Çarşıda Alışveriş","Havalimanında","Yemek Siparişi","Otelde","Yeni Tanışma","Spor Sohbeti","Müzede","Tatil Planları","Komşularla Sohbet",
+              "İş Toplantısı","Yatırımcı Sunumu","Sözleşme Müzakeresi","Emlak Gezisi","Ofis Kiralama","Film Setinde","Senaryo Toplantısı","İstanbul'da Kasting","Marinada","Yelken Dersi"]},
+  {code:"ru",flag:"🇷🇺",name:"Russian",  native:"Русский",    tts:"ru-RU",accent:"#CC0000", script:true,
+   scenarios:["Собеседование на работу","В кафе","У врача","На рынке","В аэропорту","Заказ еды","В отеле","Знакомство","Разговор о спорте","В музее","В метро","Разговор с соседями",
+              "Деловая встреча","Презентация инвесторам","Переговоры по контракту","Осмотр недвижимости","Аренда офиса","На съёмочной площадке","Встреча сценаристов","Кастинг в Москве","В яхтенной марине","Урок парусного спорта"]},
 ];
 
 const KIDS_LANGS = [
@@ -314,6 +320,43 @@ const AR_ALPHA = [
   {l:"ه",n:"Ha",    r:"h",               ex:"هواء",  xe:"air"},
   {l:"و",n:"Waw",   r:"w / ū",           ex:"وقت",   xe:"time"},
   {l:"ي",n:"Ya",    r:"y / ī",           ex:"يد",    xe:"hand"},
+];
+
+// ── Russian (Cyrillic) alphabet ──────────────────────────────
+const RU_ALPHA = [
+  {l:"А а",n:"A",       r:"a (art)",        ex:"Аптека",  xe:"pharmacy"},
+  {l:"Б б",n:"Be",      r:"b (boy)",        ex:"Банк",    xe:"bank"},
+  {l:"В в",n:"Ve",      r:"v (vine)",       ex:"Вода",    xe:"water"},
+  {l:"Г г",n:"Ge",      r:"g (good)",       ex:"Год",     xe:"year"},
+  {l:"Д д",n:"De",      r:"d (door)",       ex:"Дом",     xe:"home"},
+  {l:"Е е",n:"Ye",      r:"ye (yes)",       ex:"Еда",     xe:"food"},
+  {l:"Ё ё",n:"Yo",      r:"yo (yonder)",    ex:"Ёж",      xe:"hedgehog"},
+  {l:"Ж ж",n:"Zhe",     r:"zh (measure)",   ex:"Жизнь",   xe:"life"},
+  {l:"З з",n:"Ze",      r:"z (zebra)",      ex:"Завтра",  xe:"tomorrow"},
+  {l:"И и",n:"I",       r:"ee (feet)",      ex:"Имя",     xe:"name"},
+  {l:"Й й",n:"Short I", r:"y (boy)",        ex:"Йогурт",  xe:"yogurt"},
+  {l:"К к",n:"Ka",      r:"k (kite)",       ex:"Кофе",    xe:"coffee"},
+  {l:"Л л",n:"El",      r:"l (love)",       ex:"Лес",     xe:"forest"},
+  {l:"М м",n:"Em",      r:"m (mother)",     ex:"Мама",    xe:"mum"},
+  {l:"Н н",n:"En",      r:"n (now)",        ex:"Нет",     xe:"no"},
+  {l:"О о",n:"O",       r:"o (or)",         ex:"Окно",    xe:"window"},
+  {l:"П п",n:"Pe",      r:"p (park)",       ex:"Привет",  xe:"hi"},
+  {l:"Р р",n:"Er",      r:"r (rolled)",     ex:"Река",    xe:"river"},
+  {l:"С с",n:"Es",      r:"s (sun)",        ex:"Спасибо", xe:"thank you"},
+  {l:"Т т",n:"Te",      r:"t (top)",        ex:"Театр",   xe:"theatre"},
+  {l:"У у",n:"U",       r:"oo (moon)",      ex:"Улица",   xe:"street"},
+  {l:"Ф ф",n:"Ef",      r:"f (fire)",       ex:"Фото",    xe:"photo"},
+  {l:"Х х",n:"Kha",     r:"kh (Bach)",      ex:"Хлеб",    xe:"bread"},
+  {l:"Ц ц",n:"Tse",     r:"ts (cats)",      ex:"Центр",   xe:"centre"},
+  {l:"Ч ч",n:"Che",     r:"ch (chair)",     ex:"Чай",     xe:"tea"},
+  {l:"Ш ш",n:"Sha",     r:"sh (shoe)",      ex:"Школа",   xe:"school"},
+  {l:"Щ щ",n:"Shcha",   r:"shch",           ex:"Щи",      xe:"cabbage soup"},
+  {l:"Ъ ъ",n:"Hard sign",r:"(hardens prev)",ex:"Объект",  xe:"object"},
+  {l:"Ы ы",n:"Yeru",    r:"deep ee",        ex:"Мы",      xe:"we"},
+  {l:"Ь ь",n:"Soft sign",r:"(softens prev)",ex:"Соль",    xe:"salt"},
+  {l:"Э э",n:"E",       r:"e (egg)",        ex:"Это",     xe:"this"},
+  {l:"Ю ю",n:"Yu",      r:"yu (yule)",      ex:"Юг",      xe:"south"},
+  {l:"Я я",n:"Ya",      r:"ya (yard)",      ex:"Язык",    xe:"language"},
 ];
 
 // ── Hebrew structured lessons ──────────────────────────────
@@ -459,6 +502,89 @@ const AR_LESSONS = [
     {s:"مطعم",  r:"Maṭʿam",   e:"Restaurant"},
     {s:"أريد...",r:"Urīd...", e:"I want...",                 h:"Polite alternative: أحب (uhibb) — I'd like..."},
     {s:"بالهناء والشفاء", r:"Bil-hanā' wash-shifā'", e:"Enjoy your meal!",h:"Literally: 'with joy and health' — the Arabic Bon appétit"},
+  ]},
+];
+
+// ── Russian structured lessons ───────────────────────────────
+const RU_LESSONS = [
+  {id:"ru-l1",emoji:"✍️",title:"Letters А–З",desc:"9 letters, many look familiar!",items:[
+    {s:"А а",r:"A",    e:"a as in 'art'",          h:"Example: Аптека (Apteka) — pharmacy"},
+    {s:"Б б",r:"Be",   e:"b as in 'boy'",          h:"Example: Банк (Bank) — bank"},
+    {s:"В в",r:"Ve",   e:"v as in 'vine'",         h:"Example: Вода (Voda) — water"},
+    {s:"Г г",r:"Ge",   e:"g as in 'good'",         h:"Example: Город (Gorod) — city"},
+    {s:"Д д",r:"De",   e:"d as in 'door'",         h:"Example: Дом (Dom) — home"},
+    {s:"Е е",r:"Ye",   e:"ye as in 'yes'",         h:"Example: Еда (Yeda) — food"},
+    {s:"Ё ё",r:"Yo",   e:"yo as in 'yonder'",      h:"Example: Ёж (Yozh) — hedgehog  ·  Always stressed"},
+    {s:"Ж ж",r:"Zhe",  e:"zh — like 's' in 'measure'",h:"Example: Жизнь (Zhizn') — life"},
+    {s:"З з",r:"Ze",   e:"z as in 'zebra'",        h:"Example: Завтра (Zavtra) — tomorrow"},
+  ]},
+  {id:"ru-l2",emoji:"✍️",title:"Letters И–П",desc:"Includes some sneaky false friends",items:[
+    {s:"И и",r:"I",    e:"ee as in 'feet'",        h:"Example: Имя (Imya) — name"},
+    {s:"Й й",r:"Kratkoye",e:"short y as in 'boy'", h:"Example: Йогурт (Yogurt) — yogurt"},
+    {s:"К к",r:"Ka",   e:"k as in 'kite'",         h:"Example: Кофе (Kofe) — coffee"},
+    {s:"Л л",r:"El",   e:"l as in 'love'",         h:"Example: Лес (Les) — forest"},
+    {s:"М м",r:"Em",   e:"m as in 'mother'",       h:"Example: Метро (Metro) — metro"},
+    {s:"Н н",r:"En",   e:"n as in 'now'",          h:"Example: Нет (Net) — no  ·  Н looks like H but sounds N!"},
+    {s:"О о",r:"O",    e:"o as in 'or'",           h:"Example: Окно (Okno) — window"},
+    {s:"П п",r:"Pe",   e:"p as in 'park'",         h:"Example: Привет (Privet) — hello  ·  П looks like Π"},
+  ]},
+  {id:"ru-l3",emoji:"✍️",title:"Letters Р–Ш",desc:"More false friends and new sounds",items:[
+    {s:"Р р",r:"Er",   e:"r — rolled (like Spanish r)",h:"Example: Река (Reka) — river  ·  Р looks like P but sounds R!"},
+    {s:"С с",r:"Es",   e:"s as in 'sun'",          h:"Example: Спасибо (Spasibo) — thank you  ·  С looks like C"},
+    {s:"Т т",r:"Te",   e:"t as in 'top'",          h:"Example: Театр (Teatr) — theatre"},
+    {s:"У у",r:"U",    e:"oo as in 'moon'",        h:"Example: Улица (Ulitsa) — street"},
+    {s:"Ф ф",r:"Ef",   e:"f as in 'fire'",         h:"Example: Фото (Foto) — photo"},
+    {s:"Х х",r:"Kha",  e:"kh — guttural (Bach)",   h:"Example: Хлеб (Khleb) — bread"},
+    {s:"Ц ц",r:"Tse",  e:"ts as in 'cats'",        h:"Example: Центр (Tsentr) — centre"},
+    {s:"Ч ч",r:"Che",  e:"ch as in 'chair'",       h:"Example: Чай (Chay) — tea"},
+    {s:"Ш ш",r:"Sha",  e:"sh as in 'shoe'",        h:"Example: Школа (Shkola) — school"},
+  ]},
+  {id:"ru-l4",emoji:"✍️",title:"Letters Щ–Я",desc:"The final 7 — alphabet complete!",items:[
+    {s:"Щ щ",r:"Shcha",e:"shch — a long soft sh",  h:"Example: Щи (Shchi) — cabbage soup"},
+    {s:"Ъ ъ",r:"Hard sign",e:"No sound — hardens the consonant before it",h:"Example: Объект (Ob'yekt) — object"},
+    {s:"Ы ы",r:"Yeru", e:"Deep ee — no English equivalent",h:"Example: Мы (My) — we  ·  Like ee but with jaw lower"},
+    {s:"Ь ь",r:"Soft sign",e:"No sound — softens the consonant before it",h:"Example: Соль (Sol') — salt"},
+    {s:"Э э",r:"E",    e:"e as in 'egg'",          h:"Example: Это (Eto) — this / that"},
+    {s:"Ю ю",r:"Yu",   e:"yu as in 'yule'",        h:"Example: Юг (Yug) — south"},
+    {s:"Я я",r:"Ya",   e:"ya as in 'yard'",        h:"Example: Язык (Yazyk) — language"},
+  ]},
+  {id:"ru-l5",emoji:"👋",title:"Greetings",desc:"Say hello and get by on day one",items:[
+    {s:"Привет",            r:"Privet",           e:"Hi / Hello (informal)"},
+    {s:"Здравствуйте",      r:"Zdravstvuyte",     e:"Hello (formal)",            h:"Use with strangers and older people"},
+    {s:"Доброе утро",       r:"Dobroye utro",     e:"Good morning"},
+    {s:"Добрый день",       r:"Dobryy den'",      e:"Good afternoon"},
+    {s:"Добрый вечер",      r:"Dobryy vecher",    e:"Good evening"},
+    {s:"Спасибо",           r:"Spasibo",          e:"Thank you",                 h:"Very warm thanks: Большое спасибо (Bol'shoye spasibo)"},
+    {s:"Пожалуйста",        r:"Pozhaluysta",      e:"Please / You're welcome",   h:"Works in both directions"},
+    {s:"Да / Нет",          r:"Da / Net",          e:"Yes / No"},
+    {s:"Как дела?",         r:"Kak dela?",        e:"How are you?",             h:"Informal. Formal: Как вы? (Kak vy?)"},
+    {s:"Хорошо",            r:"Khorosho",         e:"Good / Fine / OK",         h:"One of the most useful Russian words"},
+  ]},
+  {id:"ru-l6",emoji:"🔢",title:"Numbers 1–10",desc:"Count in Russian",items:[
+    {s:"Один",    r:"Odin",     e:"1"},{s:"Два",      r:"Dva",      e:"2"},{s:"Три",     r:"Tri",     e:"3"},
+    {s:"Четыре",  r:"Chetyre",  e:"4"},{s:"Пять",     r:"Pyat'",    e:"5"},{s:"Шесть",   r:"Shest'",  e:"6"},
+    {s:"Семь",    r:"Sem'",     e:"7"},{s:"Восемь",   r:"Vosem'",   e:"8"},{s:"Девять",  r:"Devyat'", e:"9"},
+    {s:"Десять",  r:"Desyat'",  e:"10"},
+  ]},
+  {id:"ru-l7",emoji:"💬",title:"Essential Phrases",desc:"Navigate real situations",items:[
+    {s:"Меня зовут...",              r:"Menya zovut...",           e:"My name is..."},
+    {s:"Я говорю по-английски",      r:"Ya govoryu po-angliyski",  e:"I speak English"},
+    {s:"Я не понимаю",               r:"Ya ne ponimayu",           e:"I don't understand"},
+    {s:"Где...?",                    r:"Gde...?",                  e:"Where is...?"},
+    {s:"Сколько стоит?",             r:"Skol'ko stoit?",           e:"How much does it cost?"},
+    {s:"Я хочу...",                  r:"Ya khochu...",             e:"I want / I'd like..."},
+    {s:"Говорите медленнее, пожалуйста",r:"Govoritye medlenneye, pozhaluysta",e:"Please speak more slowly"},
+    {s:"Можно платить картой?",       r:"Mozhno platit' kartoy?",  e:"Can I pay by card?"},
+  ]},
+  {id:"ru-l8",emoji:"☕",title:"Café & Restaurant",desc:"Order with confidence",items:[
+    {s:"Кофе",         r:"Kofe",          e:"Coffee"},
+    {s:"Чай",          r:"Chay",          e:"Tea",                  h:"Russians are famous tea drinkers"},
+    {s:"Вода",         r:"Voda",          e:"Water"},
+    {s:"Хлеб",         r:"Khleb",         e:"Bread"},
+    {s:"Счёт",         r:"Schyot",        e:"The bill"},
+    {s:"Ресторан",     r:"Restoran",      e:"Restaurant"},
+    {s:"Я хочу заказать...",r:"Ya khochu zakazat'...",e:"I'd like to order..."},
+    {s:"Приятного аппетита!",r:"Priyatnogo appetita!",e:"Enjoy your meal!"},
   ]},
 ];
 
@@ -2982,8 +3108,8 @@ function LessonPlayer({ lesson, langObj, onDone }) {
    LESSONS SCREEN  (lesson track list)
 ═══════════════════════════════════════════════════════════ */
 function LessonsScreen({ langCode, langObj, onClose, onStartLesson }) {
-  const lessons = langCode==="he" ? HE_LESSONS : AR_LESSONS;
-  const langName = langCode==="he" ? "Hebrew" : "Arabic";
+  const lessons  = langCode==="he" ? HE_LESSONS : langCode==="ru" ? RU_LESSONS : AR_LESSONS;
+  const langName = langObj.name;
   return (
     <div className="scr" style={{paddingTop:6}}>
       <div className="lessons-hdr">
@@ -3018,18 +3144,23 @@ function LessonsScreen({ langCode, langObj, onClose, onStartLesson }) {
    SCRIPT GUIDE  (Hebrew / Arabic alphabet reference)
 ═══════════════════════════════════════════════════════════ */
 function ScriptGuide({ langCode, onClose }) {
+  const isRu = langCode === "ru";
   const isHe = langCode === "he";
-  const data  = isHe ? HE_ALPHA : AR_ALPHA;
-  const title = isHe ? "The Hebrew Aleph-Bet" : "The Arabic Alphabet";
+  const data  = isHe ? HE_ALPHA : isRu ? RU_ALPHA : AR_ALPHA;
+  const title = isHe ? "The Hebrew Aleph-Bet" : isRu ? "The Russian Alphabet (Cyrillic)" : "The Arabic Alphabet";
+  const flag  = isHe ? "🇮🇱" : isRu ? "🇷🇺" : "🇸🇦";
   const note  = isHe
     ? "Hebrew reads right-to-left. Letters change slightly when final in a word (shown as X/X). Vowels are usually not written — you learn to read without them."
+    : isRu
+    ? "Russian uses the Cyrillic alphabet — 33 letters. Many look like English but some are 'false friends' (Р = R, Н = N, С = S). Left-to-right, same direction as English."
     : "Arabic reads right-to-left. Each letter has up to 4 forms depending on where it sits in a word. This guide shows the standalone form. Start with the sounds — script will click with practice.";
+  const rtl = isHe || (!isRu && langCode === "ar");
 
   return createPortal(
     <div className="sg-overlay" onClick={onClose}>
       <div className="sg-sheet" onClick={e=>e.stopPropagation()}>
         <div className="sg-header">
-          <span style={{fontSize:24}}>{isHe?"🇮🇱":"🇸🇦"}</span>
+          <span style={{fontSize:24}}>{flag}</span>
           <div className="sg-title">{title}</div>
           <button className="sg-close" onClick={onClose}>✕</button>
         </div>
@@ -3038,7 +3169,7 @@ function ScriptGuide({ langCode, onClose }) {
           <div className="alpha-grid">
             {data.map(row=>(
               <div key={row.l} className="alpha-card">
-                <div className="alpha-letter">{row.l}</div>
+                <div className="alpha-letter" style={{direction:rtl?"rtl":"ltr"}}>{row.l}</div>
                 <div className="alpha-name">{row.n}</div>
                 <div className="alpha-roman">{row.r}</div>
                 <div className="alpha-ex">{row.ex}</div>
@@ -3174,11 +3305,11 @@ function AdultMode({t, stars, onStars}) {
                 <span className="script-guide-btn-icon">📚</span>
                 <div className="script-guide-btn-text">
                   <div className="script-guide-btn-title">
-                    {lang==="he"?"Hebrew":"Arabic"} Lessons
+                    {lang==="he"?"Hebrew":lang==="ru"?"Russian":"Arabic"} Lessons
                   </div>
                   <div className="script-guide-btn-sub">
-                    {(lang==="he"?HE_LESSONS:AR_LESSONS).filter(l=>loadLS(`lingua_lesson_${l.id}`,false)).length}
-                    {" / "}{lang==="he"?HE_LESSONS.length:AR_LESSONS.length} lessons complete · start here!
+                    {(lang==="he"?HE_LESSONS:lang==="ru"?RU_LESSONS:AR_LESSONS).filter(l=>loadLS(`lingua_lesson_${l.id}`,false)).length}
+                    {" / "}{lang==="he"?HE_LESSONS.length:lang==="ru"?RU_LESSONS.length:AR_LESSONS.length} lessons complete · start here!
                   </div>
                 </div>
                 <span style={{color:"var(--a-gold)"}}>›</span>
@@ -3188,10 +3319,10 @@ function AdultMode({t, stars, onStars}) {
                 <span className="script-guide-btn-icon">📜</span>
                 <div className="script-guide-btn-text">
                   <div className="script-guide-btn-title">
-                    {lang==="he"?"Hebrew Aleph-Bet":"Arabic Alphabet"} — Quick Reference
+                    {lang==="he"?"Hebrew Aleph-Bet":lang==="ru"?"Russian Cyrillic":"Arabic Alphabet"} — Quick Reference
                   </div>
                   <div className="script-guide-btn-sub">
-                    {lang==="he"?"22":"28"} letters with romanisation & example words
+                    {lang==="he"?"22":lang==="ru"?"33":"28"} letters with romanisation & example words
                   </div>
                 </div>
                 <span style={{color:"var(--a-muted)"}}>›</span>
