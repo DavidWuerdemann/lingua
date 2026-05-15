@@ -669,20 +669,15 @@ const DEFAULT_VSET3 = {
   ],
 };
 
-// Seed the built-in sets — replaces any previous default versions on upgrade
+// Seed the built-in sets — always overwrites defaults so stale localStorage
+// data (wrong field names, old format, missing translations) never persists.
+// User-created sets (numeric timestamp IDs) are untouched.
 function seedDefaultVSet() {
+  const DEFAULTS = [DEFAULT_VSET, DEFAULT_VSET2, DEFAULT_VSET3];
+  const defaultIds = new Set(DEFAULTS.map(d => d.id));
   const sets = loadVSets();
-  const DEFAULTS = [
-    {id: DEFAULT_VSET_ID,  set: DEFAULT_VSET},
-    {id: DEFAULT_VSET2_ID, set: DEFAULT_VSET2},
-    {id: DEFAULT_VSET3_ID, set: DEFAULT_VSET3},
-  ];
-  const allPresent = DEFAULTS.every(d => sets.find(s => s.id === d.id));
-  if (allPresent) return;
-  // Keep any user-created sets; remove stale built-in versions
-  const userSets = sets.filter(s => !s.id.startsWith("lingua_default_en_de_"));
-  const toAdd = DEFAULTS.map(d => sets.find(s => s.id === d.id) || d.set);
-  saveVSets([...userSets, ...toAdd]);
+  const userSets = sets.filter(s => !defaultIds.has(s.id));
+  saveVSets([...userSets, ...DEFAULTS]);
 }
 
 /* SM-2 lite */
@@ -1858,14 +1853,16 @@ function WordMatch({ words, kidLang, t, onDone }) {
   const BATCH = 5;
   const { nativeLang } = useContext(Ctx);
 
-  // Resolve human-readable language names for column headers.
-  // Fall back to role labels when both resolve to the same name (e.g. native=EN, target=en).
+  // Column headers: left = target language (w.word), right = native language (w.transl)
+  // Fall back to role labels when both language names resolve to the same string.
   const NATIVE_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
-  const nativeName = NATIVE_NAMES[nativeLang] || "Your language";
-  const targetName = LANGUAGES.find(l => l.code === kidLang)?.name || "Target";
-  // If both names would be identical, use generic role labels instead
-  const leftLabelFwd  = nativeName === targetName ? "Translation" : nativeName;
-  const rightLabelFwd = nativeName === targetName ? "Word"        : targetName;
+  const nativeName = NATIVE_NAMES[nativeLang] || "Translation";
+  const targetName = LANGUAGES.find(l => l.code === kidLang)?.name || "Word";
+  const same = nativeName === targetName;
+  // fwd=true:  left = w.word (target),  right = w.transl (native)
+  // fwd=false: left = w.transl (native), right = w.word (target)
+  const leftLabelFwd  = same ? "Word"        : targetName;
+  const rightLabelFwd = same ? "Translation" : nativeName;
 
   // Only play with pairs that have BOTH sides filled in.
   // Empty transl → both columns would show the same word (the bug the user saw).
@@ -1971,9 +1968,11 @@ function WordMatch({ words, kidLang, t, onDone }) {
     const idx = side === 'L' ? lOrd[pos] : rOrd[pos];
     const w   = batch[idx];
     if (!w) return '—';
+    // fwd=true:  left = w.word (target language), right = w.transl (native/translation)
+    // fwd=false: left = w.transl (native),        right = w.word  (target)
     return fwd
-      ? (side === 'L' ? w.transl : w.word)
-      : (side === 'L' ? w.word   : w.transl);
+      ? (side === 'L' ? w.word   : w.transl)
+      : (side === 'L' ? w.transl : w.word  );
   }
 
   return (
