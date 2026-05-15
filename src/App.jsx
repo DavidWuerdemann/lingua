@@ -491,13 +491,128 @@ function saveReflection(text) {
   saveLS(SK_REFL, r.slice(0, 50));
 }
 
-// Seed the built-in set — replaces any previous default version on upgrade
+/* ─────────────────────────────────────────────────────────────
+   DEFAULT VOCABULARY SET 2  (food, shopping & classroom)
+───────────────────────────────────────────────────────────── */
+const DEFAULT_VSET2_ID = "lingua_default_en_de_2_v1";
+const DEFAULT_VSET2 = {
+  id: DEFAULT_VSET2_ID,
+  name: "Food, Shopping & Classroom 🛒",
+  created: "2026-01-01T00:00:00.000Z",
+  words: [
+    // ── Greetings & communication ────────────────────────────────────────────
+    {word:"(to) greet sb.",          transl:"jn. begrüßen"},
+    {word:"(to) comment on sth.",    transl:"sich äußern über/zu etwas; einen Kommentar abgeben"},
+    {word:"version",                 transl:"die Version, die Fassung"},
+    {word:"same",                    transl:"gleich"},
+    {word:"(to) prepare for sth.",   transl:"sich auf etwas vorbereiten"},
+    // ── Shopping & everyday ──────────────────────────────────────────────────
+    {word:"cake",                    transl:"der Kuchen"},
+    {word:"Would you like …?",       transl:"Möchtest du …?"},
+    {word:"I'd like …",              transl:"Ich möchte …"},
+    {word:"I have to buy …",         transl:"ich muss … kaufen"},
+    {word:"list",                    transl:"die Liste"},
+    {word:"biscuit",                 transl:"der Keks, das Plätzchen"},
+    {word:"sweet",                   transl:"die Süßigkeit"},
+    {word:"excited",                 transl:"aufgeregt, gespannt"},
+    {word:"fruit",                   transl:"das Obst, die Frucht"},
+    {word:"grape",                   transl:"die (Wein-)Traube"},
+    {word:"a few",                   transl:"ein paar, einige"},
+    {word:"fizzy",                   transl:"sprudelnd"},
+    {word:"much",                    transl:"viel"},
+    {word:"juice",                   transl:"der Saft"},
+    {word:"orange",                  transl:"die Orange, die Apfelsine"},
+    {word:"enough",                  transl:"genug"},
+    {word:"money",                   transl:"das Geld"},
+    {word:"of course",               transl:"natürlich, selbstverständlich"},
+    {word:"(to) forget",             transl:"vergessen"},
+    {word:"trolley",                 transl:"der Einkaufswagen"},
+    {word:"not … yet",               transl:"noch nicht"},
+    {word:"crisps",                  transl:"Kartoffelchips"},
+    // ── Animals & actions ────────────────────────────────────────────────────
+    {word:"monkey",                  transl:"der Affe"},
+    {word:"(to) pick sth. up",       transl:"etwas aufheben, hochheben"},
+    {word:"(to) choose",             transl:"aussuchen, auswählen"},
+    {word:"tear",                    transl:"die Träne"},
+    {word:"(to) arrive",             transl:"ankommen, eintreffen"},
+    {word:"(to) point to sth.",      transl:"auf etwas zeigen, deuten"},
+    {word:"large",                   transl:"groß"},
+    {word:"heavy",                   transl:"schwer"},
+    {word:"(to) call",               transl:"rufen; anrufen; nennen"},
+    {word:"plate",                   transl:"der Teller"},
+    {word:"round",                   transl:"rund"},
+    // ── Baking & cooking ─────────────────────────────────────────────────────
+    {word:"(to) bake",               transl:"backen"},
+    {word:"(to) begin",              transl:"beginnen, anfangen"},
+    {word:"rainbow",                 transl:"der Regenbogen"},
+    {word:"recipe",                  transl:"das Rezept"},
+    {word:"ingredient",              transl:"die Zutat"},
+    {word:"instruction",             transl:"die Anweisung"},
+    {word:"gram (g)",                transl:"das Gramm"},
+    {word:"butter",                  transl:"die Butter"},
+    {word:"sugar",                   transl:"der Zucker"},
+    {word:"egg",                     transl:"das Ei"},
+    {word:"flour",                   transl:"das Mehl"},
+    {word:"chocolate",               transl:"die Schokolade"},
+    {word:"bean",                    transl:"die Bohne"},
+    {word:"bread",                   transl:"das Brot"},
+    {word:"salt",                    transl:"das Salz"},
+    {word:"pepper",                  transl:"der Pfeffer"},
+    {word:"jar",                     transl:"das Einmachglas"},
+    // ── Fruit & vegetables ───────────────────────────────────────────────────
+    {word:"pear",                    transl:"die Birne"},
+    {word:"kiwi",                    transl:"die Kiwi"},
+    {word:"pineapple",               transl:"die Ananas"},
+    {word:"strawberry",              transl:"die Erdbeere"},
+    {word:"vegetables",              transl:"das Gemüse"},
+    {word:"lettuce",                 transl:"der Kopfsalat"},
+    {word:"tomato",                  transl:"die Tomate"},
+    {word:"carrot",                  transl:"die Karotte"},
+    {word:"cheese",                  transl:"der Käse"},
+    // ── Cooking verbs & kitchen ──────────────────────────────────────────────
+    {word:"(to) add",                transl:"hinzufügen, ergänzen"},
+    {word:"(to) beat",               transl:"schlagen"},
+    {word:"until",                   transl:"bis"},
+    {word:"fridge",                  transl:"der Kühlschrank"},
+    {word:"oven",                    transl:"der Ofen"},
+    {word:"(to) cut",                transl:"schneiden"},
+    {word:"a piece of …",            transl:"ein Stück …"},
+    // ── Classroom & learning ─────────────────────────────────────────────────
+    {word:"row",                     transl:"die Reihe"},
+    {word:"(to) structure",          transl:"strukturieren, gliedern"},
+    {word:"in other ways",           transl:"auf andere Art und Weise"},
+    {word:"(to) collect",            transl:"sammeln"},
+    {word:"(to) mark",               transl:"markieren"},
+    {word:"meal",                    transl:"die Mahlzeit, das Essen"},
+    {word:"quantity",                transl:"die Quantität, die Menge"},
+    {word:"(to) remember sth.",      transl:"an etwas denken; sich erinnern"},
+    {word:"plan",                    transl:"der Plan"},
+    {word:"meaning",                 transl:"die Bedeutung"},
+    {word:"(to) mean",               transl:"bedeuten"},
+    {word:"(to) compare",            transl:"vergleichen"},
+    {word:"mediation",               transl:"die Sprachmittlung, die Mediation"},
+    {word:"(to) take notes",         transl:"sich Notizen machen"},
+    {word:"(to) pass sth. on",       transl:"etwas weitergeben"},
+    {word:"(to) translate",          transl:"übersetzen"},
+  ],
+};
+
+// Seed the built-in sets — replaces any previous default versions on upgrade
 function seedDefaultVSet() {
   const sets = loadVSets();
-  if (sets.find(s => s.id === DEFAULT_VSET_ID)) return; // already current
-  // Remove any stale default (ids start with "lingua_default_en_de_")
-  const others = sets.filter(s => !s.id.startsWith("lingua_default_en_de_"));
-  saveVSets([...others, DEFAULT_VSET]);
+  const hasV1 = sets.find(s => s.id === DEFAULT_VSET_ID);
+  const hasV2 = sets.find(s => s.id === DEFAULT_VSET2_ID);
+  if (hasV1 && hasV2) return; // both current — nothing to do
+  // Remove any stale defaults
+  const others = sets.filter(s =>
+    !s.id.startsWith("lingua_default_en_de_") &&
+    s.id !== DEFAULT_VSET2_ID
+  );
+  const toAdd = [
+    ...(!hasV1 ? [DEFAULT_VSET]  : [sets.find(s=>s.id===DEFAULT_VSET_ID)]),
+    ...(!hasV2 ? [DEFAULT_VSET2] : [sets.find(s=>s.id===DEFAULT_VSET2_ID)]),
+  ];
+  saveVSets([...others, ...toAdd]);
 }
 
 /* SM-2 lite */
