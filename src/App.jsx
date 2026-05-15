@@ -218,6 +218,10 @@ const LANGUAGES = [
   {code:"nl",flag:"🇳🇱",name:"Dutch",    native:"Nederlands", tts:"nl-NL",accent:"#E8552A",
    scenarios:["Op de Markt","Café Bezoek","Buren Ontmoeten","Op het Station","Bij de Dokter","Werkvergadering","Op een Feestje","Hotel Boeken","Op het Vliegveld","Eten Bestellen","De Weg Vragen","Sollicitatiegesprek",
               "Zakelijke Pitch","Bestuursvergadering","Vastgoed Bezichtiging","Huuronderhandeling","Filmopname in Amsterdam","Scenariobespreking","Casting Gesprek","In de Jachthaven","Zeilen op de Waddenzee","Zeilboot Huren"]},
+  {code:"he",flag:"🇮🇱",name:"Hebrew",   native:"עברית",      tts:"he-IL",accent:"#2563EB", rtl:true, script:true,
+   scenarios:["ראיון עבודה","שיחת בר","ביקור אצל הרופא","קניות בשוק","תוכניות לסוף שבוע","בבית קפה","בשדה התעופה","הזמנת אוכל","פגישה עם שכנים","פגישה ראשונה","פגישה עסקית","מצגת למשקיעים","משא ומתן על חוזה","ביקור בנכס","שכירת משרד","בסט הצילומים","פגישת תסריטאים","אודישן","בנמל","שיעור הפלגה","השכרת סירה"]},
+  {code:"ar",flag:"🇸🇦",name:"Arabic",   native:"العربية",    tts:"ar-SA",accent:"#16A34A", rtl:true, script:true,
+   scenarios:["مقابلة عمل","في المقهى","عند الطبيب","التسوق في السوق","خطط نهاية الأسبوع","في المطار","طلب الطعام","في الفندق","لقاء جديد","التعرف على الجيران","اجتماع عمل","عرض تجاري للمستثمرين","التفاوض على عقد","معاينة عقار","استئجار مكتب","في موقع التصوير","اجتماع كتّاب السيناريو","التجارب","في الميناء","درس الإبحار","استئجار قارب"]},
 ];
 
 const KIDS_LANGS = [
@@ -245,6 +249,71 @@ const KIDS_TOPICS = [
   {id:"music",     emoji:"🎵", color:"#D4A8C4", labels:{en:"Music & Dance",   es:"Música y baile",      de:"Musik & Tanz"}},
   {id:"cooking",   emoji:"👨‍🍳", color:"#E8C4A0", labels:{en:"Cooking",         es:"Cocinar",             de:"Kochen"}},
   {id:"free",      emoji:"💬", color:"#DDB89E", labels:{en:"Free Chat",       es:"Conversación libre",  de:"Freies Gespräch"}},
+];
+
+const SKILL_LEVELS = [
+  {id:"beginner",     emoji:"🌱", label:"Beginner",     cefr:"A1",    desc:"Starting from zero"},
+  {id:"elementary",   emoji:"📗", label:"Elementary",   cefr:"A2",    desc:"Know some basics"},
+  {id:"intermediate", emoji:"📘", label:"Intermediate", cefr:"B1–B2", desc:"Can hold a conversation"},
+  {id:"advanced",     emoji:"📕", label:"Advanced",     cefr:"C1–C2", desc:"Near-fluent"},
+];
+
+// Hebrew alphabet (aleph-bet)
+const HE_ALPHA = [
+  {l:"א",n:"Aleph", r:"silent",      ex:"אבא",   xe:"father"},
+  {l:"ב",n:"Bet",   r:"b / v",       ex:"בית",   xe:"house"},
+  {l:"ג",n:"Gimel", r:"g",           ex:"גן",    xe:"garden"},
+  {l:"ד",n:"Dalet", r:"d",           ex:"דלת",   xe:"door"},
+  {l:"ה",n:"He",    r:"h",           ex:"הר",    xe:"mountain"},
+  {l:"ו",n:"Vav",   r:"v / o / u",   ex:"ורד",   xe:"rose"},
+  {l:"ז",n:"Zayin", r:"z",           ex:"זמן",   xe:"time"},
+  {l:"ח",n:"Chet",  r:"ch (Bach)",   ex:"חלב",   xe:"milk"},
+  {l:"ט",n:"Tet",   r:"t",           ex:"טוב",   xe:"good"},
+  {l:"י",n:"Yod",   r:"y / i",       ex:"ים",    xe:"sea"},
+  {l:"כ/ך",n:"Kaf", r:"k / kh",      ex:"כלב",   xe:"dog"},
+  {l:"ל",n:"Lamed", r:"l",           ex:"לב",    xe:"heart"},
+  {l:"מ/ם",n:"Mem", r:"m",           ex:"מים",   xe:"water"},
+  {l:"נ/ן",n:"Nun", r:"n",           ex:"נהר",   xe:"river"},
+  {l:"ס",n:"Samekh",r:"s",           ex:"ספר",   xe:"book"},
+  {l:"ע",n:"Ayin",  r:"ʿ (guttural)",ex:"עין",   xe:"eye"},
+  {l:"פ/ף",n:"Pe",  r:"p / f",       ex:"פרח",   xe:"flower"},
+  {l:"צ/ץ",n:"Tsadi",r:"ts",         ex:"ציפור", xe:"bird"},
+  {l:"ק",n:"Qof",   r:"k",           ex:"קפה",   xe:"coffee"},
+  {l:"ר",n:"Resh",  r:"r",           ex:"ראש",   xe:"head"},
+  {l:"ש",n:"Shin",  r:"sh / s",      ex:"שמש",   xe:"sun"},
+  {l:"ת",n:"Tav",   r:"t",           ex:"תפוח",  xe:"apple"},
+];
+
+// Arabic alphabet (standalone forms, MSA)
+const AR_ALPHA = [
+  {l:"ا",n:"Alif",  r:"a / ā",          ex:"أب",    xe:"father"},
+  {l:"ب",n:"Ba",    r:"b",               ex:"بيت",   xe:"house"},
+  {l:"ت",n:"Ta",    r:"t",               ex:"تمر",   xe:"dates"},
+  {l:"ث",n:"Tha",   r:"th (think)",      ex:"ثلاثة", xe:"three"},
+  {l:"ج",n:"Jim",   r:"j",               ex:"جبل",   xe:"mountain"},
+  {l:"ح",n:"Ha",    r:"ḥ (pharyngeal)",  ex:"حب",    xe:"love"},
+  {l:"خ",n:"Kha",   r:"kh (Bach)",       ex:"خبز",   xe:"bread"},
+  {l:"د",n:"Dal",   r:"d",               ex:"دار",   xe:"home"},
+  {l:"ذ",n:"Dhal",  r:"dh (this)",       ex:"ذهب",   xe:"gold"},
+  {l:"ر",n:"Ra",    r:"r",               ex:"رجل",   xe:"man"},
+  {l:"ز",n:"Zay",   r:"z",               ex:"زمن",   xe:"time"},
+  {l:"س",n:"Sin",   r:"s",               ex:"سمك",   xe:"fish"},
+  {l:"ش",n:"Shin",  r:"sh",              ex:"شمس",   xe:"sun"},
+  {l:"ص",n:"Sad",   r:"ṣ (emphatic s)",  ex:"صحة",   xe:"health"},
+  {l:"ض",n:"Dad",   r:"ḍ (emphatic d)",  ex:"ضيف",   xe:"guest"},
+  {l:"ط",n:"Ta",    r:"ṭ (emphatic t)",  ex:"طعام",  xe:"food"},
+  {l:"ظ",n:"Dha",   r:"ẓ (emphatic dh)", ex:"ظرف",   xe:"envelope"},
+  {l:"ع",n:"Ayn",   r:"ʿ (pharyngeal)",  ex:"عين",   xe:"eye"},
+  {l:"غ",n:"Ghayn", r:"gh (French r)",   ex:"غرفة",  xe:"room"},
+  {l:"ف",n:"Fa",    r:"f",               ex:"فم",    xe:"mouth"},
+  {l:"ق",n:"Qaf",   r:"q (deep k)",      ex:"قلب",   xe:"heart"},
+  {l:"ك",n:"Kaf",   r:"k",               ex:"كتاب",  xe:"book"},
+  {l:"ل",n:"Lam",   r:"l",               ex:"لون",   xe:"colour"},
+  {l:"م",n:"Mim",   r:"m",               ex:"ماء",   xe:"water"},
+  {l:"ن",n:"Nun",   r:"n",               ex:"نار",   xe:"fire"},
+  {l:"ه",n:"Ha",    r:"h",               ex:"هواء",  xe:"air"},
+  {l:"و",n:"Waw",   r:"w / ū",           ex:"وقت",   xe:"time"},
+  {l:"ي",n:"Ya",    r:"y / ī",           ex:"يد",    xe:"hand"},
 ];
 
 const IDIOM_CATS = ["Business","Travel","Emotions","Nature","Pop Culture"];
@@ -414,6 +483,12 @@ const SK_ERRS   = "lingua_errors";
 const SK_WOD    = "lingua_wod";
 const SK_IDIOM  = "lingua_idiom";
 const SK_VSETS  = "lingua_vsets";
+const SK_SKILL  = code => `lingua_skill_${code}`;
+const SK_SESS   = code => `lingua_sessions_${code}`;
+const loadSkill    = code      => loadLS(SK_SKILL(code), "beginner");
+const saveSkill    = (code,lv) => saveLS(SK_SKILL(code), lv);
+const loadSessions = code      => loadLS(SK_SESS(code), 0);
+const saveSessions = (code,n)  => saveLS(SK_SESS(code), n);
 const SK_UILNG  = "lingua_uilang";
 const SK_KIDLG  = "lingua_kidlang";
 const SK_NATLNG = "lingua_native_lang";
@@ -1011,6 +1086,49 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .cta{width:100%;background:var(--a-gold);color:var(--a-bg);border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:600;letter-spacing:.2px;transition:all .2s;box-shadow:0 6px 22px rgba(201,148,58,.3);cursor:pointer;}
 .cta:hover{background:var(--a-goldL);transform:translateY(-1px);}
 .cta:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+
+/* ── Skill level picker ── */
+.skill-section{margin-bottom:20px;}
+.skill-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--a-muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.skill-label span{font-size:10px;font-weight:500;color:var(--a-mutedD);letter-spacing:0;text-transform:none;}
+.skill-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.skill-btn{background:var(--a-surf);border:1px solid var(--a-border);border-radius:10px;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .18s;}
+.skill-btn:hover{border-color:var(--a-muted);}
+.skill-btn.on{border-color:var(--a-gold);background:rgba(201,148,58,.08);}
+.skill-btn-emoji{font-size:18px;line-height:1;}
+.skill-btn-label{font-size:10px;font-weight:700;color:var(--a-cream);letter-spacing:.02em;}
+.skill-btn-cefr{font-size:9px;color:var(--a-muted);}
+.skill-btn.on .skill-btn-label{color:var(--a-gold);}
+.skill-btn.on .skill-btn-cefr{color:rgba(201,148,58,.7);}
+.skill-progress{font-size:10px;color:var(--a-muted);margin-top:7px;text-align:center;}
+.skill-levelup{font-size:10px;color:var(--a-gold);margin-top:5px;text-align:center;animation:fadeUp .3s ease both;}
+
+/* ── Script guide button ── */
+.script-guide-row{margin-bottom:18px;}
+.script-guide-btn{width:100%;background:rgba(37,99,235,.1);border:1px solid rgba(37,99,235,.3);border-radius:11px;padding:11px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .18s;color:var(--a-cream);}
+.script-guide-btn:hover{background:rgba(37,99,235,.18);border-color:rgba(37,99,235,.5);}
+.script-guide-btn-icon{font-size:20px;}
+.script-guide-btn-text{flex:1;text-align:left;}
+.script-guide-btn-title{font-size:13px;font-weight:600;}
+.script-guide-btn-sub{font-size:11px;color:var(--a-muted);margin-top:1px;}
+
+/* ── Script guide modal ── */
+.sg-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:900;display:flex;align-items:flex-end;justify-content:center;}
+.sg-sheet{background:var(--a-surf);border-radius:22px 22px 0 0;width:100%;max-width:520px;max-height:85vh;display:flex;flex-direction:column;animation:slideUp .28s ease both;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sg-header{padding:16px 18px 12px;border-bottom:1px solid var(--a-border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.sg-title{flex:1;font-family:var(--a-serif);font-size:20px;font-weight:600;color:var(--a-cream);}
+.sg-close{background:none;border:none;color:var(--a-muted);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:8px;}
+.sg-close:hover{color:var(--a-cream);}
+.sg-note{font-size:11.5px;color:var(--a-muted);line-height:1.55;padding:10px 18px;border-bottom:1px solid var(--a-border);flex-shrink:0;}
+.sg-body{overflow-y:auto;padding:14px;}
+.alpha-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.alpha-card{background:var(--a-surf2);border:1px solid var(--a-border);border-radius:12px;padding:10px 8px;text-align:center;}
+.alpha-letter{font-size:28px;line-height:1;color:var(--a-cream);direction:rtl;}
+.alpha-name{font-size:10px;font-weight:700;color:var(--a-gold);margin:4px 0 1px;letter-spacing:.04em;}
+.alpha-roman{font-size:10px;color:var(--a-muted);}
+.alpha-ex{font-size:10px;color:var(--a-cream);margin-top:4px;direction:rtl;}
+.alpha-ex-en{font-size:9px;color:var(--a-mutedD);font-style:italic;}
 
 /* ═══ WORD OF DAY ═══ */
 .wod-ltabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
@@ -2281,7 +2399,7 @@ Only for genuinely useful patterns — never for basic vocabulary. Skip most of 
       {/* Full scrollable chat thread — hide the internal trigger message */}
       <div className="chat-area scrollarea" style={{flex:1,overflowY:"auto",minHeight:0}}>
         {msgs.filter(m=>m.content!==GREET_TRIGGER.content).map((m,i)=>(
-          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`}>
+          <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`} dir="auto">
             {m.content}
             {/* Kids-friendly correction pill */}
             {m.role==="assistant" && m.fix && (
@@ -2397,7 +2515,7 @@ function SaveModal({ text, lang, onClose, onStars }) {
 /* ═══════════════════════════════════════════════════════════
    ADULT CHAT  (new design, all old features)
 ═══════════════════════════════════════════════════════════ */
-function AdultChat({lang, scenario, t, onStars}) {
+function AdultChat({lang, scenario, skillLevel="beginner", t, onStars}) {
   const [msgs,setMsgs]         = useState([]);
   const [input,setInput]       = useState("");
   const [loading,setLoading]   = useState(false);
@@ -2408,7 +2526,26 @@ function AdultChat({lang, scenario, t, onStars}) {
   const endRef = useRef();
   const langObj = LANGUAGES.find(l=>l.code===lang);
 
+  // Track session count for progress analysis
+  useEffect(()=>{
+    saveSessions(lang, loadSessions(lang) + 1);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]);
+
+  const skillInstructions = {
+    beginner:     "The learner is a complete beginner (A1). Use very simple vocabulary, short sentences, speak slowly. Introduce 1–2 new words per reply with a brief English gloss in brackets, e.g. 'Bonjour [Hello]!'.",
+    elementary:   "The learner is elementary (A2). Use simple, everyday language. Occasionally gloss new words in brackets.",
+    intermediate: "The learner is intermediate (B1–B2). Use natural language; avoid highly idiomatic or complex grammar.",
+    advanced:     "The learner is advanced (C1–C2). Speak fully naturally with idioms, nuance, and cultural references.",
+  }[skillLevel] || "";
+
+  const scriptInstruction = langObj?.script && (skillLevel==="beginner"||skillLevel==="elementary")
+    ? `SCRIPT: Always follow every ${langObj.name} sentence with its romanised transliteration in parentheses so the learner can read along while they learn the script. Example (Hebrew): "שלום! (Shalom!) מה שלומך? (Ma shlomkha?)" or (Arabic): "مرحبا! (Marhaban!) كيف حالك؟ (Kayfa ḥālak?)"`
+    : "";
+
   const sysPrompt = `You are a native ${langObj?.name} speaker in this real-life scenario: "${scenario}".
+${skillInstructions}
+${scriptInstruction}
 CRITICAL: Reply ONLY in ${langObj?.name}. Max 2 short punchy sentences — this is a live conversation, not a lesson.
 Stay in character, be natural and spontaneous. React to what the user says.
 If they make a grammar/vocabulary error, append this AFTER your reply (no blank line):
@@ -2576,15 +2713,71 @@ No <fix> if no error.`;
 }
 
 /* ═══════════════════════════════════════════════════════════
+   SCRIPT GUIDE  (Hebrew / Arabic alphabet reference)
+═══════════════════════════════════════════════════════════ */
+function ScriptGuide({ langCode, onClose }) {
+  const isHe = langCode === "he";
+  const data  = isHe ? HE_ALPHA : AR_ALPHA;
+  const title = isHe ? "The Hebrew Aleph-Bet" : "The Arabic Alphabet";
+  const note  = isHe
+    ? "Hebrew reads right-to-left. Letters change slightly when final in a word (shown as X/X). Vowels are usually not written — you learn to read without them."
+    : "Arabic reads right-to-left. Each letter has up to 4 forms depending on where it sits in a word. This guide shows the standalone form. Start with the sounds — script will click with practice.";
+
+  return createPortal(
+    <div className="sg-overlay" onClick={onClose}>
+      <div className="sg-sheet" onClick={e=>e.stopPropagation()}>
+        <div className="sg-header">
+          <span style={{fontSize:24}}>{isHe?"🇮🇱":"🇸🇦"}</span>
+          <div className="sg-title">{title}</div>
+          <button className="sg-close" onClick={onClose}>✕</button>
+        </div>
+        <p className="sg-note">{note}</p>
+        <div className="sg-body">
+          <div className="alpha-grid">
+            {data.map(row=>(
+              <div key={row.l} className="alpha-card">
+                <div className="alpha-letter">{row.l}</div>
+                <div className="alpha-name">{row.n}</div>
+                <div className="alpha-roman">{row.r}</div>
+                <div className="alpha-ex">{row.ex}</div>
+                <div className="alpha-ex-en">{row.xe}</div>
+              </div>
+            ))}
+          </div>
+          <p style={{marginTop:14,fontSize:10.5,color:"var(--a-muted)",lineHeight:1.6,textAlign:"center"}}>
+            Tip: Chat at Beginner level — the AI will always add transliteration so you can read along while you learn the script.
+          </p>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    ADULT MODE  (new shell + all tabs)
 ═══════════════════════════════════════════════════════════ */
 function AdultMode({t, stars, onStars}) {
-  const [tab,setTab]         = useState("chat");
-  const [lang,setLang]       = useState("es");
-  const [scenIdx,setScenIdx] = useState(0);
-  const [inChat,setInChat]   = useState(false);
+  const [tab,setTab]           = useState("chat");
+  const [lang,setLang]         = useState("es");
+  const [scenIdx,setScenIdx]   = useState(0);
+  const [inChat,setInChat]     = useState(false);
+  const [skillLevel,setSkillLevelState] = useState(() => loadSkill("es"));
+  const [showScript,setShowScript]      = useState(false);
   const {onBack,uiLang,setUiLang} = useContext(Ctx);
   const langObj              = LANGUAGES.find(l=>l.code===lang);
+  const sessions             = loadSessions(lang);
+
+  function changeLang(code) {
+    setLang(code); setScenIdx(0);
+    setSkillLevelState(loadSkill(code));
+    sfx.click();
+  }
+  function changeSkill(lv) {
+    setSkillLevelState(lv);
+    saveSkill(lang, lv);
+    sfx.click();
+  }
 
   if (inChat) return (
     <div className="shell">
@@ -2595,12 +2788,12 @@ function AdultMode({t, stars, onStars}) {
         <button className="ghost" onClick={()=>setInChat(false)}>← {t.scenario}</button>
         <button className="ghost" onClick={onBack}>{t.home}</button>
       </div>
-      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} t={t} onStars={onStars}/>
+      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} skillLevel={skillLevel} t={t} onStars={onStars}/>
     </div>
   );
 
   return (
-    <div className="shell">
+    <><div className="shell">
       <div className="topbar">
         <div className="topbar-logo">✦</div>
         <span className="topbar-title">Lingua</span>
@@ -2625,18 +2818,62 @@ function AdultMode({t, stars, onStars}) {
             {LANGUAGES.map(l=>(
               <div key={l.code} className={`lcard${lang===l.code?" on":""}`}
                 style={lang===l.code?{borderColor:l.accent,boxShadow:`0 4px 18px ${l.accent}28`}:{}}
-                onClick={()=>{setLang(l.code);setScenIdx(0);sfx.click();}}>
+                onClick={()=>changeLang(l.code)}>
                 <span className="lflag">{l.flag}</span>
-                <div className="linfo"><h4>{l.name}</h4><span>{l.native}</span></div>
+                <div className="linfo"><h4>{l.name}</h4><span dir="auto">{l.native}</span></div>
               </div>
             ))}
           </div>
+
+          {/* ── Skill level picker ── */}
+          <div className="skill-section">
+            <div className="skill-label">
+              Your level in {langObj?.name}
+              <span>· {sessions} session{sessions!==1?"s":""}</span>
+            </div>
+            <div className="skill-grid">
+              {SKILL_LEVELS.map(lv=>(
+                <button key={lv.id} className={`skill-btn${skillLevel===lv.id?" on":""}`}
+                  onClick={()=>changeSkill(lv.id)} title={lv.desc}>
+                  <span className="skill-btn-emoji">{lv.emoji}</span>
+                  <span className="skill-btn-label">{lv.label}</span>
+                  <span className="skill-btn-cefr">{lv.cefr}</span>
+                </button>
+              ))}
+            </div>
+            {sessions >= 10 && skillLevel !== "advanced" && (
+              <div className="skill-levelup">
+                ✨ {sessions} sessions — ready to level up?
+              </div>
+            )}
+          </div>
+
+          {/* ── Script guide (Hebrew / Arabic only) ── */}
+          {langObj?.script && (
+            <div className="script-guide-row">
+              <button className="script-guide-btn" onClick={()=>setShowScript(true)}>
+                <span className="script-guide-btn-icon">📜</span>
+                <div className="script-guide-btn-text">
+                  <div className="script-guide-btn-title">
+                    Learn the {lang==="he"?"Hebrew Aleph-Bet":"Arabic Alphabet"}
+                  </div>
+                  <div className="script-guide-btn-sub">
+                    {lang==="he"
+                      ? "22 letters · right-to-left · with pronunciation & examples"
+                      : "28 letters · right-to-left · sounds, names & example words"}
+                  </div>
+                </div>
+                <span style={{color:"var(--a-muted)"}}>›</span>
+              </button>
+            </div>
+          )}
+
           <div className="scen-head">{t.scenario}</div>
           <div className="scen-sub">{t.scenSub}</div>
           <div className="sgrid">
             {langObj?.scenarios.map((s,i)=>(
               <button key={s} className={`sbtn${scenIdx===i?" on":""}`} onClick={()=>{setScenIdx(i);sfx.click();}}>
-                <span>{s}</span>
+                <span dir="auto">{s}</span>
                 {scenIdx===i && <span className="sbtn-check">✓</span>}
               </button>
             ))}
@@ -2653,6 +2890,8 @@ function AdultMode({t, stars, onStars}) {
       {tab==="idiom"    && <IdiomScreen lang={lang} t={t}/>}
       {tab==="vocab"    && <div className="scr"><VocabSets t={t} kidLang={lang} onStars={onStars}/></div>}
     </div>
+    {showScript && <ScriptGuide langCode={lang} onClose={()=>setShowScript(false)}/>}
+    </>
   );
 }
 
