@@ -1858,10 +1858,14 @@ function WordMatch({ words, kidLang, t, onDone }) {
   const BATCH = 5;
   const { nativeLang } = useContext(Ctx);
 
-  // Resolve human-readable language names for column headers
+  // Resolve human-readable language names for column headers.
+  // Fall back to role labels when both resolve to the same name (e.g. native=EN, target=en).
   const NATIVE_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
   const nativeName = NATIVE_NAMES[nativeLang] || "Your language";
   const targetName = LANGUAGES.find(l => l.code === kidLang)?.name || "Target";
+  // If both names would be identical, use generic role labels instead
+  const leftLabelFwd  = nativeName === targetName ? "Translation" : nativeName;
+  const rightLabelFwd = nativeName === targetName ? "Word"        : targetName;
 
   // Only play with pairs that have BOTH sides filled in.
   // Empty transl → both columns would show the same word (the bug the user saw).
@@ -1887,8 +1891,8 @@ function WordMatch({ words, kidLang, t, onDone }) {
 
   // fwd=true  → left column = transl (native lang), right = word (target lang)
   // fwd=false → left column = word  (target lang),  right = transl (native lang)
-  const lHdr = fwd ? nativeName : targetName;
-  const rHdr = fwd ? targetName : nativeName;
+  const lHdr = fwd ? leftLabelFwd  : rightLabelFwd;
+  const rHdr = fwd ? rightLabelFwd : leftLabelFwd;
 
   // ── No-translation guard (all hooks already called above) ──
   if (usable.length === 0) {
