@@ -39,6 +39,8 @@ const T = {
     startConv:"Start conversation →",home:"Home",topics:"Topics",
     translate:"Translate",pronounce:"Pronounce",phonetic:"Phonetic",
     englishTransl:"English Translation",pronGuide:"Pronunciation Guide",phoneticGuide:"Phonetic Reading",
+    endSession:"Enough for today",keepChatting:"Keep chatting",backToScenarios:"Back to scenarios",
+    seWins:"Your wins",seNowYouCan:"Now you can…",seNextStep:"Next up",wrappingUp:"Wrapping up your session…",
     hearSlower:"Hear it again (slower)",typeHeard:"Type what you heard…",
     watch:"🎯 Watch:",
     saveToNotebook:"Save to Notebook",saveToNbSub:"Edit the word you want to remember",
@@ -76,6 +78,8 @@ const T = {
     startConv:"Gespräch starten →",home:"Startseite",topics:"Themen",
     translate:"Übersetzen",pronounce:"Aussprache",phonetic:"Phonetik",
     englishTransl:"Englische Übersetzung",pronGuide:"Ausspracheführer",phoneticGuide:"Phonetische Lesung",
+    endSession:"Für heute reicht's",keepChatting:"Weiter chatten",backToScenarios:"Zurück zu Szenarien",
+    seWins:"Deine Erfolge",seNowYouCan:"Jetzt kannst du…",seNextStep:"Als Nächstes",wrappingUp:"Sitzung wird abgeschlossen…",
     hearSlower:"Nochmal hören (langsamer)",typeHeard:"Tippe, was du gehört hast…",
     watch:"🎯 Achte auf:",
     saveToNotebook:"Im Notizbuch speichern",saveToNbSub:"Bearbeite das Wort, das du behalten möchtest",
@@ -112,6 +116,8 @@ const T = {
     startConv:"Gesprek starten →",home:"Home",topics:"Onderwerpen",
     translate:"Vertalen",pronounce:"Uitspreken",phonetic:"Fonetiek",
     englishTransl:"Engelse vertaling",pronGuide:"Uitspraakgids",phoneticGuide:"Fonetische lezing",
+    endSession:"Genoeg voor vandaag",keepChatting:"Doorgaan",backToScenarios:"Terug naar scenario's",
+    seWins:"Jouw prestaties",seNowYouCan:"Nu kun je…",seNextStep:"Volgende stap",wrappingUp:"Sessie wordt afgerond…",
     hearSlower:"Nog eens horen (langzamer)",typeHeard:"Typ wat je hoorde…",
     watch:"🎯 Let op:",
     saveToNotebook:"Opslaan in notitieboek",saveToNbSub:"Bewerk het woord dat je wilt onthouden",
@@ -148,6 +154,8 @@ const T = {
     startConv:"Démarrer la conversation →",home:"Accueil",topics:"Sujets",
     translate:"Traduire",pronounce:"Prononcer",phonetic:"Phonétique",
     englishTransl:"Traduction anglaise",pronGuide:"Guide de prononciation",phoneticGuide:"Lecture phonétique",
+    endSession:"Assez pour aujourd'hui",keepChatting:"Continuer",backToScenarios:"Retour aux scénarios",
+    seWins:"Tes réussites",seNowYouCan:"Maintenant tu peux…",seNextStep:"Prochaine étape",wrappingUp:"Bilan en cours…",
     hearSlower:"Réécouter (plus lentement)",typeHeard:"Tapez ce que vous avez entendu…",
     watch:"🎯 Attention :",
     saveToNotebook:"Enregistrer dans le carnet",saveToNbSub:"Modifie le mot que tu veux retenir",
@@ -184,6 +192,8 @@ const T = {
     startConv:"Iniciar conversación →",home:"Inicio",topics:"Temas",
     translate:"Traducir",pronounce:"Pronunciar",phonetic:"Fonética",
     englishTransl:"Traducción al inglés",pronGuide:"Guía de pronunciación",phoneticGuide:"Lectura fonética",
+    endSession:"Ya es suficiente",keepChatting:"Seguir chateando",backToScenarios:"Volver a escenarios",
+    seWins:"Tus logros",seNowYouCan:"Ahora puedes…",seNextStep:"El siguiente paso",wrappingUp:"Preparando el resumen…",
     hearSlower:"Escuchar de nuevo (más lento)",typeHeard:"Escribe lo que escuchaste…",
     watch:"🎯 Observa:",
     saveToNotebook:"Guardar en cuaderno",saveToNbSub:"Edita la palabra que quieres recordar",
@@ -1673,8 +1683,22 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .plabel{font-size:9.5px;font-weight:600;color:var(--a-gold);text-transform:uppercase;letter-spacing:.12em;margin-bottom:4px;}
 .pph{font-size:16px;color:var(--a-gold);font-style:italic;margin-bottom:4px;}
 .ptip{color:var(--a-muted);font-size:12.5px;line-height:1.55;}
-.summary-box{margin:12px 14px;background:var(--a-surf);border:1px solid var(--a-border);border-left:3px solid var(--a-gold);border-radius:12px;padding:14px 16px;}
-.summary-box h3{font-family:var(--a-serif);font-size:17px;color:var(--a-cream);margin-bottom:8px;}
+/* ── Session-end screen ── */
+.se-shell{background:var(--a-bg);}
+.se-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px 24px;text-align:center;}
+.se-scroll{flex:1;overflow-y:auto;padding:28px 20px 40px;display:flex;flex-direction:column;gap:0;}
+.se-flag{font-size:44px;text-align:center;margin-bottom:12px;}
+.se-headline{font-family:var(--a-serif);font-size:24px;font-weight:700;color:var(--a-cream);text-align:center;margin:0 0 14px;line-height:1.25;}
+.se-covered{font-size:14px;color:var(--a-muted);line-height:1.65;text-align:center;margin:0 0 24px;}
+.se-section{margin-bottom:22px;}
+.se-sec-label{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--a-gold);margin-bottom:10px;}
+.se-item{font-size:13.5px;line-height:1.55;color:var(--a-cream);padding:8px 12px;border-radius:10px;margin-bottom:6px;}
+.se-win{background:rgba(72,199,120,.08);border:1px solid rgba(72,199,120,.2);}
+.se-can{background:var(--a-surf2);border:1px solid var(--a-border);}
+.se-nextstep{background:var(--a-goldT);border:1px solid rgba(201,148,58,.3);border-radius:12px;padding:14px 16px;font-size:13.5px;color:var(--a-cream);line-height:1.6;margin-bottom:18px;}
+.se-nextstep-label{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a-gold);margin-bottom:6px;}
+.se-closing{font-size:13px;color:var(--a-muted);font-style:italic;text-align:center;margin:0 0 28px;}
+.se-actions{display:flex;flex-direction:column;gap:0;}
 .tts-btn{background:transparent;border:none;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:5px;color:var(--a-muted);transition:all .15s;flex-shrink:0;}
 .tts-btn:hover{color:var(--a-gold);}
 .chat-actions{display:flex;gap:7px;padding:6px 14px 8px;background:var(--a-surf);border-top:1px solid var(--a-border);}
@@ -2986,14 +3010,14 @@ function SaveModal({ text, lang, onClose, onStars }) {
 /* ═══════════════════════════════════════════════════════════
    ADULT CHAT  (new design, all old features)
 ═══════════════════════════════════════════════════════════ */
-function AdultChat({lang, scenario, skillLevel="beginner", t, onStars}) {
-  const [msgs,setMsgs]         = useState([]);
-  const [input,setInput]       = useState("");
-  const [loading,setLoading]   = useState(false);
-  const [panels,setPanels]     = useState({});
-  const [modal,setModal]       = useState(null);
-  const [summary,setSummary]   = useState("");
-  const [summLoading,setSummLoading] = useState(false);
+function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack}) {
+  const [msgs,setMsgs]           = useState([]);
+  const [input,setInput]         = useState("");
+  const [loading,setLoading]     = useState(false);
+  const [panels,setPanels]       = useState({});
+  const [modal,setModal]         = useState(null);
+  const [sessionEnd,setSessionEnd] = useState(null);
+  const [endLoading,setEndLoading] = useState(false);
   const endRef = useRef();
   const langObj = LANGUAGES.find(l=>l.code===lang);
 
@@ -3076,15 +3100,44 @@ No <fix> if no error.`;
     } catch { setPanels(p=>({...p,[id]:{type,loading:false,content:"Could not load."}})); }
   }
 
-  async function getSessionSummary() {
-    if (msgs.length<2||summLoading) return;
-    setSummLoading(true);
-    const transcript = msgs.map(m=>`${m.role}: ${m.content}`).join("\n");
+  async function endSession() {
+    if (endLoading) return;
+    setEndLoading(true);
+    const transcript = msgs.filter(m=>m.content).map(m=>`${m.role}: ${m.content}`).join("\n");
+    const fallback = {
+      headline:`Great session! 🌟`,
+      covered:`You had a real ${langObj?.name} conversation today — that takes courage and curiosity.`,
+      wins:["You engaged in a real conversation","You pushed through and kept going"],
+      nowYouCan:[`Feel more comfortable starting a conversation in ${langObj?.name}`],
+      nextStep:`Try another scenario next time — each one builds on the last.`,
+      closing:`Every session counts. See you next time!`,
+    };
+    if (msgs.filter(m=>m.role==="assistant").length < 1) {
+      setSessionEnd(fallback); setEndLoading(false); return;
+    }
     try {
-      const s = await ai([{role:"user",content:`Summarise this language learning session in 4-5 bullet points: topics, vocab, grammar, progress.\n\n${transcript}`}],"You are a language coach.",300);
-      setSummary(s);
-    } catch {}
-    setSummLoading(false);
+      const raw = await ai([{role:"user",content:
+        `You are an uplifting language coach writing a warm, personal session review.\n` +
+        `Analyse this ${langObj?.name} learning conversation and respond with JSON only (no markdown fences):\n` +
+        `{\n` +
+        `  "headline": "Short celebratory headline with one emoji, max 8 words",\n` +
+        `  "covered": "2 sentences starting with 'You practiced…' — what scenario and topics came up",\n` +
+        `  "wins": ["2–3 specific things the learner did well, citing actual moments from the chat"],\n` +
+        `  "nowYouCan": ["2–3 concrete real-world skills they've practised, each starting with a verb e.g. 'Order…' 'Ask for…' 'Introduce…'"],\n` +
+        `  "nextStep": "One warm forward-looking suggestion for next time — never mention what went wrong, frame it as exciting new territory",\n` +
+        `  "closing": "One short uplifting personal sentence to end on"\n` +
+        `}\n` +
+        `RULES: NEVER use negative words (wrong, mistake, error, struggle, problem, failed, incorrect, difficulty).\n` +
+        `Frame everything as progress and potential. Be honest and specific — don't make up things that didn't happen.\n` +
+        `If the session was short, warmly acknowledge it was a solid start.\n\n` +
+        `Conversation transcript:\n${transcript}`
+      }], null, 500);
+      let parsed;
+      try { parsed = JSON.parse(raw.replace(/^```json\s*/,"").replace(/```\s*$/,"").trim()); }
+      catch { parsed = fallback; }
+      setSessionEnd(parsed);
+    } catch { setSessionEnd(fallback); }
+    setEndLoading(false);
   }
 
   const HINTS_FOR = lang => ({
@@ -3097,6 +3150,64 @@ No <fix> if no error.`;
     ja:["もう一度言ってください","わかりません","いくらですか?","ありがとうございます","ゆっくり話してください"],
     zh:["请再说一遍","我不明白","多少钱?","非常感谢","请说慢一点"],
   })[lang] || [];
+
+  /* ── Session-end screen ── */
+  if (endLoading || sessionEnd) return (
+    <div className="cshell se-shell">
+      {endLoading ? (
+        <div className="se-loading">
+          <div style={{fontSize:42,marginBottom:12}}>✨</div>
+          <div style={{color:"var(--a-muted)",fontSize:14,marginBottom:18}}>{t.wrappingUp}</div>
+          <Dots/>
+        </div>
+      ) : (
+        <div className="se-scroll">
+          <div className="se-flag">{langObj?.flag}</div>
+          <h2 className="se-headline">{sessionEnd.headline}</h2>
+          <p className="se-covered">{sessionEnd.covered}</p>
+
+          {sessionEnd.wins?.length > 0 && (
+            <div className="se-section">
+              <div className="se-sec-label">✅ {t.seWins}</div>
+              {sessionEnd.wins.map((w,i)=>(
+                <div key={i} className="se-item se-win">{w}</div>
+              ))}
+            </div>
+          )}
+
+          {sessionEnd.nowYouCan?.length > 0 && (
+            <div className="se-section">
+              <div className="se-sec-label">🚀 {t.seNowYouCan}</div>
+              {sessionEnd.nowYouCan.map((s,i)=>(
+                <div key={i} className="se-item se-can">→ {s}</div>
+              ))}
+            </div>
+          )}
+
+          {sessionEnd.nextStep && (
+            <div className="se-nextstep">
+              <span className="se-nextstep-label">{t.seNextStep}</span>
+              {sessionEnd.nextStep}
+            </div>
+          )}
+
+          {sessionEnd.closing && (
+            <p className="se-closing">{sessionEnd.closing}</p>
+          )}
+
+          <div className="se-actions">
+            <button className="cta" onClick={()=>setSessionEnd(null)}>
+              💬 {t.keepChatting}
+            </button>
+            <button className="action-btn" style={{marginTop:8,width:"100%",padding:"10px"}}
+              onClick={onBack}>
+              ← {t.backToScenarios}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="cshell">
@@ -3166,20 +3277,14 @@ No <fix> if no error.`;
         )}
         <div ref={endRef}/>
       </div>
-      {summary && (
-        <div className="summary-box">
-          <h3>📋 {t.summary}</h3>
-          <div style={{whiteSpace:"pre-wrap",fontSize:13,color:"var(--a-muted)",lineHeight:1.6}}>{summary}</div>
-        </div>
-      )}
       <div className="hints">
         {HINTS_FOR(lang).map(h=><button key={h} className="hchip" onClick={()=>setInput(h)}>{h}</button>)}
       </div>
       <div className="chat-actions">
-        {msgs.length>0 && <button className="action-btn" onClick={()=>{setMsgs([]);setSummary("");sfx.click();}}>{t.clear}</button>}
-        {msgs.filter(m=>m.role==="assistant").length>=2 && (
-          <button className="action-btn" onClick={getSessionSummary} disabled={summLoading}>
-            {summLoading?<Dots/>:`📋 ${t.summary}`}
+        {msgs.length>0 && <button className="action-btn" onClick={()=>{setMsgs([]);setPanels({});sfx.click();}}>{t.clear}</button>}
+        {msgs.filter(m=>m.role==="assistant").length>=1 && (
+          <button className="action-btn primary" onClick={endSession} disabled={endLoading}>
+            {endLoading?<Dots/>:`✅ ${t.endSession}`}
           </button>
         )}
       </div>
@@ -3395,7 +3500,7 @@ function AdultMode({t, stars, onStars}) {
         <button className="ghost" onClick={()=>setInChat(false)}>← {t.scenario}</button>
         <button className="ghost" onClick={onBack}>{t.home}</button>
       </div>
-      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} skillLevel={skillLevel} t={t} onStars={onStars}/>
+      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} skillLevel={skillLevel} t={t} onStars={onStars} onBack={()=>setInChat(false)}/>
     </div>
   );
 
