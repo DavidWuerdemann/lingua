@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // 'autoUpdate' = SW always activates immediately, no user prompt needed
-      registerType: 'autoUpdate',
+      // 'prompt' = show update toast, user taps to apply
+      registerType: 'prompt',
 
       manifest: {
         id:               '/',
@@ -30,7 +30,6 @@ export default defineConfig({
 
       workbox: {
         clientsClaim: true,
-        skipWaiting: true,
         cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
