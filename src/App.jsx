@@ -1320,7 +1320,7 @@ input,textarea,select{font-family:inherit;font-size:16px;}
   border:2px solid;transition:background .16s,border-color .16s,color .16s;
   word-break:break-word;white-space:pre-wrap;}
 .match-card.idle{background:var(--a-surf);border-color:var(--a-border);color:var(--a-cream);}
-.match-card.idle:hover{border-color:var(--a-gold);background:var(--a-goldT);}
+@media(hover:hover){.match-card.idle:hover{border-color:var(--a-gold);background:var(--a-goldT);}}
 .match-card.selected{background:var(--a-goldT);border-color:var(--a-gold);color:var(--a-gold);}
 .match-card.wrong{background:rgba(255,100,100,.12);border-color:#FF7070;color:#FF9090;
   animation:shake .46s ease both;}
