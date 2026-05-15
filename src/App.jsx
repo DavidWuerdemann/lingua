@@ -602,22 +602,87 @@ const DEFAULT_VSET2 = {
   ],
 };
 
+/* ─────────────────────────────────────────────────────────────
+   DEFAULT VOCABULARY SET 3  (performing arts, feelings & actions)
+───────────────────────────────────────────────────────────── */
+const DEFAULT_VSET3_ID = "lingua_default_en_de_3_v1";
+const DEFAULT_VSET3 = {
+  id: DEFAULT_VSET3_ID,
+  name: "School, Stories & Feelings 🎭",
+  created: "2026-01-01T00:00:00.000Z",
+  words: [
+    // ── School & learning ────────────────────────────────────────────────────
+    {word:"interesting",             transl:"interessant"},
+    {word:"schoolbook",              transl:"das Schulbuch"},
+    {word:"Come on!",                transl:"Na los! / Komm!"},
+    {word:"crib sheet",              transl:"der Spickzettel, der Merkzettel"},
+    {word:"note",                    transl:"die Notiz, die Mitteilung"},
+    {word:"(to) happen",             transl:"geschehen, passieren"},
+    {word:"(to) repeat",             transl:"wiederholen"},
+    {word:"(to) practise",           transl:"üben, trainieren, proben"},
+    {word:"practice",                transl:"die Übung, das Training"},
+    {word:"technique",               transl:"die Technik, die Methode"},
+    // ── Performing & presenting ──────────────────────────────────────────────
+    {word:"audience",                transl:"das Publikum, Zuschauer/innen"},
+    {word:"orchestra",               transl:"das Orchester"},
+    {word:"dancer",                  transl:"Tänzer/in"},
+    {word:"(to) breathe in",         transl:"einatmen"},
+    {word:"(to) relax",              transl:"sich entspannen, sich ausruhen"},
+    {word:"(to) smile",              transl:"lächeln"},
+    {word:"in a clear voice",        transl:"mit klarer Stimme"},
+    {word:"slow",                    transl:"langsam"},
+    {word:"fast",                    transl:"schnell"},
+    // ── Feelings & states ────────────────────────────────────────────────────
+    {word:"shy",                     transl:"schüchtern, scheu"},
+    {word:"tired",                   transl:"müde"},
+    {word:"unhappy",                 transl:"unglücklich"},
+    {word:"(to) worry about",        transl:"sich Sorgen machen"},
+    {word:"(to) be/feel bored",      transl:"gelangweilt sein, sich langweilen"},
+    {word:"(to) join a club",        transl:"in einen Klub eintreten"},
+    // ── Story & narrative ─────────────────────────────────────────────────────
+    {word:"story",                   transl:"die Geschichte"},
+    {word:"thought bubble",          transl:"die Gedankenblase"},
+    {word:"thought",                 transl:"der Gedanke"},
+    {word:"while",                   transl:"während"},
+    {word:"just then",               transl:"genau in dem Moment"},
+    {word:"at that moment",          transl:"in diesem Moment"},
+    {word:"suddenly",                transl:"plötzlich, auf einmal"},
+    {word:"always",                  transl:"immer"},
+    {word:"never",                   transl:"nie, niemals"},
+    {word:"usually",                 transl:"meistens, normalerweise"},
+    {word:"better",                  transl:"besser"},
+    // ── Objects & descriptions ───────────────────────────────────────────────
+    {word:"real",                    transl:"echt, wirklich"},
+    {word:"broken",                  transl:"zerbrochen, kaputt; gebrochen"},
+    {word:"dirty",                   transl:"schmutzig"},
+    {word:"eye",                     transl:"das Auge"},
+    {word:"goat",                    transl:"die Ziege"},
+    {word:"It isn't even real.",     transl:"Es ist noch nicht einmal echt."},
+    // ── Actions ──────────────────────────────────────────────────────────────
+    {word:"(to) stop",               transl:"aufhören; anhalten"},
+    {word:"(to) beep",               transl:"piepen"},
+    {word:"(to) whisper",            transl:"flüstern"},
+    {word:"(to) wash",               transl:"waschen"},
+    {word:"(to) fix",                transl:"reparieren"},
+    {word:"(to) look after sb.",     transl:"auf jn./etwas aufpassen"},
+    {word:"(to) change",             transl:"verändern"},
+  ],
+};
+
 // Seed the built-in sets — replaces any previous default versions on upgrade
 function seedDefaultVSet() {
   const sets = loadVSets();
-  const hasV1 = sets.find(s => s.id === DEFAULT_VSET_ID);
-  const hasV2 = sets.find(s => s.id === DEFAULT_VSET2_ID);
-  if (hasV1 && hasV2) return; // both current — nothing to do
-  // Remove any stale defaults
-  const others = sets.filter(s =>
-    !s.id.startsWith("lingua_default_en_de_") &&
-    s.id !== DEFAULT_VSET2_ID
-  );
-  const toAdd = [
-    ...(!hasV1 ? [DEFAULT_VSET]  : [sets.find(s=>s.id===DEFAULT_VSET_ID)]),
-    ...(!hasV2 ? [DEFAULT_VSET2] : [sets.find(s=>s.id===DEFAULT_VSET2_ID)]),
+  const DEFAULTS = [
+    {id: DEFAULT_VSET_ID,  set: DEFAULT_VSET},
+    {id: DEFAULT_VSET2_ID, set: DEFAULT_VSET2},
+    {id: DEFAULT_VSET3_ID, set: DEFAULT_VSET3},
   ];
-  saveVSets([...others, ...toAdd]);
+  const allPresent = DEFAULTS.every(d => sets.find(s => s.id === d.id));
+  if (allPresent) return;
+  // Keep any user-created sets; remove stale built-in versions
+  const userSets = sets.filter(s => !s.id.startsWith("lingua_default_en_de_"));
+  const toAdd = DEFAULTS.map(d => sets.find(s => s.id === d.id) || d.set);
+  saveVSets([...userSets, ...toAdd]);
 }
 
 /* SM-2 lite */
