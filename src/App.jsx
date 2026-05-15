@@ -3048,7 +3048,7 @@ If they make a grammar/vocabulary error, append this AFTER your reply (no blank 
 No <fix> if no error.`;
 
   useEffect(()=>{
-    setMsgs([]); setSummary(""); setInput(""); setPanels({});
+    setMsgs([]); setSessionEnd(null); setEndLoading(false); setInput(""); setPanels({});
     setLoading(true);
     ai([{role:"user",content:"Start the conversation right now with one short opening line — stay in character!"}], sysPrompt, 120)
       .then(raw=>{ const {text,phonetic}=parseAiResponse(raw); setMsgs([{role:"assistant",content:text,phonetic,id:1}]); })
