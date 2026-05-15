@@ -1317,6 +1317,21 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .read-opt.wrong{background:rgba(224,120,86,.1);border-color:#E07856;color:#B05030;}
 .read-result{padding:24px;text-align:center;background:var(--k-paper);
   border:2px solid var(--k-border);border-radius:18px;}
+
+/* ── Word Match game ── */
+.match-card{padding:9px 8px;border-radius:12px;font-size:12.5px;font-weight:600;
+  cursor:pointer;text-align:center;min-height:52px;width:100%;
+  display:flex;align-items:center;justify-content:center;line-height:1.3;
+  border:2px solid;transition:background .16s,border-color .16s,color .16s;
+  word-break:break-word;white-space:pre-wrap;}
+.match-card.idle{background:var(--a-surf);border-color:var(--a-border);color:var(--a-cream);}
+.match-card.idle:hover{border-color:var(--a-gold);background:var(--a-goldT);}
+.match-card.selected{background:var(--a-goldT);border-color:var(--a-gold);color:var(--a-gold);}
+.match-card.wrong{background:rgba(255,100,100,.12);border-color:#FF7070;color:#FF9090;
+  animation:shake .46s ease both;}
+.match-card.matched{opacity:0;transform:scale(.88);pointer-events:none;
+  transition:opacity .32s ease,transform .32s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}}
 `;
 
 
@@ -1831,6 +1846,156 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
 }
 
 /* ═══════════════════════════════════════════════════════════
+   WORD MATCH  — deliberate matching game (5 pairs / batch)
+   Pedagogical improvements over Duolingo:
+   • Only 5 pairs (Miller's law — no overload)
+   • Wrong answers stay — they come back until correct
+   • No timer — deliberate thinking beats time pressure
+   • Bidirectional toggle — study both directions
+   • Exposure counter shown on correct match
+═══════════════════════════════════════════════════════════ */
+function WordMatch({ words, t, onDone }) {
+  const BATCH = 5;
+
+  const makeBatch = (pool) =>
+    [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(BATCH, pool.length));
+  const makeOrder = (n) =>
+    [...Array(n).keys()].sort(() => Math.random() - 0.5);
+
+  const [fwd,       setFwd]       = useState(true);
+  const [batch,     setBatch]     = useState(() => makeBatch(words));
+  const [lOrd,      setLOrd]      = useState(() => makeOrder(Math.min(BATCH, words.length)));
+  const [rOrd,      setROrd]      = useState(() => makeOrder(Math.min(BATCH, words.length)));
+  const [matched,   setMatched]   = useState(new Set());
+  const [selL,      setSelL]      = useState(null);
+  const [selR,      setSelR]      = useState(null);
+  const [wrongKeys, setWrongKeys] = useState(new Set()); // "L2", "R4" …
+  const [locked,    setLocked]    = useState(false);
+  const [totalDone, setTotalDone] = useState(0);
+  const [expFlash,  setExpFlash]  = useState({}); // pairIdx → exposure count
+
+  function loadNext() {
+    const next = makeBatch(words);
+    setBatch(next);
+    setLOrd(makeOrder(next.length));
+    setROrd(makeOrder(next.length));
+    setMatched(new Set());
+    setSelL(null); setSelR(null);
+    setWrongKeys(new Set());
+    setExpFlash({});
+    setLocked(false);
+  }
+
+  function handleL(pos) {
+    if (locked || matched.has(lOrd[pos]) || wrongKeys.has(`L${pos}`)) return;
+    if (selL === pos) { setSelL(null); return; } // tap again → deselect
+    setSelL(pos);
+    if (selR !== null && !wrongKeys.has(`R${selR}`)) check(pos, selR);
+  }
+
+  function handleR(pos) {
+    if (locked || matched.has(rOrd[pos]) || wrongKeys.has(`R${pos}`)) return;
+    if (selR === pos) { setSelR(null); return; }
+    setSelR(pos);
+    if (selL !== null && !wrongKeys.has(`L${selL}`)) check(selL, pos);
+  }
+
+  function check(lPos, rPos) {
+    if (lOrd[lPos] === rOrd[rPos]) {
+      // ✓ Correct pair
+      const pairIdx  = lOrd[lPos];
+      const word     = batch[pairIdx];
+      const exp      = trackWordExposure(word.word);
+      const newMatch = new Set([...matched, pairIdx]);
+      setMatched(newMatch);
+      setExpFlash(prev => ({ ...prev, [pairIdx]: exp }));
+      setTotalDone(n => n + 1);
+      setSelL(null); setSelR(null);
+      sfx.correct();
+      if (newMatch.size === batch.length) setTimeout(loadNext, 720);
+    } else {
+      // ✗ Wrong — shake then release
+      setLocked(true);
+      setWrongKeys(new Set([`L${lPos}`, `R${rPos}`]));
+      setSelL(null); setSelR(null);
+      sfx.wrong();
+      setTimeout(() => { setWrongKeys(new Set()); setLocked(false); }, 520);
+    }
+  }
+
+  function cls(side, pos) {
+    const idx = side === 'L' ? lOrd[pos] : rOrd[pos];
+    if (matched.has(idx))                return 'match-card matched';
+    if (wrongKeys.has(`${side}${pos}`))  return 'match-card wrong';
+    const sel = side === 'L' ? selL === pos : selR === pos;
+    return sel ? 'match-card selected' : 'match-card idle';
+  }
+
+  function txt(side, pos) {
+    const idx = side === 'L' ? lOrd[pos] : rOrd[pos];
+    const w   = batch[idx];
+    if (!w) return '—';
+    // fwd: left = native (transl), right = target (word)
+    return fwd
+      ? (side === 'L' ? (w.transl || w.word) : w.word)
+      : (side === 'L' ? w.word : (w.transl || w.word));
+  }
+
+  const lHdr = fwd ? 'Your language' : 'Target word';
+  const rHdr = fwd ? 'Target word'   : 'Your language';
+
+  return (
+    <div style={{ padding: '0 2px' }}>
+      {/* Toolbar */}
+      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:14, flexWrap:'wrap' }}>
+        <button className="action-btn" onClick={onDone}>← {t.back}</button>
+        <span style={{ flex:1, textAlign:'center', fontWeight:600, fontSize:'0.85rem', color:'var(--a-cream)' }}>
+          🎯 {totalDone} matched
+        </span>
+        <button className="action-btn" title="Swap direction"
+          onClick={() => { setFwd(f => !f); setSelL(null); setSelR(null); }}>
+          ⇄ flip
+        </button>
+      </div>
+
+      {/* Column headers */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
+        {[lHdr, rHdr].map((h, i) => (
+          <div key={i} style={{
+            textAlign:'center', fontSize:'0.7rem', fontWeight:700,
+            textTransform:'uppercase', letterSpacing:'.07em', color:'var(--a-muted)',
+            paddingBottom:5, borderBottom:'1px solid var(--a-border)'
+          }}>{h}</div>
+        ))}
+      </div>
+
+      {/* Card grid — two columns, one row per pair position */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
+        {lOrd.map((_, pos) => (
+          <React.Fragment key={pos}>
+            <button className={cls('L', pos)} onClick={() => handleL(pos)}>
+              {txt('L', pos)}
+              {matched.has(lOrd[pos]) && expFlash[lOrd[pos]] != null && (
+                <span style={{ fontSize:'0.67rem', opacity:.55, marginLeft:5 }}>
+                  {expFlash[lOrd[pos]]}×
+                </span>
+              )}
+            </button>
+            <button className={cls('R', pos)} onClick={() => handleR(pos)}>
+              {txt('R', pos)}
+            </button>
+          </React.Fragment>
+        ))}
+      </div>
+
+      <p style={{ marginTop:16, fontSize:'0.73rem', color:'var(--a-muted)', textAlign:'center', lineHeight:1.6 }}>
+        Tap one card on each side · matched pairs vanish · wrong answers stay
+      </p>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    VOCAB SETS HUB
 ═══════════════════════════════════════════════════════════ */
 function VocabSets({t, kidLang, onStars}) {
@@ -1838,6 +2003,7 @@ function VocabSets({t, kidLang, onStars}) {
   const [editTarget,setEditTarget]   = useState(null);
   const [flashTarget,setFlashTarget] = useState(null);
   const [practTarget,setPractTarget] = useState(null);
+  const [matchTarget,setMatchTarget] = useState(null);
   const [listKey,setListKey]         = useState(0);
   const [flashSession,setFlashSession] = useState(0); // incremented each time a set is opened
   const reload = () => setListKey(k=>k+1);
@@ -1859,6 +2025,9 @@ function VocabSets({t, kidLang, onStars}) {
   if (view==="practice"&&practTarget) return (
     <OlliePractice words={practTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")} onStars={onStars}/>
   );
+  if (view==="match"&&matchTarget) return (
+    <WordMatch words={matchTarget.words} t={t} onDone={()=>setView("list")}/>
+  );
 
   const sets = loadVSets();
   return (
@@ -1869,12 +2038,20 @@ function VocabSets({t, kidLang, onStars}) {
           + {t.newSet}
         </button>
         {sets.length >= 2 && (
-          <button className="action-btn" title="Interleaved practice across all sets"
-            onClick={()=>{
-              const allWords = sets.flatMap(s=>s.words).sort(()=>Math.random()-.5).slice(0,30);
-              setFlashTarget({id:"__mix__",name:"🔀 Mix",words:allWords});
-              setFlashSession(n=>n+1); setView("flash"); sfx.click();
-            }}>🔀 Mix All</button>
+          <>
+            <button className="action-btn" title="Interleaved practice across all sets"
+              onClick={()=>{
+                const allWords = sets.flatMap(s=>s.words).sort(()=>Math.random()-.5).slice(0,30);
+                setFlashTarget({id:"__mix__",name:"🔀 Mix",words:allWords});
+                setFlashSession(n=>n+1); setView("flash"); sfx.click();
+              }}>🔀 Mix All</button>
+            <button className="action-btn" title="Word match across all sets"
+              onClick={()=>{
+                const allWords = sets.flatMap(s=>s.words).sort(()=>Math.random()-.5);
+                setMatchTarget({id:"__mix_match__",name:"🔗 Mix Match",words:allWords});
+                setView("match"); sfx.click();
+              }}>🔗 Mix Match</button>
+          </>
         )}
       </div>
       {sets.length===0 && (
@@ -1895,6 +2072,8 @@ function VocabSets({t, kidLang, onStars}) {
                   onClick={()=>{ setFlashTarget(s); setFlashSession(n=>n+1); setView("flash"); sfx.click(); }}>🃏</button>
                 <button className="vs-btn" title={t.practice}
                   onClick={()=>{ setPractTarget(s); setView("practice"); sfx.click(); }}>🤖</button>
+                <button className="vs-btn" title="Word match"
+                  onClick={()=>{ setMatchTarget(s); setView("match"); sfx.click(); }}>🔗</button>
                 <button className="vs-btn" title={t.editSet}
                   onClick={()=>{ setEditTarget(s); setView("edit"); sfx.click(); }}>✏️</button>
                 <button className="vs-btn danger" title={t.deleteSet}
