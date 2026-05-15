@@ -201,17 +201,23 @@ const T = {
 ───────────────────────────────────────────────────────────── */
 const LANGUAGES = [
   {code:"en",flag:"🇬🇧",name:"English",  native:"English",    tts:"en-GB",accent:"#C9943A",
-   scenarios:["Job Interview","Pub Conversation","Business Meeting","Doctor's Visit","Flat Hunting","First Date","At the GP","Networking Event","Customer Service Call","Uni Lecture","Salary Negotiation","Making Small Talk"]},
+   scenarios:["Job Interview","Pub Conversation","Business Meeting","Doctor's Visit","Flat Hunting","First Date","At the GP","Networking Event","Customer Service Call","Uni Lecture","Salary Negotiation","Making Small Talk",
+              "Boardroom Pitch","Contract Negotiation","Commercial Property Viewing","Lease Negotiation","On the Film Set","Script Meeting","Casting Call","At the Marina","Sailing Briefing","Yacht Charter"]},
   {code:"es",flag:"🇪🇸",name:"Spanish",  native:"Español",    tts:"es-ES",accent:"#AA151B",
-   scenarios:["At the Tapas Bar","Flamenco Night","Beach Resort","Market Visit","Siesta Chat","Fútbol Talk","Airbnb Host","Local Festival","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
+   scenarios:["At the Tapas Bar","Flamenco Night","Beach Resort","Market Visit","Siesta Chat","Fútbol Talk","Airbnb Host","Local Festival","At the Airport","Ordering Food","Doctor's Visit","Job Interview",
+              "Pitch Empresarial","Reunión de Directivos","Tasación Inmobiliaria","Visita de Obra","Rodaje en Barcelona","Reunión de Guionistas","Casting en Madrid","En el Puerto Deportivo","Regata en el Mediterráneo","Alquiler de Velero"]},
   {code:"fr",flag:"🇫🇷",name:"French",   native:"Français",   tts:"fr-FR",accent:"#0055A4",
-   scenarios:["Boulangerie Visit","Museum Trip","Parisian Café","Making Reservations","At the Pharmacy","Weekend Plans","On the Metro","Wine Tasting","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
+   scenarios:["Boulangerie Visit","Museum Trip","Parisian Café","Making Reservations","At the Pharmacy","Weekend Plans","On the Metro","Wine Tasting","At the Airport","Ordering Food","Doctor's Visit","Job Interview",
+              "Réunion d'Affaires","Négociation Commerciale","Transaction Immobilière","Visite de Bureaux","Tournage à Paris","Réunion de Production","Casting à Cannes","Au Port de Plaisance","Voile en Méditerranée","Location de Voilier"]},
   {code:"de",flag:"🇩🇪",name:"German",   native:"Deutsch",    tts:"de-DE",accent:"#555555",
-   scenarios:["Biergarten Visit","At the Bakery","Taking the U-Bahn","Office Small Talk","Christmas Market","Museum Visit","Renting a Car","At the Pharmacy","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
+   scenarios:["Biergarten Visit","At the Bakery","Taking the U-Bahn","Office Small Talk","Christmas Market","Museum Visit","Renting a Car","At the Pharmacy","At the Airport","Ordering Food","Doctor's Visit","Job Interview",
+              "Vertragsverhandlung","Vorstandspräsentation","Immobilienbesichtigung","Gewerbliche Vermietung","Filmdreh in Berlin","Drehbuchbesprechung","Casting-Gespräch","Im Yachthafen","Segeln auf der Ostsee","Charterbuchung"]},
   {code:"it",flag:"🇮🇹",name:"Italian",  native:"Italiano",   tts:"it-IT",accent:"#009246",
-   scenarios:["Ordering Pasta","At the Gelateria","Asking Directions","Shopping in Milano","Hotel Check-in","Family Dinner","At the Beach","Football Talk","At the Airport","Ordering Food","Doctor's Visit","Job Interview"]},
+   scenarios:["Ordering Pasta","At the Gelateria","Asking Directions","Shopping in Milano","Hotel Check-in","Family Dinner","At the Beach","Football Talk","At the Airport","Ordering Food","Doctor's Visit","Job Interview",
+              "Trattativa Commerciale","Riunione del Consiglio","Visita Immobiliare","Affitto di Uffici","Set Cinematografico","Riunione di Produzione","Provino a Cinecittà","Al Porto Turistico","Vela sul Lago di Garda","Noleggio Barca"]},
   {code:"nl",flag:"🇳🇱",name:"Dutch",    native:"Nederlands", tts:"nl-NL",accent:"#E8552A",
-   scenarios:["At the Market","Café Visit","Meeting Neighbours","Train Station","Doctor's Visit","Work Meeting","At a Party","Booking a Hotel","At the Airport","Ordering Food","Asking Directions","Job Interview"]},
+   scenarios:["At the Market","Café Visit","Meeting Neighbours","Train Station","Doctor's Visit","Work Meeting","At a Party","Booking a Hotel","At the Airport","Ordering Food","Asking Directions","Job Interview",
+              "Zakelijke Pitch","Bestuursvergadering","Vastgoed Bezichtiging","Huuronderhandeling","Filmopname in Amsterdam","Scenariobespreking","Casting Gesprek","In de Jachthaven","Zeilen op de Waddenzee","Zeilboot Huren"]},
 ];
 
 const KIDS_LANGS = [
@@ -231,8 +237,14 @@ const KIDS_TOPICS = [
   {id:"transport", emoji:"🚗", color:"#ACBBC9", labels:{en:"Transport",     es:"Transporte",        de:"Verkehrsmittel"}},
   {id:"sports",    emoji:"⚽", color:"#A8C4B5", labels:{en:"Sports",        es:"Los deportes",      de:"Sport"}},
   {id:"stories",   emoji:"📖", color:"#DCC9A8", labels:{en:"Story Time",    es:"Cuentos",           de:"Geschichten"}},
-  {id:"opposites", emoji:"↔️", color:"#C7BBC4", labels:{en:"Opposites",     es:"Los contrarios",    de:"Gegensätze"}},
-  {id:"free",      emoji:"💬", color:"#DDB89E", labels:{en:"Free Chat",     es:"Conversación libre",de:"Freies Gespräch"}},
+  {id:"opposites", emoji:"↔️", color:"#C7BBC4", labels:{en:"Opposites",       es:"Los contrarios",      de:"Gegensätze"}},
+  {id:"travel",    emoji:"✈️", color:"#A8D4E8", labels:{en:"Travelling",      es:"De viaje",            de:"Reisen"}},
+  {id:"tvshows",   emoji:"📺", color:"#C4B8DC", labels:{en:"TV & Shows",      es:"Series y tele",       de:"Serien & TV"}},
+  {id:"books",     emoji:"📚", color:"#D4C4A8", labels:{en:"Favourite Books", es:"Libros favoritos",    de:"Lieblingsbücher"}},
+  {id:"space",     emoji:"🚀", color:"#9BB4CC", labels:{en:"Space & Stars",   es:"El espacio",          de:"Weltraum & Sterne"}},
+  {id:"music",     emoji:"🎵", color:"#D4A8C4", labels:{en:"Music & Dance",   es:"Música y baile",      de:"Musik & Tanz"}},
+  {id:"cooking",   emoji:"👨‍🍳", color:"#E8C4A0", labels:{en:"Cooking",         es:"Cocinar",             de:"Kochen"}},
+  {id:"free",      emoji:"💬", color:"#DDB89E", labels:{en:"Free Chat",       es:"Conversación libre",  de:"Freies Gespräch"}},
 ];
 
 const IDIOM_CATS = ["Business","Travel","Emotions","Nature","Pop Culture"];
