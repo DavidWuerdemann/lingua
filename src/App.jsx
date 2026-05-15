@@ -617,6 +617,7 @@ const LEVEL_NAMES = [
 const DEFAULT_VSET_ID = "lingua_default_en_de_v2";
 const DEFAULT_VSET = {
   id: DEFAULT_VSET_ID,
+  lang: "en",
   name: "English Essentials 🇬🇧",
   created: "2026-01-01T00:00:00.000Z",
   words: [
@@ -876,6 +877,7 @@ function saveReflection(text) {
 const DEFAULT_VSET2_ID = "lingua_default_en_de_2_v1";
 const DEFAULT_VSET2 = {
   id: DEFAULT_VSET2_ID,
+  lang: "en",
   name: "Food, Shopping & Classroom 🛒",
   created: "2026-01-01T00:00:00.000Z",
   words: [
@@ -982,6 +984,7 @@ const DEFAULT_VSET2 = {
 const DEFAULT_VSET3_ID = "lingua_default_en_de_3_v1";
 const DEFAULT_VSET3 = {
   id: DEFAULT_VSET3_ID,
+  lang: "en",
   name: "School, Stories & Feelings 🎭",
   created: "2026-01-01T00:00:00.000Z",
   words: [
@@ -1046,6 +1049,7 @@ const DEFAULT_VSET3 = {
 const DEFAULT_VSET4_ID = "lingua_default_out_about_v1";
 const DEFAULT_VSET4 = {
   id: DEFAULT_VSET4_ID,
+  lang: "en",
   name: "Out & About 🏙️",
   created: "2026-05-15T00:00:00.000Z",
   words: [
@@ -3252,6 +3256,41 @@ function WordMatch({ words, kidLang, t, onDone }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   VOCAB SETS — auto-generator
+   Called when a language has no default sets yet.
+═══════════════════════════════════════════════════════════ */
+async function generateVSetsForLang(langCode) {
+  const allLangs = [...LANGUAGES, ...KIDS_LANGS];
+  const langObj  = allLangs.find(l => l.code === langCode);
+  if (!langObj) return [];
+  const prompt =
+    `Create 3 vocabulary sets for someone learning ${langObj.name}.\n` +
+    `Return ONLY a JSON array — no markdown, no explanation:\n` +
+    `[\n` +
+    `  {"name":"Essentials ⭐","words":[{"word":"TARGET_WORD","transl":"English meaning"},...25 items]},\n` +
+    `  {"name":"Food, Shopping & School 🛒","words":[...25 items]},\n` +
+    `  {"name":"Feelings, Actions & Travel 🌍","words":[...25 items]}\n` +
+    `]\n` +
+    `Rules: every "word" value must be in ${langObj.name}; every "transl" value must be in English. ` +
+    `Choose common, practical vocabulary. No duplicates across sets.`;
+  try {
+    const raw    = await ai([{role:"user",content:prompt}], null, 2000);
+    const m      = raw.match(/\[[\s\S]*\]/);
+    if (!m) return [];
+    const parsed = JSON.parse(m[0]);
+    return parsed
+      .filter(s => s.name && Array.isArray(s.words) && s.words.length > 0)
+      .map((s, i) => ({
+        id:      `lingua_auto_${langCode}_v1_${i}`,
+        lang:    langCode,
+        name:    s.name,
+        created: new Date().toISOString(),
+        words:   s.words.filter(w => w.word && w.transl),
+      }));
+  } catch { return []; }
+}
+
+/* ═══════════════════════════════════════════════════════════
    VOCAB SETS HUB
 ═══════════════════════════════════════════════════════════ */
 function VocabSets({t, kidLang, onStars}) {
@@ -3262,7 +3301,28 @@ function VocabSets({t, kidLang, onStars}) {
   const [matchTarget,setMatchTarget] = useState(null);
   const [listKey,setListKey]         = useState(0);
   const [flashSession,setFlashSession] = useState(0); // incremented each time a set is opened
+  const [generating,setGenerating]   = useState(false);
+  const [genError,setGenError]       = useState(false);
   const reload = () => setListKey(k=>k+1);
+
+  // Auto-generate sets the first time this language is visited and has none
+  useEffect(() => {
+    const existing = loadVSets().filter(s => s.lang === kidLang);
+    if (existing.length > 0 || generating) return;
+    setGenerating(true);
+    setGenError(false);
+    generateVSetsForLang(kidLang)
+      .then(newSets => {
+        if (newSets.length > 0) {
+          saveVSets([...loadVSets(), ...newSets]);
+          reload();
+        } else {
+          setGenError(true);
+        }
+      })
+      .catch(() => setGenError(true))
+      .finally(() => setGenerating(false));
+  }, [kidLang]); // eslint-disable-line
 
   if (view==="edit") return (
     <SetEditor set={editTarget} t={t} targetLang={kidLang||"en"}
@@ -3286,6 +3346,18 @@ function VocabSets({t, kidLang, onStars}) {
   );
 
   const sets = loadVSets().filter(s => !s.lang || s.lang === kidLang);
+
+  if (generating) {
+    const langName = [...LANGUAGES,...KIDS_LANGS].find(l=>l.code===kidLang)?.name || kidLang;
+    return (
+      <div style={{textAlign:"center",padding:"48px 20px",color:"var(--muted)"}}>
+        <div style={{fontSize:36,marginBottom:12}}>📚</div>
+        <p style={{fontWeight:600,marginBottom:6}}>Building your {langName} vocabulary sets…</p>
+        <p style={{fontSize:"0.82rem"}}>This only happens once — they'll be saved for next time.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="vs-list" key={listKey}>
       <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
@@ -3310,7 +3382,12 @@ function VocabSets({t, kidLang, onStars}) {
           </>
         )}
       </div>
-      {sets.length===0 && (
+      {genError && (
+        <div style={{color:"var(--muted)",fontSize:"0.86rem",marginBottom:10}}>
+          Couldn't generate sets automatically — check your connection and try again, or create a set manually.
+        </div>
+      )}
+      {sets.length===0 && !genError && (
         <p style={{color:"var(--muted)",fontSize:"0.86rem"}}>No sets yet — create one to get started!</p>
       )}
       {sets.map(s=>{
