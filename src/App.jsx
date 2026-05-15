@@ -37,8 +37,8 @@ const T = {
     langSubhead:"Six languages · scenario-based conversations",
     scenSub:"Each gives you a native partner with real context",
     startConv:"Start conversation →",home:"Home",topics:"Topics",
-    translate:"Translate",pronounce:"Pronounce",
-    englishTransl:"English Translation",pronGuide:"Pronunciation Guide",
+    translate:"Translate",pronounce:"Pronounce",phonetic:"Phonetic",
+    englishTransl:"English Translation",pronGuide:"Pronunciation Guide",phoneticGuide:"Phonetic Reading",
     hearSlower:"Hear it again (slower)",typeHeard:"Type what you heard…",
     watch:"🎯 Watch:",
     saveToNotebook:"Save to Notebook",saveToNbSub:"Edit the word you want to remember",
@@ -74,8 +74,8 @@ const T = {
     langSubhead:"Sechs Sprachen · szenariobasierte Gespräche",
     scenSub:"Jedes gibt dir einen Muttersprachler mit echtem Kontext",
     startConv:"Gespräch starten →",home:"Startseite",topics:"Themen",
-    translate:"Übersetzen",pronounce:"Aussprache",
-    englishTransl:"Englische Übersetzung",pronGuide:"Ausspracheführer",
+    translate:"Übersetzen",pronounce:"Aussprache",phonetic:"Phonetik",
+    englishTransl:"Englische Übersetzung",pronGuide:"Ausspracheführer",phoneticGuide:"Phonetische Lesung",
     hearSlower:"Nochmal hören (langsamer)",typeHeard:"Tippe, was du gehört hast…",
     watch:"🎯 Achte auf:",
     saveToNotebook:"Im Notizbuch speichern",saveToNbSub:"Bearbeite das Wort, das du behalten möchtest",
@@ -110,8 +110,8 @@ const T = {
     langSubhead:"Zes talen · scenario-gebaseerde gesprekken",
     scenSub:"Elk geeft je een moedertaalspreker in een echte context",
     startConv:"Gesprek starten →",home:"Home",topics:"Onderwerpen",
-    translate:"Vertalen",pronounce:"Uitspreken",
-    englishTransl:"Engelse vertaling",pronGuide:"Uitspraakgids",
+    translate:"Vertalen",pronounce:"Uitspreken",phonetic:"Fonetiek",
+    englishTransl:"Engelse vertaling",pronGuide:"Uitspraakgids",phoneticGuide:"Fonetische lezing",
     hearSlower:"Nog eens horen (langzamer)",typeHeard:"Typ wat je hoorde…",
     watch:"🎯 Let op:",
     saveToNotebook:"Opslaan in notitieboek",saveToNbSub:"Bewerk het woord dat je wilt onthouden",
@@ -146,8 +146,8 @@ const T = {
     langSubhead:"Six langues · conversations par scénario",
     scenSub:"Chacun te donne un partenaire natif avec un vrai contexte",
     startConv:"Démarrer la conversation →",home:"Accueil",topics:"Sujets",
-    translate:"Traduire",pronounce:"Prononcer",
-    englishTransl:"Traduction anglaise",pronGuide:"Guide de prononciation",
+    translate:"Traduire",pronounce:"Prononcer",phonetic:"Phonétique",
+    englishTransl:"Traduction anglaise",pronGuide:"Guide de prononciation",phoneticGuide:"Lecture phonétique",
     hearSlower:"Réécouter (plus lentement)",typeHeard:"Tapez ce que vous avez entendu…",
     watch:"🎯 Attention :",
     saveToNotebook:"Enregistrer dans le carnet",saveToNbSub:"Modifie le mot que tu veux retenir",
@@ -182,8 +182,8 @@ const T = {
     langSubhead:"Seis idiomas · conversaciones por escenario",
     scenSub:"Cada uno te da un hablante nativo con contexto real",
     startConv:"Iniciar conversación →",home:"Inicio",topics:"Temas",
-    translate:"Traducir",pronounce:"Pronunciar",
-    englishTransl:"Traducción al inglés",pronGuide:"Guía de pronunciación",
+    translate:"Traducir",pronounce:"Pronunciar",phonetic:"Fonética",
+    englishTransl:"Traducción al inglés",pronGuide:"Guía de pronunciación",phoneticGuide:"Lectura fonética",
     hearSlower:"Escuchar de nuevo (más lento)",typeHeard:"Escribe lo que escuchaste…",
     watch:"🎯 Observa:",
     saveToNotebook:"Guardar en cuaderno",saveToNbSub:"Edita la palabra que quieres recordar",
@@ -1286,15 +1286,19 @@ function speak(text, lang="en-US", rate=0.95) {
 function parseAiResponse(raw) {
   const mFix  = raw.match(/<fix>([\s\S]*?)<\/fix>/);
   const mGram = raw.match(/<gram>([\s\S]*?)<\/gram>/);
+  // Extract phonetic line (🔤 ... to end of that line)
+  const mPhon = raw.match(/🔤\s*(.+)/);
+  const phonetic = mPhon ? mPhon[1].trim() : null;
   const text  = raw
     .replace(/<fix>[\s\S]*?<\/fix>/g, "")
     .replace(/<gram>[\s\S]*?<\/gram>/g, "")
+    .replace(/\n?🔤\s*.+/g, "")
     .trim();
   let fix = null, gram = null;
   if (mFix)  try { fix  = JSON.parse(mFix[1].trim());  } catch {}
   if (mGram) try { gram = JSON.parse(mGram[1].trim()); } catch {}
   // Never return empty text — strip any stray tags and fall back to ellipsis
-  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix, gram};
+  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix, gram, phonetic};
 }
 
 // Strip extra props so Anthropic never sees fields like `fix` or `id`
@@ -1656,6 +1660,7 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .bub{padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.5;}
 .mrow.user      .bub{background:var(--a-gold);color:var(--a-bg);border-bottom-right-radius:4px;font-weight:500;}
 .mrow.assistant .bub{background:var(--a-surf2);border:1px solid var(--a-border);color:var(--a-cream);border-bottom-left-radius:4px;}
+.phon-line{font-size:12px;color:var(--a-muted);font-style:italic;margin-top:3px;padding:0 2px;direction:ltr;line-height:1.5;letter-spacing:.02em;}
 .fix-pill{background:rgba(255,107,107,.08);border:1px solid rgba(255,107,107,.2);border-radius:8px;padding:5px 10px;font-size:11.5px;color:var(--a-muted);margin-top:4px;line-height:1.5;}
 .fix-label{font-weight:700;color:var(--a-muted);margin-right:4px;}
 .fix-ok{color:#4CAF82;font-weight:600;}
@@ -3006,7 +3011,7 @@ function AdultChat({lang, scenario, skillLevel="beginner", t, onStars}) {
   }[skillLevel] || "";
 
   const scriptInstruction = langObj?.script && (skillLevel==="beginner"||skillLevel==="elementary")
-    ? `SCRIPT: Always follow every ${langObj.name} sentence with its romanised transliteration in parentheses so the learner can read along while they learn the script. Example (Hebrew): "שלום! (Shalom!) מה שלומך? (Ma shlomkha?)" or (Arabic): "مرحبا! (Marhaban!) كيف حالك؟ (Kayfa ḥālak?)"`
+    ? `PHONETICS: At the very end of your reply (before any <fix> tag), add one line starting with exactly the emoji 🔤 followed by the complete romanised transliteration of everything you wrote in ${langObj.name}. Keep it on a single line. Example for Hebrew: "שלום! מה שלומך?\n🔤 Shalom! Ma shlomkha?" — for Arabic: "مرحبا! كيف حالك؟\n🔤 Marhaban! Kayfa ḥālak?" — for Russian: "Привет! Как дела?\n🔤 Privet! Kak dela?"`
     : "";
 
   const sysPrompt = `You are a native ${langObj?.name} speaker in this real-life scenario: "${scenario}".
@@ -3022,7 +3027,7 @@ No <fix> if no error.`;
     setMsgs([]); setSummary(""); setInput(""); setPanels({});
     setLoading(true);
     ai([{role:"user",content:"Start the conversation right now with one short opening line — stay in character!"}], sysPrompt, 120)
-      .then(raw=>{ const {text}=parseAiResponse(raw); setMsgs([{role:"assistant",content:text,id:1}]); })
+      .then(raw=>{ const {text,phonetic}=parseAiResponse(raw); setMsgs([{role:"assistant",content:text,phonetic,id:1}]); })
       .catch(()=>setMsgs([{role:"assistant",content:"Connection error. Please try again.",id:1}]))
       .finally(()=>setLoading(false));
   },[lang,scenario]);
@@ -3037,10 +3042,10 @@ No <fix> if no error.`;
     try {
       const apiMsgs = next.map(m=>({role:m.role,content:m.content}));
       const raw = await ai(apiMsgs, sysPrompt, 220);
-      const {text,fix} = parseAiResponse(raw);
+      const {text,fix,phonetic} = parseAiResponse(raw);
       if (fix) addError(fix);
       const newTotal = addStarsTo(2); onStars?.(newTotal, 2);
-      setMsgs(p=>[...p,{role:"assistant",content:text,fix,id:Date.now()+1}]);
+      setMsgs(p=>[...p,{role:"assistant",content:text,fix,phonetic,id:Date.now()+1}]);
     } catch(e) {
       setMsgs(p=>[...p,{role:"assistant",content:`Error: ${e.message}`,id:Date.now()}]);
     }
@@ -3054,6 +3059,11 @@ No <fix> if no error.`;
       let content;
       if (type==="translation") {
         content = await ai([{role:"user",content:`Translate to English. Translation only:\n"${text}"`}],null,250);
+      } else if (type==="phonetic") {
+        const langName = langObj?.name || "this language";
+        content = await ai([{role:"user",content:
+          `Give ONLY the complete romanised phonetic transliteration of this ${langName} text — nothing else, no translation:\n"${text}"`
+        }],null,200);
       } else {
         const raw = await ai([{role:"user",content:
           `Pronunciation guide. JSON only, no markdown:\n` +
@@ -3104,6 +3114,9 @@ No <fix> if no error.`;
                 {m.content}
                 {m.role==="assistant" && <button className="tts-btn" onClick={()=>speak(m.content,langObj?.tts||"en-US")}>🔊</button>}
               </div>
+              {m.phonetic && (
+                <div className="phon-line">🔤 {m.phonetic}</div>
+              )}
               {m.fix && (
                 <div className="fix-pill">
                   <span className="fix-label">{t.fix}:</span>
@@ -3119,6 +3132,10 @@ No <fix> if no error.`;
                     onClick={()=>togglePanel(m.id,m.content,"translation")}>🇬🇧 {t.translate}</button>
                   <button className={`mact${panels[m.id]?.type==="pronunciation"?" on":""}`}
                     onClick={()=>togglePanel(m.id,m.content,"pronunciation")}>🔉 {t.pronounce}</button>
+                  {langObj?.script && !m.phonetic && (
+                    <button className={`mact${panels[m.id]?.type==="phonetic"?" on":""}`}
+                      onClick={()=>togglePanel(m.id,m.content,"phonetic")}>🔤 {t.phonetic}</button>
+                  )}
                   <button className="mact" onClick={()=>setModal({text:m.content,lang})}>📌 {t.save}</button>
                 </div>
               )}
@@ -3126,6 +3143,8 @@ No <fix> if no error.`;
                 <div className="mpanel">
                   {panels[m.id].loading ? <Dots/> : panels[m.id].type==="translation"
                     ? <><div className="plabel">{t.englishTransl}</div>{panels[m.id].content}</>
+                    : panels[m.id].type==="phonetic"
+                    ? <><div className="plabel">{t.phoneticGuide}</div><div className="pph">{panels[m.id].content}</div></>
                     : (()=>{const c=panels[m.id].content; return (<>
                         <div className="plabel">{t.pronGuide}</div>
                         {c.phonetic && <div className="pph">/{c.phonetic}/</div>}
