@@ -41,6 +41,7 @@ const T = {
     englishTransl:"English Translation",pronGuide:"Pronunciation Guide",phoneticGuide:"Phonetic Reading",
     endSession:"Enough for today",keepChatting:"Keep chatting",backToScenarios:"Back to scenarios",
     seWins:"Your wins",seNowYouCan:"Now you can…",seNextStep:"Next up",wrappingUp:"Wrapping up your session…",
+    backToTopics:"Back to topics",kidsSeeLearned:"Look what you learned!",kidsSeeCan:"Now you can…",kidsSeeChal:"Ollie's challenge for next time",
     hearSlower:"Hear it again (slower)",typeHeard:"Type what you heard…",
     watch:"🎯 Watch:",
     saveToNotebook:"Save to Notebook",saveToNbSub:"Edit the word you want to remember",
@@ -80,6 +81,7 @@ const T = {
     englishTransl:"Englische Übersetzung",pronGuide:"Ausspracheführer",phoneticGuide:"Phonetische Lesung",
     endSession:"Für heute reicht's",keepChatting:"Weiter chatten",backToScenarios:"Zurück zu Szenarien",
     seWins:"Deine Erfolge",seNowYouCan:"Jetzt kannst du…",seNextStep:"Als Nächstes",wrappingUp:"Sitzung wird abgeschlossen…",
+    backToTopics:"Zurück zu Themen",kidsSeeLearned:"Das hast du gelernt!",kidsSeeCan:"Jetzt kannst du…",kidsSeeChal:"Ollies Aufgabe für nächstes Mal",
     hearSlower:"Nochmal hören (langsamer)",typeHeard:"Tippe, was du gehört hast…",
     watch:"🎯 Achte auf:",
     saveToNotebook:"Im Notizbuch speichern",saveToNbSub:"Bearbeite das Wort, das du behalten möchtest",
@@ -118,6 +120,7 @@ const T = {
     englishTransl:"Engelse vertaling",pronGuide:"Uitspraakgids",phoneticGuide:"Fonetische lezing",
     endSession:"Genoeg voor vandaag",keepChatting:"Doorgaan",backToScenarios:"Terug naar scenario's",
     seWins:"Jouw prestaties",seNowYouCan:"Nu kun je…",seNextStep:"Volgende stap",wrappingUp:"Sessie wordt afgerond…",
+    backToTopics:"Terug naar onderwerpen",kidsSeeLearned:"Kijk wat je geleerd hebt!",kidsSeeCan:"Nu kun je…",kidsSeeChal:"Ollies uitdaging voor volgende keer",
     hearSlower:"Nog eens horen (langzamer)",typeHeard:"Typ wat je hoorde…",
     watch:"🎯 Let op:",
     saveToNotebook:"Opslaan in notitieboek",saveToNbSub:"Bewerk het woord dat je wilt onthouden",
@@ -156,6 +159,7 @@ const T = {
     englishTransl:"Traduction anglaise",pronGuide:"Guide de prononciation",phoneticGuide:"Lecture phonétique",
     endSession:"Assez pour aujourd'hui",keepChatting:"Continuer",backToScenarios:"Retour aux scénarios",
     seWins:"Tes réussites",seNowYouCan:"Maintenant tu peux…",seNextStep:"Prochaine étape",wrappingUp:"Bilan en cours…",
+    backToTopics:"Retour aux sujets",kidsSeeLearned:"Regarde ce que tu as appris !",kidsSeeCan:"Maintenant tu peux…",kidsSeeChal:"Le défi d'Ollie pour la prochaine fois",
     hearSlower:"Réécouter (plus lentement)",typeHeard:"Tapez ce que vous avez entendu…",
     watch:"🎯 Attention :",
     saveToNotebook:"Enregistrer dans le carnet",saveToNbSub:"Modifie le mot que tu veux retenir",
@@ -194,6 +198,7 @@ const T = {
     englishTransl:"Traducción al inglés",pronGuide:"Guía de pronunciación",phoneticGuide:"Lectura fonética",
     endSession:"Ya es suficiente",keepChatting:"Seguir chateando",backToScenarios:"Volver a escenarios",
     seWins:"Tus logros",seNowYouCan:"Ahora puedes…",seNextStep:"El siguiente paso",wrappingUp:"Preparando el resumen…",
+    backToTopics:"Volver a temas",kidsSeeLearned:"¡Mira lo que aprendiste!",kidsSeeCan:"Ahora puedes…",kidsSeeChal:"El reto de Ollie para la próxima vez",
     hearSlower:"Escuchar de nuevo (más lento)",typeHeard:"Escribe lo que escuchaste…",
     watch:"🎯 Observa:",
     saveToNotebook:"Guardar en cuaderno",saveToNbSub:"Edita la palabra que quieres recordar",
@@ -1699,6 +1704,13 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .se-nextstep-label{display:block;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--a-gold);margin-bottom:6px;}
 .se-closing{font-size:13px;color:var(--a-muted);font-style:italic;text-align:center;margin:0 0 28px;}
 .se-actions{display:flex;flex-direction:column;gap:0;}
+/* Kids session-end */
+.kse-label{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--k-inkSoft);margin-bottom:8px;}
+.kse-item{font-size:13.5px;font-weight:700;color:var(--k-ink);padding:8px 12px;border-radius:12px;margin-bottom:6px;}
+.kse-learn{background:rgba(106,197,148,.15);border:2px solid rgba(106,197,148,.35);}
+.kse-can{background:var(--k-paper);border:2px solid var(--k-border);}
+.kse-challenge{background:rgba(255,193,7,.12);border:2px solid rgba(255,193,7,.35);border-radius:14px;padding:12px 16px;font-size:13.5px;font-weight:700;color:var(--k-ink);line-height:1.55;margin-bottom:16px;}
+.kse-chal-label{font-size:11px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;color:#c08000;margin-bottom:6px;}
 .tts-btn{background:transparent;border:none;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:5px;color:var(--a-muted);transition:all .15s;flex-shrink:0;}
 .tts-btn:hover{color:var(--a-gold);}
 .chat-actions{display:flex;gap:7px;padding:6px 14px 8px;background:var(--a-surf);border-top:1px solid var(--a-border);}
@@ -2779,7 +2791,7 @@ const GREET_TRIGGER = {
   content:"Start now — greet the child and introduce the topic with one fun fact or question!",
 };
 
-function KidsChat({topic, kidLang, t, onStars, onExchange}) {
+function KidsChat({topic, kidLang, t, onStars, onExchange, onBack}) {
   const [msgs,setMsgs]             = useState([]);
   const [input,setInput]           = useState("");
   const [loading,setLoading]       = useState(false);
@@ -2791,6 +2803,8 @@ function KidsChat({topic, kidLang, t, onStars, onExchange}) {
   const [currentAi,setCurrentAi]   = useState("");
   const [ollieAnim,setOllieAnim]   = useState(false);
   const [savedSet,setSavedSet]     = useState(new Set());
+  const [sessionEnd,setSessionEnd] = useState(null);
+  const [endLoading,setEndLoading] = useState(false);
   const bottomRef = useRef();
   const {uiLang}  = useContext(Ctx);
   const langObj   = KIDS_LANGS.find(l=>l.code===kidLang)||KIDS_LANGS[0];
@@ -2819,6 +2833,45 @@ Only for genuinely useful patterns — never for basic vocabulary. Skip most of 
 
   function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
 
+  async function endSession() {
+    if (endLoading) return;
+    setEndLoading(true);
+    const transcript = msgs.filter(m=>m.content&&m.content!==GREET_TRIGGER.content)
+      .map(m=>`${m.role==="user"?"child":"ollie"}: ${m.content}`).join("\n");
+    const fallback = {
+      headline:`Great job today! 🦉⭐`,
+      ollieSays:`You did amazing! I'm so proud of you for chatting in ${langObj.name} today!`,
+      learned:[`${langObj.name} words and phrases`, `How to have a conversation`],
+      nowYouCan:[`Use ${langObj.name} words from today's topic`],
+      challenge:`Try to use one new word from today in a sentence next time!`,
+      closing:`See you next time — keep being awesome! 🌟`,
+    };
+    if (msgs.filter(m=>m.role==="assistant").length < 1) {
+      setSessionEnd(fallback); setEndLoading(false); return;
+    }
+    try {
+      const raw = await ai([{role:"user",content:
+        `You are Ollie the owl 🦉, writing a warm, fun, kid-friendly session review.\n` +
+        `Look at this ${langObj.name} learning chat and reply with JSON only (no markdown):\n` +
+        `{\n` +
+        `  "headline": "Short fun celebration with 1–2 emojis, max 6 words",\n` +
+        `  "ollieSays": "Ollie speaks directly to the child — 1–2 sentences, warm, silly, proud. Use 'you' and emojis.",\n` +
+        `  "learned": ["2–3 specific words or phrases the child actually encountered in the chat"],\n` +
+        `  "nowYouCan": ["1–2 simple real-world things the child can now do, starting with a verb"],\n` +
+        `  "challenge": "One tiny fun challenge for next time — make it feel exciting not hard",\n` +
+        `  "closing": "One short cheerful goodbye from Ollie with emojis"\n` +
+        `}\n` +
+        `RULES: Always positive and celebratory. Simple words a child understands. Lots of emojis.\n` +
+        `Never mention mistakes. If the session was short, celebrate that they showed up!\n\n` +
+        `Chat transcript:\n${transcript}`
+      }], null, 400);
+      let parsed;
+      try { parsed = JSON.parse(raw.replace(/^```json\s*/,"").replace(/```\s*$/,"").trim()); }
+      catch { parsed = fallback; }
+      setSessionEnd(parsed);
+    } catch { setSessionEnd(fallback); }
+    setEndLoading(false);
+  }
 
   useEffect(()=>{
     if (!topic) return;
@@ -2868,6 +2921,82 @@ Only for genuinely useful patterns — never for basic vocabulary. Skip most of 
     setDictResult(ok?"ok":"err");
     if (ok) { sfx.correct(); haptic([30,10,30]); } else { sfx.wrong(); haptic([50]); }
   }
+
+  /* ── Kids session-end screen ── */
+  if (endLoading || sessionEnd) return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",minHeight:0,overflow:"hidden",
+      background:"var(--k-bg)",fontFamily:"var(--k-sans)"}}>
+      {endLoading ? (
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+          flex:1,padding:40,textAlign:"center"}}>
+          <div style={{fontSize:44,marginBottom:12}}>🦉</div>
+          <div style={{color:"var(--k-inkSoft)",fontSize:15,fontWeight:700,marginBottom:16}}>
+            Ollie is thinking… ✨
+          </div>
+          <Dots/>
+        </div>
+      ) : (
+        <div style={{flex:1,overflowY:"auto",padding:"28px 20px 40px",display:"flex",flexDirection:"column",gap:0}}>
+          <div style={{fontSize:52,textAlign:"center",marginBottom:10}}>🦉</div>
+          <h2 style={{fontFamily:"var(--k-sans)",fontSize:22,fontWeight:900,color:"var(--k-ink)",
+            textAlign:"center",margin:"0 0 6px",lineHeight:1.2}}>{sessionEnd.headline}</h2>
+
+          {sessionEnd.ollieSays && (
+            <div style={{background:"var(--k-paper)",border:"2px solid var(--k-border)",borderRadius:16,
+              padding:"12px 16px",fontSize:14,fontWeight:700,color:"var(--k-ink)",lineHeight:1.55,
+              margin:"10px 0 20px",textAlign:"center"}}>
+              {sessionEnd.ollieSays}
+            </div>
+          )}
+
+          {sessionEnd.learned?.length > 0 && (
+            <div style={{marginBottom:18}}>
+              <div className="kse-label">🎒 {t.kidsSeeLearned}</div>
+              {sessionEnd.learned.map((w,i)=>(
+                <div key={i} className="kse-item kse-learn">{w}</div>
+              ))}
+            </div>
+          )}
+
+          {sessionEnd.nowYouCan?.length > 0 && (
+            <div style={{marginBottom:18}}>
+              <div className="kse-label">🚀 {t.kidsSeeCan}</div>
+              {sessionEnd.nowYouCan.map((s,i)=>(
+                <div key={i} className="kse-item kse-can">→ {s}</div>
+              ))}
+            </div>
+          )}
+
+          {sessionEnd.challenge && (
+            <div className="kse-challenge">
+              <div className="kse-chal-label">⚡ {t.kidsSeeChal}</div>
+              {sessionEnd.challenge}
+            </div>
+          )}
+
+          {sessionEnd.closing && (
+            <p style={{fontSize:14,color:"var(--k-inkSoft)",textAlign:"center",
+              fontWeight:700,margin:"6px 0 24px"}}>{sessionEnd.closing}</p>
+          )}
+
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <button style={{width:"100%",background:"var(--k-ink)",color:"#fff",border:"none",
+              borderRadius:14,padding:"13px",fontSize:14,fontWeight:800,cursor:"pointer",
+              fontFamily:"var(--k-sans)"}}
+              onClick={()=>setSessionEnd(null)}>
+              💬 {t.keepChatting}
+            </button>
+            <button style={{width:"100%",background:"var(--k-paper)",color:"var(--k-inkSoft)",
+              border:"2px solid var(--k-border)",borderRadius:14,padding:"11px",fontSize:13,
+              fontWeight:800,cursor:"pointer",fontFamily:"var(--k-sans)"}}
+              onClick={onBack}>
+              ← {t.backToTopics}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     /* Bounded flex column — fills whatever space KidsMode gives it */
@@ -2972,6 +3101,16 @@ Only for genuinely useful patterns — never for basic vocabulary. Skip most of 
           placeholder={t.startChat} rows={1}/>
         <button className="send-btn" onClick={send} disabled={loading||!input.trim()}>{t.send}</button>
       </div>
+      {msgs.filter(m=>m.role==="assistant").length>=1 && (
+        <div style={{padding:"4px 12px 8px",display:"flex",justifyContent:"center"}}>
+          <button style={{background:"none",border:"none",color:"var(--k-mute)",fontSize:12,
+            fontFamily:"var(--k-sans)",fontWeight:700,cursor:"pointer",padding:"4px 8px",
+            borderRadius:8,letterSpacing:".02em"}}
+            onClick={endSession} disabled={endLoading}>
+            {endLoading ? "…" : `✅ ${t.endSession}`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -4081,7 +4220,7 @@ function KidsMode({t, onStars, stars=0}) {
             </div>
           ) : (
             <KidsChat topic={topic.labels[kidLang]||topic.labels.en} kidLang={kidLang} t={t}
-              onStars={onStars} onExchange={setChatExchanges}/>
+              onStars={onStars} onExchange={setChatExchanges} onBack={()=>setTopic(null)}/>
           )}
         </>
       )}
