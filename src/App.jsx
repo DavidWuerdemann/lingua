@@ -1854,28 +1854,62 @@ Ask one fun, simple question at a time in ${langObj.name}. Use lots of emojis. K
    • Bidirectional toggle — study both directions
    • Exposure counter shown on correct match
 ═══════════════════════════════════════════════════════════ */
-function WordMatch({ words, t, onDone }) {
+function WordMatch({ words, kidLang, t, onDone }) {
   const BATCH = 5;
+  const { nativeLang } = useContext(Ctx);
+
+  // Resolve human-readable language names for column headers
+  const NATIVE_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const nativeName = NATIVE_NAMES[nativeLang] || "Your language";
+  const targetName = LANGUAGES.find(l => l.code === kidLang)?.name || "Target";
+
+  // Only play with pairs that have BOTH sides filled in.
+  // Empty transl → both columns would show the same word (the bug the user saw).
+  const usable = (words || []).filter(w => w.word?.trim() && w.transl?.trim());
 
   const makeBatch = (pool) =>
     [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(BATCH, pool.length));
   const makeOrder = (n) =>
     [...Array(n).keys()].sort(() => Math.random() - 0.5);
 
+  // All hooks unconditionally — early return comes AFTER
   const [fwd,       setFwd]       = useState(true);
-  const [batch,     setBatch]     = useState(() => makeBatch(words));
-  const [lOrd,      setLOrd]      = useState(() => makeOrder(Math.min(BATCH, words.length)));
-  const [rOrd,      setROrd]      = useState(() => makeOrder(Math.min(BATCH, words.length)));
+  const [batch,     setBatch]     = useState(() => makeBatch(usable));
+  const [lOrd,      setLOrd]      = useState(() => makeOrder(Math.min(BATCH, usable.length)));
+  const [rOrd,      setROrd]      = useState(() => makeOrder(Math.min(BATCH, usable.length)));
   const [matched,   setMatched]   = useState(new Set());
   const [selL,      setSelL]      = useState(null);
   const [selR,      setSelR]      = useState(null);
-  const [wrongKeys, setWrongKeys] = useState(new Set()); // "L2", "R4" …
+  const [wrongKeys, setWrongKeys] = useState(new Set());
   const [locked,    setLocked]    = useState(false);
   const [totalDone, setTotalDone] = useState(0);
-  const [expFlash,  setExpFlash]  = useState({}); // pairIdx → exposure count
+  const [expFlash,  setExpFlash]  = useState({});
+
+  // fwd=true  → left column = transl (native lang), right = word (target lang)
+  // fwd=false → left column = word  (target lang),  right = transl (native lang)
+  const lHdr = fwd ? nativeName : targetName;
+  const rHdr = fwd ? targetName : nativeName;
+
+  // ── No-translation guard (all hooks already called above) ──
+  if (usable.length === 0) {
+    return (
+      <div style={{ padding:'28px 16px', textAlign:'center' }}>
+        <button className="action-btn" onClick={onDone}
+          style={{ marginBottom:20 }}>← {t.back}</button>
+        <div style={{ fontSize:'2.4rem', marginBottom:10 }}>📝</div>
+        <p style={{ color:'var(--a-cream)', fontWeight:600, marginBottom:8, fontSize:'1rem' }}>
+          No translations in this set
+        </p>
+        <p style={{ color:'var(--a-muted)', fontSize:'0.84rem', lineHeight:1.6 }}>
+          Word Match needs both a word <em>and</em> its translation.<br/>
+          Open ✏️ Edit and fill in the translation column.
+        </p>
+      </div>
+    );
+  }
 
   function loadNext() {
-    const next = makeBatch(words);
+    const next = makeBatch(usable);
     setBatch(next);
     setLOrd(makeOrder(next.length));
     setROrd(makeOrder(next.length));
@@ -1888,7 +1922,7 @@ function WordMatch({ words, t, onDone }) {
 
   function handleL(pos) {
     if (locked || matched.has(lOrd[pos]) || wrongKeys.has(`L${pos}`)) return;
-    if (selL === pos) { setSelL(null); return; } // tap again → deselect
+    if (selL === pos) { setSelL(null); return; }
     setSelL(pos);
     if (selR !== null && !wrongKeys.has(`R${selR}`)) check(pos, selR);
   }
@@ -1902,7 +1936,6 @@ function WordMatch({ words, t, onDone }) {
 
   function check(lPos, rPos) {
     if (lOrd[lPos] === rOrd[rPos]) {
-      // ✓ Correct pair
       const pairIdx  = lOrd[lPos];
       const word     = batch[pairIdx];
       const exp      = trackWordExposure(word.word);
@@ -1914,7 +1947,6 @@ function WordMatch({ words, t, onDone }) {
       sfx.correct();
       if (newMatch.size === batch.length) setTimeout(loadNext, 720);
     } else {
-      // ✗ Wrong — shake then release
       setLocked(true);
       setWrongKeys(new Set([`L${lPos}`, `R${rPos}`]));
       setSelL(null); setSelR(null);
@@ -1935,14 +1967,10 @@ function WordMatch({ words, t, onDone }) {
     const idx = side === 'L' ? lOrd[pos] : rOrd[pos];
     const w   = batch[idx];
     if (!w) return '—';
-    // fwd: left = native (transl), right = target (word)
     return fwd
-      ? (side === 'L' ? (w.transl || w.word) : w.word)
-      : (side === 'L' ? w.word : (w.transl || w.word));
+      ? (side === 'L' ? w.transl : w.word)
+      : (side === 'L' ? w.word   : w.transl);
   }
-
-  const lHdr = fwd ? 'Your language' : 'Target word';
-  const rHdr = fwd ? 'Target word'   : 'Your language';
 
   return (
     <div style={{ padding: '0 2px' }}>
@@ -1952,24 +1980,24 @@ function WordMatch({ words, t, onDone }) {
         <span style={{ flex:1, textAlign:'center', fontWeight:600, fontSize:'0.85rem', color:'var(--a-cream)' }}>
           🎯 {totalDone} matched
         </span>
-        <button className="action-btn" title="Swap direction"
+        <button className="action-btn" title="Swap sides"
           onClick={() => { setFwd(f => !f); setSelL(null); setSelR(null); }}>
           ⇄ flip
         </button>
       </div>
 
-      {/* Column headers */}
+      {/* Column headers — actual language names, not generic labels */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:8 }}>
         {[lHdr, rHdr].map((h, i) => (
           <div key={i} style={{
             textAlign:'center', fontSize:'0.7rem', fontWeight:700,
-            textTransform:'uppercase', letterSpacing:'.07em', color:'var(--a-muted)',
+            textTransform:'uppercase', letterSpacing:'.07em', color:'var(--a-gold)',
             paddingBottom:5, borderBottom:'1px solid var(--a-border)'
           }}>{h}</div>
         ))}
       </div>
 
-      {/* Card grid — two columns, one row per pair position */}
+      {/* Card grid */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:7 }}>
         {lOrd.map((_, pos) => (
           <Fragment key={pos}>
@@ -2026,7 +2054,7 @@ function VocabSets({t, kidLang, onStars}) {
     <OlliePractice words={practTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")} onStars={onStars}/>
   );
   if (view==="match"&&matchTarget) return (
-    <WordMatch words={matchTarget.words} t={t} onDone={()=>setView("list")}/>
+    <WordMatch words={matchTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")}/>
   );
 
   const sets = loadVSets();
