@@ -1204,10 +1204,12 @@ function sm2Update(word, quality) {
    AI CALL  →  /api/chat
 ───────────────────────────────────────────────────────────── */
 async function ai(messages, system="You are a helpful language tutor.", maxTokens=512) {
+  const body = {model:"claude-sonnet-4-20250514",max_tokens:maxTokens,messages};
+  if (system != null) body.system = system;
   const res = await fetch("/api/chat",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,system,messages}),
+    body:JSON.stringify(body),
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message||"API error");
