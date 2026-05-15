@@ -14,7 +14,7 @@ const UI_LANGS_LIST = ["EN","DE","NL","FR","ES"];
 const T = {
   EN:{
     adultMode:"Adult Mode",kidsMode:"Kids Mode",chat:"Chat",notebook:"Notebook",
-    vocabSets:"Vocab Sets",wordOfDay:"Word of the Day",idiomOfDay:"Idiom of the Day",
+    vocabSets:"Words",wordOfDay:"Word of the Day",idiomOfDay:"Idiom of the Day",
     startChat:"Start chatting…",send:"Send",save:"Save",saved:"Saved!",clear:"Clear chat",
     summary:"Session Summary",noWords:"No words saved yet.",yourLevel:"Your Level",
     stars:"Stars",errorPatterns:"Error Patterns",dueReview:"Due for review",loading:"Thinking…",
