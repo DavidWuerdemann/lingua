@@ -1324,8 +1324,9 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .match-card.selected{background:var(--a-goldT);border-color:var(--a-gold);color:var(--a-gold);}
 .match-card.wrong{background:rgba(255,100,100,.12);border-color:#FF7070;color:#FF9090;
   animation:shake .46s ease both;}
-.match-card.matched{opacity:0;transform:scale(.88);pointer-events:none;
-  transition:opacity .32s ease,transform .32s ease;}
+.match-card.matched{background:rgba(72,199,120,.15);border-color:#48C778;color:#48C778;
+  pointer-events:none;animation:matchPop .3s ease both;}
+@keyframes matchPop{0%{transform:scale(1)}40%{transform:scale(1.07)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}}
 `;
 
@@ -2005,22 +2006,32 @@ function WordMatch({ words, kidLang, t, onDone }) {
         {lOrd.map((_, pos) => (
           <Fragment key={pos}>
             <button className={cls('L', pos)} onClick={() => handleL(pos)}>
-              {txt('L', pos)}
-              {matched.has(lOrd[pos]) && expFlash[lOrd[pos]] != null && (
-                <span style={{ fontSize:'0.67rem', opacity:.55, marginLeft:5 }}>
-                  {expFlash[lOrd[pos]]}×
-                </span>
-              )}
+              {matched.has(lOrd[pos]) ? (
+                <>
+                  <span style={{ marginRight:5, fontSize:'1rem' }}>✓</span>
+                  {txt('L', pos)}
+                  {expFlash[lOrd[pos]] != null && (
+                    <span style={{ fontSize:'0.67rem', opacity:.6, marginLeft:5 }}>
+                      {expFlash[lOrd[pos]]}×
+                    </span>
+                  )}
+                </>
+              ) : txt('L', pos)}
             </button>
             <button className={cls('R', pos)} onClick={() => handleR(pos)}>
-              {txt('R', pos)}
+              {matched.has(rOrd[pos]) ? (
+                <>
+                  <span style={{ marginRight:5, fontSize:'1rem' }}>✓</span>
+                  {txt('R', pos)}
+                </>
+              ) : txt('R', pos)}
             </button>
           </Fragment>
         ))}
       </div>
 
       <p style={{ marginTop:16, fontSize:'0.73rem', color:'var(--a-muted)', textAlign:'center', lineHeight:1.6 }}>
-        Tap one card on each side · matched pairs vanish · wrong answers stay
+        Tap one card on each side · matched pairs turn green · wrong answers stay
       </p>
     </div>
   );
