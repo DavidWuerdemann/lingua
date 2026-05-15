@@ -316,6 +316,152 @@ const AR_ALPHA = [
   {l:"ي",n:"Ya",    r:"y / ī",           ex:"يد",    xe:"hand"},
 ];
 
+// ── Hebrew structured lessons ──────────────────────────────
+const HE_LESSONS = [
+  {id:"he-l1",emoji:"✍️",title:"Letters א–ה",desc:"Your very first 5 Hebrew letters",items:[
+    {s:"א",r:"Aleph",  e:"Silent consonant",          h:"Example: אבא (aba) — father"},
+    {s:"ב",r:"Bet/Vet",e:"b (with dot) or v",         h:"Example: בית (bayit) — house"},
+    {s:"ג",r:"Gimel",  e:"g as in 'game'",            h:"Example: גן (gan) — garden"},
+    {s:"ד",r:"Dalet",  e:"d as in 'door'",            h:"Example: דלת (delet) — door"},
+    {s:"ה",r:"He",     e:"h as in 'hello'",           h:"Example: הר (har) — mountain"},
+  ]},
+  {id:"he-l2",emoji:"✍️",title:"Letters ו–י",desc:"Five more essential letters",items:[
+    {s:"ו",r:"Vav",    e:"v, or vowel o / u",         h:"Example: ורד (vered) — rose"},
+    {s:"ז",r:"Zayin",  e:"z as in 'zebra'",           h:"Example: זמן (zman) — time"},
+    {s:"ח",r:"Chet",   e:"ch — guttural (like Bach)", h:"Example: חלב (chalav) — milk"},
+    {s:"ט",r:"Tet",    e:"t as in 'top'",             h:"Example: טוב (tov) — good"},
+    {s:"י",r:"Yod",    e:"y, or vowel i",             h:"Example: ים (yam) — sea"},
+  ]},
+  {id:"he-l3",emoji:"✍️",title:"Letters כ–ס",desc:"Five more — you're halfway!",items:[
+    {s:"כ / ך",r:"Kaf/Khaf",e:"k, or kh (guttural)",   h:"ך is the final form (end of word). Example: כלב (kelev) — dog"},
+    {s:"ל",r:"Lamed",  e:"l as in 'love'",            h:"Example: לב (lev) — heart"},
+    {s:"מ / ם",r:"Mem",e:"m as in 'mother'",          h:"ם is the final form. Example: מים (mayim) — water"},
+    {s:"נ / ן",r:"Nun",e:"n as in 'now'",             h:"ן is the final form. Example: נהר (nahar) — river"},
+    {s:"ס",r:"Samekh", e:"s as in 'sun'",             h:"Example: ספר (sefer) — book"},
+  ]},
+  {id:"he-l4",emoji:"✍️",title:"Letters ע–ת",desc:"Final seven — alphabet complete!",items:[
+    {s:"ע",r:"Ayin",   e:"Guttural catch in the throat",h:"Example: עין (ayin) — eye"},
+    {s:"פ / ף",r:"Pe/Fe",e:"p, or f",                 h:"ף is the final form. Example: פרח (perach) — flower"},
+    {s:"צ / ץ",r:"Tsadi",e:"ts as in 'cats'",         h:"ץ is the final form. Example: ציפור (tsipor) — bird"},
+    {s:"ק",r:"Qof",    e:"k (back of throat)",        h:"Example: קפה (kafe) — coffee"},
+    {s:"ר",r:"Resh",   e:"r — rolled or French r",    h:"Example: ראש (rosh) — head"},
+    {s:"ש",r:"Shin/Sin",e:"sh or s",                  h:"Example: שמש (shemesh) — sun"},
+    {s:"ת",r:"Tav",    e:"t as in 'top'",             h:"Example: תפוח (tapuach) — apple"},
+  ]},
+  {id:"he-l5",emoji:"👋",title:"Greetings",desc:"Say hello and get by on day one",items:[
+    {s:"שלום",       r:"Shalom",         e:"Hello / Goodbye / Peace",      h:"Works at any time of day"},
+    {s:"בוקר טוב",   r:"Boker tov",      e:"Good morning",                 h:"Reply: בוקר אור (boker or)"},
+    {s:"ערב טוב",    r:"Erev tov",       e:"Good evening"},
+    {s:"לילה טוב",   r:"Layla tov",      e:"Good night"},
+    {s:"תודה",       r:"Toda",           e:"Thank you",                    h:"More emphatic: תודה רבה (toda raba)"},
+    {s:"בבקשה",      r:"Bevakasha",      e:"Please / You're welcome",      h:"Works in both directions"},
+    {s:"כן / לא",    r:"Ken / Lo",       e:"Yes / No"},
+    {s:"מה שלומך?",  r:"Ma shlomkha?",   e:"How are you? (to a man)",      h:"To a woman: מה שלומך (ma shlomech)"},
+    {s:"בסדר",       r:"Beseder",        e:"OK / Fine / Alright",          h:"One of the most common Hebrew words"},
+    {s:"סליחה",      r:"Slicha",         e:"Excuse me / Sorry"},
+  ]},
+  {id:"he-l6",emoji:"🔢",title:"Numbers 1–10",desc:"Count in Hebrew",items:[
+    {s:"אחד",  r:"Echad",   e:"1"},{s:"שתיים",r:"Shtayim", e:"2"},{s:"שלוש",  r:"Shalosh",e:"3"},
+    {s:"ארבע", r:"Arba",    e:"4"},{s:"חמש",   r:"Chamesh", e:"5"},{s:"שש",    r:"Shesh",  e:"6"},
+    {s:"שבע",  r:"Sheva",   e:"7"},{s:"שמונה", r:"Shmoneh", e:"8"},{s:"תשע",   r:"Tesha",  e:"9"},
+    {s:"עשר",  r:"Eser",    e:"10"},
+  ]},
+  {id:"he-l7",emoji:"💬",title:"Essential Phrases",desc:"Navigate real situations",items:[
+    {s:"שמי...",            r:"Shmi...",               e:"My name is..."},
+    {s:"אני מדבר אנגלית",   r:"Ani medaber anglit",    e:"I speak English",          h:"Woman says: מדברת (medaberet)"},
+    {s:"אני לא מבין",       r:"Ani lo mevin",          e:"I don't understand",       h:"Woman says: מבינה (mevina)"},
+    {s:"איפה...?",          r:"Eifo...?",              e:"Where is...?"},
+    {s:"כמה זה עולה?",      r:"Kama ze ole?",          e:"How much does it cost?"},
+    {s:"אני רוצה...",       r:"Ani rotse...",          e:"I want / I'd like...",     h:"Woman says: רוצה (rotsa)"},
+    {s:"תדבר לאט, בבקשה",  r:"Tedaber le'at, bevakasha",e:"Please speak slowly"},
+    {s:"אפשר לשלם בכרטיס?",r:"Efshar leshalem bekartis?",e:"Can I pay by card?"},
+  ]},
+  {id:"he-l8",emoji:"☕",title:"Café & Restaurant",desc:"Order with confidence",items:[
+    {s:"קפה",    r:"Kafe",     e:"Coffee"},
+    {s:"תה",     r:"Te",       e:"Tea"},
+    {s:"מים",    r:"Mayim",    e:"Water"},
+    {s:"לחם",    r:"Lechem",   e:"Bread"},
+    {s:"חשבון",  r:"Cheshbon", e:"The bill / check"},
+    {s:"מסעדה",  r:"Mis'ada",  e:"Restaurant"},
+    {s:"אני רוצה להזמין", r:"Ani rotse lehazmin", e:"I'd like to order"},
+    {s:"בתיאבון!", r:"Bete'avon!", e:"Enjoy your meal!",             h:"Literally: 'with appetite' — the Hebrew Bon appétit"},
+  ]},
+];
+
+// ── Arabic structured lessons ────────────────────────────────
+const AR_LESSONS = [
+  {id:"ar-l1",emoji:"✍️",title:"Letters ا–ز",desc:"The first 11 letters of Arabic",items:[
+    {s:"ا",r:"Alif",  e:"a / ā — long 'a'",           h:"Example: أب (ab) — father"},
+    {s:"ب",r:"Ba",    e:"b as in 'boat'",              h:"Example: بيت (bayt) — house"},
+    {s:"ت",r:"Ta",    e:"t as in 'top'",               h:"Example: تمر (tamr) — dates"},
+    {s:"ث",r:"Tha",   e:"th as in 'think'",            h:"Example: ثلاثة (thalatha) — three"},
+    {s:"ج",r:"Jim",   e:"j as in 'jam'",               h:"Example: جبل (jabal) — mountain"},
+    {s:"ح",r:"Ha",    e:"ḥ — breathy, pharyngeal h",   h:"Example: حب (hubb) — love"},
+    {s:"خ",r:"Kha",   e:"kh — guttural (like Bach)",   h:"Example: خبز (khubz) — bread"},
+    {s:"د",r:"Dal",   e:"d as in 'door'",              h:"Example: دار (dar) — home"},
+    {s:"ذ",r:"Dhal",  e:"dh as in 'this'",             h:"Example: ذهب (dhahab) — gold"},
+    {s:"ر",r:"Ra",    e:"r — rolled",                  h:"Example: رجل (rajul) — man"},
+    {s:"ز",r:"Zay",   e:"z as in 'zebra'",             h:"Example: زمن (zaman) — time"},
+  ]},
+  {id:"ar-l2",emoji:"✍️",title:"Letters س–ي",desc:"Complete the alphabet — 17 letters!",items:[
+    {s:"س",r:"Sin",   e:"s as in 'sun'",               h:"Example: سمك (samak) — fish"},
+    {s:"ش",r:"Shin",  e:"sh as in 'shoe'",             h:"Example: شمس (shams) — sun"},
+    {s:"ص",r:"Sad",   e:"ṣ — emphatic s",              h:"Example: صحة (sihha) — health"},
+    {s:"ض",r:"Dad",   e:"ḍ — emphatic d",              h:"Example: ضيف (dayf) — guest"},
+    {s:"ط",r:"Ta",    e:"ṭ — emphatic t",              h:"Example: طعام (ta'am) — food"},
+    {s:"ظ",r:"Dha",   e:"ẓ — emphatic dh",             h:"Example: ظرف (zarf) — envelope"},
+    {s:"ع",r:"Ayn",   e:"ʿ — unique pharyngeal sound", h:"Example: عين (ayn) — eye  ·  Practise this one — it's key!"},
+    {s:"غ",r:"Ghayn", e:"gh — like a French r",        h:"Example: غرفة (ghurfa) — room"},
+    {s:"ف",r:"Fa",    e:"f as in 'fire'",              h:"Example: فم (fam) — mouth"},
+    {s:"ق",r:"Qaf",   e:"q — deep back-of-throat k",   h:"Example: قلب (qalb) — heart"},
+    {s:"ك",r:"Kaf",   e:"k as in 'kite'",              h:"Example: كتاب (kitab) — book"},
+    {s:"ل",r:"Lam",   e:"l as in 'love'",              h:"Example: لون (lawn) — colour"},
+    {s:"م",r:"Mim",   e:"m as in 'mother'",            h:"Example: ماء (ma') — water"},
+    {s:"ن",r:"Nun",   e:"n as in 'now'",               h:"Example: نار (nar) — fire"},
+    {s:"ه",r:"Ha",    e:"h as in 'house'",             h:"Example: هواء (hawa') — air"},
+    {s:"و",r:"Waw",   e:"w, or long vowel ū",          h:"Example: وقت (waqt) — time"},
+    {s:"ي",r:"Ya",    e:"y, or long vowel ī",          h:"Example: يد (yad) — hand"},
+  ]},
+  {id:"ar-l3",emoji:"👋",title:"Greetings",desc:"Essential day-one phrases",items:[
+    {s:"مرحبا",          r:"Marhaban",             e:"Hello",                      h:"Friendly, everyday greeting"},
+    {s:"السلام عليكم",   r:"As-salāmu ʿalaykum",   e:"Peace be upon you",          h:"Reply: وعليكم السلام (wa alaykum as-salam)"},
+    {s:"صباح الخير",     r:"Sabāḥ al-khayr",       e:"Good morning",               h:"Reply: صباح النور (sabah an-nur) — morning of light"},
+    {s:"مساء الخير",     r:"Masā' al-khayr",       e:"Good evening",               h:"Reply: مساء النور (masa' an-nur)"},
+    {s:"شكراً",          r:"Shukran",              e:"Thank you",                  h:"More warmth: شكراً جزيلاً (shukran jazilan) — many thanks"},
+    {s:"من فضلك",        r:"Min faḍlak",            e:"Please (to a man)",          h:"To a woman: من فضلك (min fadlik)"},
+    {s:"نعم / لا",       r:"Na'am / Lā",            e:"Yes / No"},
+    {s:"كيف حالك؟",      r:"Kayfa ḥālak?",          e:"How are you?",               h:"Reply: بخير، شكراً (bikhair, shukran) — fine, thanks"},
+    {s:"عفواً",          r:"ʿAfwan",               e:"Excuse me / You're welcome", h:"Works in both situations"},
+    {s:"مع السلامة",     r:"Maʿ as-salāma",         e:"Goodbye",                   h:"Literally: 'go with safety'"},
+  ]},
+  {id:"ar-l4",emoji:"🔢",title:"Numbers 1–10",desc:"Count in Arabic",items:[
+    {s:"واحد",  r:"Wāḥid",    e:"1"},{s:"اثنان", r:"Ithnān",   e:"2"},{s:"ثلاثة", r:"Thalātha",e:"3"},
+    {s:"أربعة", r:"Arbaʿa",   e:"4"},{s:"خمسة",  r:"Khamsa",   e:"5"},{s:"ستة",   r:"Sitta",   e:"6"},
+    {s:"سبعة",  r:"Sabʿa",    e:"7"},{s:"ثمانية",r:"Thamāniya",e:"8"},{s:"تسعة",  r:"Tisʿa",   e:"9"},
+    {s:"عشرة",  r:"ʿAshara",  e:"10"},
+  ]},
+  {id:"ar-l5",emoji:"💬",title:"Essential Phrases",desc:"Navigate real situations",items:[
+    {s:"اسمي...",               r:"Ismī...",                  e:"My name is..."},
+    {s:"أنا من...",             r:"Ana min...",               e:"I am from..."},
+    {s:"لا أتكلم العربية جيداً",r:"La atakallam al-arabiyya jayidan",e:"I don't speak Arabic well"},
+    {s:"هل تتكلم الإنجليزية?",  r:"Hal tatakallam al-ingleeziyya?",e:"Do you speak English?"},
+    {s:"لا أفهم",              r:"La afham",                 e:"I don't understand"},
+    {s:"أين...?",              r:"Ayna...?",                 e:"Where is...?"},
+    {s:"كم الثمن?",             r:"Kam ath-thaman?",          e:"How much is it?"},
+    {s:"تكلم ببطء، من فضلك",   r:"Takallam bibutʾ, min fadlak",e:"Please speak slowly"},
+  ]},
+  {id:"ar-l6",emoji:"☕",title:"Café & Restaurant",desc:"Order confidently anywhere",items:[
+    {s:"قهوة",  r:"Qahwa",    e:"Coffee",                    h:"Arabic coffee is often spiced with cardamom"},
+    {s:"شاي",   r:"Shāy",     e:"Tea",                       h:"Tea is central to Arab hospitality"},
+    {s:"ماء",   r:"Māʾ",      e:"Water"},
+    {s:"خبز",   r:"Khubz",    e:"Bread"},
+    {s:"الحساب",r:"Al-ḥisāb", e:"The bill"},
+    {s:"مطعم",  r:"Maṭʿam",   e:"Restaurant"},
+    {s:"أريد...",r:"Urīd...", e:"I want...",                 h:"Polite alternative: أحب (uhibb) — I'd like..."},
+    {s:"بالهناء والشفاء", r:"Bil-hanā' wash-shifā'", e:"Enjoy your meal!",h:"Literally: 'with joy and health' — the Arabic Bon appétit"},
+  ]},
+];
+
 const IDIOM_CATS = ["Business","Travel","Emotions","Nature","Pop Culture"];
 const LEVEL_THRESHOLDS = [0,50,150,300,500,750,1050,1400,1800,2250,2750,3300,3900,4550,5250];
 const LEVEL_NAMES = [
@@ -1102,6 +1248,48 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .skill-btn.on .skill-btn-cefr{color:rgba(201,148,58,.7);}
 .skill-progress{font-size:10px;color:var(--a-muted);margin-top:7px;text-align:center;}
 .skill-levelup{font-size:10px;color:var(--a-gold);margin-top:5px;text-align:center;animation:fadeUp .3s ease both;}
+
+/* ── Lessons track ── */
+.lessons-hdr{display:flex;align-items:center;gap:10px;padding:4px 0 14px;}
+.lessons-hdr-title{font-family:var(--a-serif);font-size:20px;font-weight:600;color:var(--a-cream);flex:1;}
+.lessons-intro{font-size:12.5px;color:var(--a-muted);margin-bottom:18px;line-height:1.6;}
+.lesson-list{display:flex;flex-direction:column;gap:10px;padding-bottom:24px;}
+.lesson-card-row{background:var(--a-surf);border:1px solid var(--a-border);border-radius:16px;padding:14px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .18s;}
+.lesson-card-row:hover{border-color:var(--a-muted);}
+.lesson-card-row.done{border-color:rgba(72,199,120,.4);background:rgba(72,199,120,.05);}
+.lc-icon{font-size:24px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--a-surf2);border-radius:12px;flex-shrink:0;}
+.lc-body{flex:1;min-width:0;}
+.lc-title{font-weight:700;font-size:13.5px;color:var(--a-cream);}
+.lc-desc{font-size:11.5px;color:var(--a-muted);margin-top:2px;}
+.lc-meta{font-size:10.5px;color:var(--a-mutedD);margin-top:3px;}
+.lc-arrow{font-size:16px;color:var(--a-muted);}
+
+/* ── Lesson player ── */
+.player-wrap{display:flex;flex-direction:column;flex:1;padding:0 2px;}
+.player-topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.player-title{flex:1;text-align:center;font-size:13px;font-weight:600;color:var(--a-cream);}
+.player-pbar-wrap{height:5px;background:var(--a-surf2);border-radius:5px;margin-bottom:18px;overflow:hidden;}
+.player-pbar{height:100%;background:var(--a-gold);border-radius:5px;transition:width .35s ease;}
+.player-card-face{background:var(--a-surf);border:1px solid var(--a-border);border-radius:20px;padding:28px 20px;text-align:center;cursor:pointer;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:background .15s;flex:1;}
+.player-card-face:active{background:var(--a-surf2);}
+.player-script{font-size:54px;line-height:1.1;color:var(--a-cream);direction:rtl;}
+.player-roman{font-size:17px;color:var(--a-gold);font-style:italic;}
+.player-tap{font-size:10.5px;color:var(--a-mutedD);letter-spacing:.07em;text-transform:uppercase;margin-top:8px;}
+.player-reveal{display:flex;flex-direction:column;align-items:center;gap:5px;animation:fadeUp .2s ease both;margin-top:10px;}
+.player-english{font-size:16px;font-weight:600;color:var(--a-cream);}
+.player-hint{font-size:11.5px;color:var(--a-muted);line-height:1.55;max-width:260px;}
+.player-speak-btn{margin-top:10px;background:var(--a-surf2);border:1px solid var(--a-border);border-radius:10px;padding:7px 16px;font-size:13px;color:var(--a-cream);cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.player-speak-btn:hover{border-color:var(--a-muted);}
+.player-nav{display:flex;align-items:center;gap:10px;margin-top:14px;padding-bottom:6px;}
+.player-nav-prev{background:var(--a-surf);border:1px solid var(--a-border);border-radius:11px;padding:11px 18px;font-size:15px;color:var(--a-cream);cursor:pointer;flex-shrink:0;}
+.player-nav-prev:disabled{opacity:.3;cursor:not-allowed;}
+.player-nav-ctr{font-size:11.5px;color:var(--a-muted);min-width:48px;text-align:center;}
+.player-nav-next{background:var(--a-gold);border:none;border-radius:11px;padding:11px 0;font-size:14px;font-weight:700;color:var(--a-bg);cursor:pointer;flex:1;}
+.player-nav-next:hover{background:var(--a-goldL);}
+.player-done-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px;text-align:center;padding:20px;}
+.player-done-icon{font-size:60px;}
+.player-done-title{font-family:var(--a-serif);font-size:26px;font-weight:600;color:var(--a-cream);}
+.player-done-sub{font-size:13.5px;color:var(--a-muted);line-height:1.65;max-width:280px;}
 
 /* ── Script guide button ── */
 .script-guide-row{margin-bottom:18px;}
@@ -2713,6 +2901,120 @@ No <fix> if no error.`;
 }
 
 /* ═══════════════════════════════════════════════════════════
+   LESSON PLAYER  (flashcard-style lesson walker)
+═══════════════════════════════════════════════════════════ */
+function LessonPlayer({ lesson, langObj, onDone }) {
+  const [idx,      setIdx]      = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const total = lesson.items.length;
+  const item  = lesson.items[idx];
+
+  function speak() {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(item.s);
+    u.lang = langObj.tts; u.rate = 0.78;
+    window.speechSynthesis.speak(u);
+  }
+
+  function next() {
+    if (idx + 1 >= total) {
+      saveLS(`lingua_lesson_${lesson.id}`, true);
+      setFinished(true);
+    } else {
+      setIdx(i => i + 1);
+      setRevealed(false);
+    }
+  }
+
+  function prev() {
+    if (idx > 0) { setIdx(i => i - 1); setRevealed(false); }
+  }
+
+  if (finished) return (
+    <div className="player-done-screen">
+      <div className="player-done-icon">🎉</div>
+      <div className="player-done-title">Lesson complete!</div>
+      <div className="player-done-sub">
+        You finished <strong>{lesson.title}</strong>.<br/>
+        Keep going with the next lesson, or practise what you've learned in a conversation.
+      </div>
+      <button className="action-btn" style={{marginTop:6}} onClick={onDone}>← Back to Lessons</button>
+    </div>
+  );
+
+  return (
+    <div className="player-wrap">
+      <div className="player-topbar">
+        <button className="action-btn" onClick={onDone}>← Lessons</button>
+        <span className="player-title">{lesson.title}</span>
+      </div>
+      <div className="player-pbar-wrap">
+        <div className="player-pbar" style={{width:`${(idx/total)*100}%`}}/>
+      </div>
+      <div className="player-card-face" onClick={()=>setRevealed(r=>!r)}>
+        <div className="player-script">{item.s}</div>
+        <div className="player-roman">{item.r}</div>
+        {!revealed && <div className="player-tap">tap to reveal</div>}
+        {revealed && (
+          <div className="player-reveal">
+            <div className="player-english">{item.e}</div>
+            {item.h && <div className="player-hint">{item.h}</div>}
+            <button className="player-speak-btn" onClick={e=>{e.stopPropagation();speak();}}>
+              🔊 Listen
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="player-nav">
+        <button className="player-nav-prev" onClick={prev} disabled={idx===0}>‹</button>
+        <span className="player-nav-ctr">{idx+1} / {total}</span>
+        <button className="player-nav-next" onClick={next}>
+          {idx+1===total?"Finish ✓":"Next ›"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LESSONS SCREEN  (lesson track list)
+═══════════════════════════════════════════════════════════ */
+function LessonsScreen({ langCode, langObj, onClose, onStartLesson }) {
+  const lessons = langCode==="he" ? HE_LESSONS : AR_LESSONS;
+  const langName = langCode==="he" ? "Hebrew" : "Arabic";
+  return (
+    <div className="scr" style={{paddingTop:6}}>
+      <div className="lessons-hdr">
+        <button className="action-btn" onClick={onClose}>← Back</button>
+        <div className="lessons-hdr-title">{langObj.flag} {langName} Lessons</div>
+      </div>
+      <p className="lessons-intro">
+        Start here before jumping into conversation. Each lesson teaches you to read, pronounce, and use real {langName} — script first, then phrases, then real life.
+      </p>
+      <div className="lesson-list">
+        {lessons.map(lesson=>{
+          const done = loadLS(`lingua_lesson_${lesson.id}`, false);
+          return (
+            <div key={lesson.id} className={`lesson-card-row${done?" done":""}`}
+              onClick={()=>onStartLesson(lesson)}>
+              <div className="lc-icon">{done?"✅":lesson.emoji}</div>
+              <div className="lc-body">
+                <div className="lc-title">{lesson.title}</div>
+                <div className="lc-desc">{lesson.desc}</div>
+                <div className="lc-meta">{lesson.items.length} cards</div>
+              </div>
+              <div className="lc-arrow">{done?"":"›"}</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    SCRIPT GUIDE  (Hebrew / Arabic alphabet reference)
 ═══════════════════════════════════════════════════════════ */
 function ScriptGuide({ langCode, onClose }) {
@@ -2764,6 +3066,8 @@ function AdultMode({t, stars, onStars}) {
   const [inChat,setInChat]     = useState(false);
   const [skillLevel,setSkillLevelState] = useState(() => loadSkill("es"));
   const [showScript,setShowScript]      = useState(false);
+  const [lessonsView,setLessonsView]    = useState(null); // null | "list" | "player"
+  const [activeLesson,setActiveLesson]  = useState(null);
   const {onBack,uiLang,setUiLang} = useContext(Ctx);
   const langObj              = LANGUAGES.find(l=>l.code===lang);
   const sessions             = loadSessions(lang);
@@ -2771,6 +3075,7 @@ function AdultMode({t, stars, onStars}) {
   function changeLang(code) {
     setLang(code); setScenIdx(0);
     setSkillLevelState(loadSkill(code));
+    setLessonsView(null);
     sfx.click();
   }
   function changeSkill(lv) {
@@ -2810,7 +3115,18 @@ function AdultMode({t, stars, onStars}) {
         ))}
       </div>
 
-      {tab==="chat" && (
+      {tab==="chat" && lessonsView==="list" && (
+        <LessonsScreen langCode={lang} langObj={langObj}
+          onClose={()=>setLessonsView(null)}
+          onStartLesson={l=>{setActiveLesson(l);setLessonsView("player");sfx.click();}}/>
+      )}
+      {tab==="chat" && lessonsView==="player" && activeLesson && (
+        <div className="scr" style={{display:"flex",flexDirection:"column",flex:1}}>
+          <LessonPlayer lesson={activeLesson} langObj={langObj}
+            onDone={()=>{setLessonsView("list");setActiveLesson(null);}}/>
+        </div>
+      )}
+      {tab==="chat" && !lessonsView && (
         <div className="scr">
           <h2 className="sh">{t.language}</h2>
           <p className="ss">{t.langSubhead}</p>
@@ -2848,19 +3164,34 @@ function AdultMode({t, stars, onStars}) {
             )}
           </div>
 
-          {/* ── Script guide (Hebrew / Arabic only) ── */}
+          {/* ── Lessons + Script guide (Hebrew / Arabic only) ── */}
           {langObj?.script && (
-            <div className="script-guide-row">
+            <div className="script-guide-row" style={{display:"flex",flexDirection:"column",gap:8}}>
+              {/* Lessons — primary CTA */}
+              <button className="script-guide-btn"
+                style={{background:"rgba(201,148,58,.1)",borderColor:"rgba(201,148,58,.35)"}}
+                onClick={()=>{setLessonsView("list");sfx.click();}}>
+                <span className="script-guide-btn-icon">📚</span>
+                <div className="script-guide-btn-text">
+                  <div className="script-guide-btn-title">
+                    {lang==="he"?"Hebrew":"Arabic"} Lessons
+                  </div>
+                  <div className="script-guide-btn-sub">
+                    {(lang==="he"?HE_LESSONS:AR_LESSONS).filter(l=>loadLS(`lingua_lesson_${l.id}`,false)).length}
+                    {" / "}{lang==="he"?HE_LESSONS.length:AR_LESSONS.length} lessons complete · start here!
+                  </div>
+                </div>
+                <span style={{color:"var(--a-gold)"}}>›</span>
+              </button>
+              {/* Alphabet reference — secondary */}
               <button className="script-guide-btn" onClick={()=>setShowScript(true)}>
                 <span className="script-guide-btn-icon">📜</span>
                 <div className="script-guide-btn-text">
                   <div className="script-guide-btn-title">
-                    Learn the {lang==="he"?"Hebrew Aleph-Bet":"Arabic Alphabet"}
+                    {lang==="he"?"Hebrew Aleph-Bet":"Arabic Alphabet"} — Quick Reference
                   </div>
                   <div className="script-guide-btn-sub">
-                    {lang==="he"
-                      ? "22 letters · right-to-left · with pronunciation & examples"
-                      : "28 letters · right-to-left · sounds, names & example words"}
+                    {lang==="he"?"22":"28"} letters with romanisation & example words
                   </div>
                 </div>
                 <span style={{color:"var(--a-muted)"}}>›</span>
