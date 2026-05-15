@@ -390,16 +390,18 @@ const DEFAULT_VSET = {
 /* ─────────────────────────────────────────────────────────────
    STORAGE KEYS
 ───────────────────────────────────────────────────────────── */
-const SK_NB    = "lingua_notebook";
-const SK_KIDNB = "lingua_kidnb";
-const SK_STARS = "lingua_stars";
-const SK_ERRS  = "lingua_errors";
-const SK_WOD   = "lingua_wod";
-const SK_IDIOM = "lingua_idiom";
-const SK_VSETS = "lingua_vsets";
-const SK_UILNG = "lingua_uilang";
-const SK_KIDLG = "lingua_kidlang";
+const SK_NB     = "lingua_notebook";
+const SK_KIDNB  = "lingua_kidnb";
+const SK_STARS  = "lingua_stars";
+const SK_ERRS   = "lingua_errors";
+const SK_WOD    = "lingua_wod";
+const SK_IDIOM  = "lingua_idiom";
+const SK_VSETS  = "lingua_vsets";
+const SK_UILNG  = "lingua_uilang";
+const SK_KIDLG  = "lingua_kidlang";
 const SK_NATLNG = "lingua_native_lang";
+const SK_WEXP   = "lingua_word_exp";   // word exposure counts
+const SK_REFL   = "lingua_reflections"; // metacognitive reflections
 
 /* ─────────────────────────────────────────────────────────────
    STORAGE UTILITIES
@@ -457,6 +459,37 @@ function addError(entry) {
 /* Vocab Sets */
 const loadVSets = () => loadLS(SK_VSETS, []);
 const saveVSets = (v) => saveLS(SK_VSETS, v);
+
+/* Word exposure tracking — ~7 exposures to stick */
+function trackWordExposure(word) {
+  if (!word) return 0;
+  const key = word.toLowerCase().trim();
+  const exp = loadLS(SK_WEXP, {});
+  exp[key] = (exp[key] || 0) + 1;
+  saveLS(SK_WEXP, exp);
+  return exp[key];
+}
+function getWordExposure(word) {
+  if (!word) return 0;
+  return loadLS(SK_WEXP, {})[word.toLowerCase().trim()] || 0;
+}
+// Scan an AI response for any known vocab-set words and bump their counts
+function trackExposuresInText(text) {
+  if (!text) return;
+  const lower = text.toLowerCase();
+  loadVSets().forEach(s => s.words.forEach(w => {
+    if (w.word && w.word.length > 2 && lower.includes(w.word.toLowerCase())) {
+      trackWordExposure(w.word);
+    }
+  }));
+}
+
+/* Metacognitive reflections */
+function saveReflection(text) {
+  const r = loadLS(SK_REFL, []);
+  r.unshift({ text, date: new Date().toISOString() });
+  saveLS(SK_REFL, r.slice(0, 50));
+}
 
 // Seed the built-in set — replaces any previous default version on upgrade
 function seedDefaultVSet() {
@@ -560,12 +593,17 @@ function speak(text, lang="en-US", rate=0.95) {
    AUTO-CORRECTION PARSER
 ───────────────────────────────────────────────────────────── */
 function parseAiResponse(raw) {
-  const m = raw.match(/<fix>([\s\S]*?)<\/fix>/);
-  const text = raw.replace(/<fix>[\s\S]*?<\/fix>/g,"").trim();
-  let fix = null;
-  if (m) try { fix = JSON.parse(m[1].trim()); } catch {}
-  // Never return empty text — strip any remaining tags and fall back to ellipsis
-  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix};
+  const mFix  = raw.match(/<fix>([\s\S]*?)<\/fix>/);
+  const mGram = raw.match(/<gram>([\s\S]*?)<\/gram>/);
+  const text  = raw
+    .replace(/<fix>[\s\S]*?<\/fix>/g, "")
+    .replace(/<gram>[\s\S]*?<\/gram>/g, "")
+    .trim();
+  let fix = null, gram = null;
+  if (mFix)  try { fix  = JSON.parse(mFix[1].trim());  } catch {}
+  if (mGram) try { gram = JSON.parse(mGram[1].trim()); } catch {}
+  // Never return empty text — strip any stray tags and fall back to ellipsis
+  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix, gram};
 }
 
 // Strip extra props so Anthropic never sees fields like `fix` or `id`
@@ -1044,7 +1082,58 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 
 /* UPDATE BTN */
 .update-btn{display:none;}
+
+/* ── Grammar-in-context pill ── */
+.gram-pill{margin-top:6px;background:rgba(123,168,200,.14);border:1.5px solid rgba(123,168,200,.4);
+  border-radius:8px;padding:5px 10px;font-size:0.72rem;line-height:1.5;color:#4A7CA0;font-family:var(--k-sans);}
+.gram-pill strong{color:#2D5F80;}
+
+/* ── Word-exposure progress bar ── */
+.exp-bar-wrap{display:flex;align-items:center;gap:5px;margin-top:3px;}
+.exp-bar{flex:1;height:4px;background:rgba(45,37,33,.1);border-radius:4px;overflow:hidden;}
+.exp-bar-fill{height:100%;border-radius:4px;background:#3F7A5E;transition:width .4s ease;}
+.exp-count{font-size:9px;font-weight:800;color:var(--k-mute);white-space:nowrap;}
+
+/* ── Reflection modal overlay ── */
+.reflect-drop{position:fixed;inset:0;background:rgba(10,16,26,.82);backdrop-filter:blur(4px);
+  z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.reflect-card{background:var(--k-paper);border:2px solid var(--k-border);border-radius:24px;
+  padding:28px 24px;width:100%;max-width:380px;animation:scaleIn .22s ease;text-align:center;}
+.reflect-card h3{font-family:var(--k-display);font-size:22px;font-weight:600;
+  color:var(--k-ink);margin:10px 0 6px;}
+.reflect-card p{font-family:var(--k-sans);font-size:13px;color:var(--k-inkSoft);
+  font-weight:600;margin-bottom:16px;line-height:1.5;}
+.reflect-ta{width:100%;border:2px solid var(--k-border);border-radius:14px;padding:11px 14px;
+  font-family:var(--k-sans);font-size:14px;font-weight:600;color:var(--k-ink);
+  background:var(--k-bg);resize:none;outline:none;height:80px;
+  transition:border-color .2s;margin-bottom:10px;}
+.reflect-ta:focus{border-color:var(--k-primary);}
+.reflect-btn{width:100%;background:var(--k-primary);color:#fff;border:none;border-radius:14px;
+  padding:13px;font-family:var(--k-sans);font-size:15px;font-weight:800;cursor:pointer;
+  transition:all .2s;}
+.reflect-btn:hover{background:var(--k-primaryD);}
+.reflect-skip{font-family:var(--k-sans);font-size:12px;color:var(--k-mute);font-weight:700;
+  cursor:pointer;margin-top:10px;display:block;background:none;border:none;}
+
+/* ── Reading practice screen ── */
+.read-passage{background:var(--k-paper);border:2px solid var(--k-border);border-radius:18px;
+  padding:18px;margin-bottom:16px;font-family:var(--k-sans);font-size:15px;line-height:1.85;
+  color:var(--k-ink);font-weight:600;}
+.read-meta{font-size:10.5px;font-weight:800;color:var(--k-mute);text-transform:uppercase;
+  letter-spacing:.08em;margin-bottom:10px;}
+.read-qcard{background:var(--k-paper2);border:2px solid var(--k-border);border-radius:16px;padding:16px;margin-bottom:12px;}
+.read-q{font-family:var(--k-sans);font-weight:800;font-size:15px;color:var(--k-ink);margin-bottom:12px;}
+.read-opt{display:block;width:100%;text-align:left;padding:10px 14px;border-radius:12px;
+  margin-bottom:6px;font-family:var(--k-sans);font-weight:700;font-size:13.5px;
+  background:var(--k-paper);border:2px solid var(--k-border);color:var(--k-ink);
+  cursor:pointer;transition:all .15s;}
+.read-opt:hover{border-color:var(--k-ink);}
+.read-opt.correct{background:rgba(63,122,94,.12);border-color:#3F7A5E;color:#2E6B50;}
+.read-opt.wrong{background:rgba(224,120,86,.1);border-color:#E07856;color:#B05030;}
+.read-result{padding:24px;text-align:center;background:var(--k-paper);
+  border:2px solid var(--k-border);border-radius:18px;}
 `;
+
 
 const LOGIN_CSS = `
 .auth-wrap{min-height:100svh;background:var(--a-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;position:relative;overflow:hidden;}
@@ -1247,6 +1336,8 @@ function FlashCards({words: initWords, t, onDone, onStars}) {
     const nb = loadNB();
     const entry = nb.find(w=>w.text===back);
     if (entry && quality!==undefined) saveNB(nb.map(w=>w.text===back?sm2Update(w,quality):w));
+    /* track word exposure */
+    trackWordExposure(front);
     if (quality===2) sfx.correct(); else if (quality===0) sfx.wrong(); else sfx.click();
     setFlipped(false); setTypeVal(""); setTypeResult(null);
     setIdx(i=>i+1); // when i+1 >= queue.length → done=true → shows completion screen
@@ -1579,36 +1670,61 @@ function VocabSets({t, kidLang, onStars}) {
   const sets = loadVSets();
   return (
     <div className="vs-list" key={listKey}>
-      <div style={{display:"flex",gap:8,marginBottom:10}}>
+      <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
         <button className="action-btn primary"
           onClick={()=>{ setEditTarget(null); setView("edit"); sfx.click(); }}>
           + {t.newSet}
         </button>
+        {sets.length >= 2 && (
+          <button className="action-btn" title="Interleaved practice across all sets"
+            onClick={()=>{
+              const allWords = sets.flatMap(s=>s.words).sort(()=>Math.random()-.5).slice(0,30);
+              setFlashTarget({id:"__mix__",name:"🔀 Mix",words:allWords});
+              setFlashSession(n=>n+1); setView("flash"); sfx.click();
+            }}>🔀 Mix All</button>
+        )}
       </div>
       {sets.length===0 && (
         <p style={{color:"var(--muted)",fontSize:"0.86rem"}}>No sets yet — create one to get started!</p>
       )}
-      {sets.map(s=>(
-        <div key={s.id} className="vs-item">
-          <span className="vs-name">{s.name}</span>
-          <span className="vs-count">{s.words.length} words</span>
-          <div className="vs-actions">
-            <button className="vs-btn" title={t.flashcards}
-              onClick={()=>{ setFlashTarget(s); setFlashSession(n=>n+1); setView("flash"); sfx.click(); }}>🃏</button>
-            <button className="vs-btn" title={t.practice}
-              onClick={()=>{ setPractTarget(s); setView("practice"); sfx.click(); }}>🤖</button>
-            <button className="vs-btn" title={t.editSet}
-              onClick={()=>{ setEditTarget(s); setView("edit"); sfx.click(); }}>✏️</button>
-            <button className="vs-btn danger" title={t.deleteSet}
-              onClick={()=>{
-                if (confirm(`Delete "${s.name}"?`)) {
-                  saveVSets(loadVSets().filter(x=>x.id!==s.id));
-                  reload(); sfx.click();
-                }
-              }}>🗑</button>
+      {sets.map(s=>{
+        /* average exposure toward the 7-exposure target */
+        const avgExp = s.words.length > 0
+          ? s.words.reduce((sum,w)=>sum+getWordExposure(w.word),0) / s.words.length : 0;
+        const expPct = Math.min(100, (avgExp/7)*100);
+        return (
+          <div key={s.id} className="vs-item" style={{flexDirection:"column",alignItems:"stretch",gap:4}}>
+            <div style={{display:"flex",alignItems:"center",gap:10}}>
+              <span className="vs-name">{s.name}</span>
+              <span className="vs-count">{s.words.length} words</span>
+              <div className="vs-actions">
+                <button className="vs-btn" title={t.flashcards}
+                  onClick={()=>{ setFlashTarget(s); setFlashSession(n=>n+1); setView("flash"); sfx.click(); }}>🃏</button>
+                <button className="vs-btn" title={t.practice}
+                  onClick={()=>{ setPractTarget(s); setView("practice"); sfx.click(); }}>🤖</button>
+                <button className="vs-btn" title={t.editSet}
+                  onClick={()=>{ setEditTarget(s); setView("edit"); sfx.click(); }}>✏️</button>
+                <button className="vs-btn danger" title={t.deleteSet}
+                  onClick={()=>{
+                    if (confirm(`Delete "${s.name}"?`)) {
+                      saveVSets(loadVSets().filter(x=>x.id!==s.id));
+                      reload(); sfx.click();
+                    }
+                  }}>🗑</button>
+              </div>
+            </div>
+            {/* Exposure progress — how many times words have been seen (target: 7×) */}
+            {avgExp > 0 && (
+              <div className="exp-bar-wrap">
+                <div className="exp-bar">
+                  <div className="exp-bar-fill" style={{width:`${expPct}%`}}/>
+                </div>
+                <span className="exp-count">{avgExp.toFixed(1)}× avg · goal 7×</span>
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -1624,7 +1740,7 @@ const GREET_TRIGGER = {
   content:"Start now — greet the child and introduce the topic with one fun fact or question!",
 };
 
-function KidsChat({topic, kidLang, t, onStars}) {
+function KidsChat({topic, kidLang, t, onStars, onExchange}) {
   const [msgs,setMsgs]             = useState([]);
   const [input,setInput]           = useState("");
   const [loading,setLoading]       = useState(false);
@@ -1657,7 +1773,10 @@ Rules: max 2 SHORT sentences. Lots of emojis. Super encouraging. Always end with
 New words: bold them and give the ${instrLang} meaning in brackets like **word** [meaning].
 If the child makes a ${langObj.name} grammar or spelling mistake, AFTER your reply append (no blank line):
 <fix>{"err":"what they wrote","fix":"correct form","tip":"one short gentle tip in ${instrLang}"}</fix>
-Only add <fix> for clear errors. Be very warm — never make them feel bad! No <fix> if no error.`;
+Only add <fix> for clear errors. Be very warm — never make them feel bad! No <fix> if no error.
+Occasionally (once every few messages), when you naturally use a grammar pattern worth noticing, append:
+<gram>{"pattern":"short name e.g. plural -s","example":"short example in ${langObj.name}","tip":"one-line tip in ${instrLang}"}</gram>
+Only for genuinely useful patterns — never for basic vocabulary. Skip most of the time.`;
 
   function bounce() { setOllieAnim(true); setTimeout(()=>setOllieAnim(false),1500); }
 
@@ -1683,13 +1802,18 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
     const newMsgs    = [...msgs, {role:"user", content:savedInput}];
     setMsgs(newMsgs); setInput(""); setLoading(true);
     try {
-      // Strip extra props (fix, id, …) — Anthropic rejects unknown fields
+      // Strip extra props (fix, gram, id, …) — Anthropic rejects unknown fields
       const apiMsgs = toApiMsgs(newMsgs);
       const raw  = await ai(apiMsgs, system, 400);
-      const {text,fix} = parseAiResponse(raw);
-      setMsgs(m=>[...m, {role:"assistant", content:text, fix}]);
+      const {text, fix, gram} = parseAiResponse(raw);
+      setMsgs(m=>[...m, {role:"assistant", content:text, fix, gram}]);
       setCurrentAi(text); bounce();
+      // Track vocab-set word exposures that appeared in Ollie's reply
+      trackExposuresInText(text);
       const newTotal = addStarsTo(1); onStars?.(newTotal, 1);
+      // Tell parent how many child turns have happened (for reflection prompt)
+      const userCount = newMsgs.filter(m=>m.role==="user"&&m.content!==GREET_TRIGGER.content).length;
+      onExchange?.(userCount);
     } catch(err) {
       console.warn("Kids chat send failed:", err);
       setMsgs(prevMsgs);      // roll back the optimistic user bubble
@@ -1742,6 +1866,12 @@ Only add <fix> for clear errors. Be very warm — never make them feel bad! No <
                 {"→ "}
                 <span style={{color:"#4CAF82",fontWeight:700}}>{m.fix.fix}</span>
                 {m.fix.tip && <span style={{color:"var(--a-muted)",fontStyle:"italic",marginLeft:4}}>({m.fix.tip})</span>}
+              </div>
+            )}
+            {m.role==="assistant" && m.gram && (
+              <div className="gram-pill">
+                📐 <strong>{m.gram.pattern}</strong>: <em>{m.gram.example}</em>
+                {m.gram.tip && <> — {m.gram.tip}</>}
               </div>
             )}
             {m.role==="assistant" && !savedSet.has(m.content.slice(0,60)) && (
@@ -2227,6 +2357,189 @@ function IdiomScreen({lang, t}) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   REFLECTION MODAL  (metacognitive consolidation)
+═══════════════════════════════════════════════════════════ */
+function ReflectionModal({onDone}) {
+  const [text, setText] = useState("");
+  return (
+    <div className="reflect-drop">
+      <div className="reflect-card">
+        <div style={{fontSize:"2.5rem"}}>🦉</div>
+        <h3>Great session!</h3>
+        <p>What was the most useful thing you learned today?<br/>
+           <span style={{fontSize:"0.85em",opacity:.7}}>(Writing it helps it stick!)</span></p>
+        <textarea className="reflect-ta" value={text} onChange={e=>setText(e.target.value)}
+          placeholder="I learned…" autoFocus/>
+        <button className="reflect-btn" onClick={()=>{
+          if (text.trim()) saveReflection(text.trim());
+          sfx.save(); haptic([20,10,20]); onDone();
+        }}>
+          {text.trim() ? "Save & Continue ✓" : "Skip →"}
+        </button>
+        <button className="reflect-skip" onClick={()=>{ sfx.click(); onDone(); }}>skip</button>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KIDS READING PRACTICE
+═══════════════════════════════════════════════════════════ */
+function KidsReadScreen({kidLang, t}) {
+  const {uiLang} = useContext(Ctx);
+  const [topic,   setTopic]   = useState(null);
+  const [data,    setData]    = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [qIdx,    setQIdx]    = useState(0);
+  const [answered,setAnswered]= useState(null); // {chosen, correct}
+  const [score,   setScore]   = useState(0);
+
+  const UI_LANG_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const instrLang = UI_LANG_NAMES[uiLang] || "English";
+  const langObj   = KIDS_LANGS.find(l=>l.code===kidLang) || KIDS_LANGS[0];
+
+  function loadText(tp) {
+    setTopic(tp); setData(null); setQIdx(0); setAnswered(null); setScore(0);
+    const cacheKey = `lingua_read_${tp.id}_${kidLang}_${new Date().toISOString().slice(0,10)}`;
+    const cached = loadLS(cacheKey, null);
+    if (cached) { setData(cached); return; }
+    setLoading(true);
+    ai([{role:"user", content:
+      `Write a fun reading exercise for children (age 8-12) learning ${langObj.name}. Topic: "${tp.labels.en}".
+Write 55-70 words in ${langObj.name} at A1-A2 level. Keep sentences short and simple.
+Then write 3 comprehension questions in ${instrLang}, each with 3 multiple-choice options.
+Return ONLY valid JSON (no markdown):
+{"text":"...","questions":[{"q":"...","options":["A","B","C"],"correct":0},...]}`
+    }], "You write graded reading exercises for children. Output only valid JSON.", 700)
+    .then(raw => {
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (m) { const d = JSON.parse(m[0]); saveLS(cacheKey, d); setData(d); }
+    })
+    .catch(()=>{})
+    .finally(()=>setLoading(false));
+  }
+
+  // Topic picker
+  if (!topic) return (
+    <div style={{overflowY:"auto",flex:1}}>
+      <div className="kwel">
+        <h1 style={{fontFamily:"var(--k-display)",fontSize:24,fontWeight:600,color:"var(--k-ink)",
+          letterSpacing:"-.3px",lineHeight:1.15,marginBottom:6}}>
+          📖 Reading Practice
+        </h1>
+        <p style={{fontFamily:"var(--k-sans)",fontSize:13,color:"var(--k-inkSoft)",fontWeight:600}}>
+          Pick a topic and read with Ollie!
+        </p>
+      </div>
+      <div className="ktgrid">
+        {KIDS_TOPICS.map(tp=>(
+          <button key={tp.id} className="tcard" style={{background:tp.color}}
+            onClick={()=>{loadText(tp);sfx.click();haptic([15]);}}>
+            <span className="temoji">{tp.emoji}</span>
+            <span>{tp.labels[kidLang]||tp.labels.en}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const q = data?.questions?.[qIdx];
+
+  return (
+    <div style={{flex:1,overflowY:"auto",padding:16}}>
+      <button className="action-btn" onClick={()=>setTopic(null)} style={{marginBottom:12}}>
+        ← {t.back}
+      </button>
+
+      {loading && (
+        <div style={{textAlign:"center",padding:48,color:"var(--k-mute)",
+          fontFamily:"var(--k-sans)",fontWeight:700}}>
+          <Dots/><div style={{marginTop:8}}>Preparing your story…</div>
+        </div>
+      )}
+
+      {!loading && data && (
+        <>
+          {/* Reading passage */}
+          <div className="read-passage">
+            <div className="read-meta">{langObj.name} · {topic.emoji} {topic.labels[kidLang]||topic.labels.en}</div>
+            {data.text}
+            <button className="klisten-btn" style={{marginTop:12,display:"inline-block"}}
+              onClick={()=>speak(data.text, langObj.tts, 0.78)}>
+              🔊 {t.hearIt||"Hear it!"}
+            </button>
+          </div>
+
+          {/* Comprehension questions */}
+          {q && (
+            <div className="read-qcard">
+              <div style={{fontFamily:"var(--k-sans)",fontSize:10.5,fontWeight:800,
+                color:"var(--k-mute)",textTransform:"uppercase",letterSpacing:".08em",marginBottom:8}}>
+                Question {qIdx+1} of {data.questions.length}
+              </div>
+              <div className="read-q">{q.q}</div>
+              {q.options.map((opt, i) => {
+                const isAnswered = answered !== null;
+                const isCorrect  = i === q.correct;
+                const isChosen   = answered?.chosen === i;
+                return (
+                  <button key={i} disabled={isAnswered}
+                    className={`read-opt${isAnswered?(isCorrect?" correct":(isChosen?" wrong":"")):""}`}
+                    onClick={()=>{
+                      if (isAnswered) return;
+                      const ok = i === q.correct;
+                      setAnswered({chosen:i,correct:q.correct});
+                      if (ok) { sfx.correct(); haptic([30,10,30]); setScore(s=>s+1); }
+                      else   { sfx.wrong();   haptic([50]); }
+                    }}>
+                    {isAnswered?(isCorrect?"✓ ":(isChosen?"✗ ":"  ")):"   "}{opt}
+                  </button>
+                );
+              })}
+              {answered && (
+                <button className="action-btn primary"
+                  style={{marginTop:10,background:"var(--k-accent)",border:"none",color:"#fff",fontFamily:"var(--k-sans)"}}
+                  onClick={()=>{ setQIdx(qi=>qi+1); setAnswered(null); sfx.click(); }}>
+                  {qIdx+1 < data.questions.length ? "Next →" : "See result 🎉"}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Result screen */}
+          {!q && data.questions?.length > 0 && (
+            <div className="read-result">
+              <div style={{fontSize:"2.8rem",marginBottom:8}}>
+                {score===data.questions.length?"🏆":score>0?"⭐":"😊"}
+              </div>
+              <div style={{fontFamily:"var(--k-display)",fontSize:24,fontWeight:600,
+                color:"var(--k-ink)",marginBottom:4}}>
+                {score} / {data.questions.length} correct!
+              </div>
+              <div style={{fontFamily:"var(--k-sans)",fontSize:13,color:"var(--k-inkSoft)",
+                fontWeight:600,marginBottom:20,lineHeight:1.5}}>
+                {score===data.questions.length
+                  ? "Perfect! You understood everything! 🌟"
+                  : score>0 ? "Great reading! Keep it up! 📚"
+                            : "Good try — read again and you'll get it! 💪"}
+              </div>
+              <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap"}}>
+                <button className="action-btn" onClick={()=>setTopic(null)}>← {t.back}</button>
+                <button className="action-btn primary"
+                  style={{background:"var(--k-accent)",border:"none",color:"#fff",fontFamily:"var(--k-sans)"}}
+                  onClick={()=>{ setQIdx(0); setAnswered(null); setScore(0); sfx.click(); }}>
+                  🔄 Try Again
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    KIDS MODE  (new shell + all old features)
 ═══════════════════════════════════════════════════════════ */
 function KidsIdiomScreen({kidLang, t}) {
@@ -2277,13 +2590,21 @@ function KidsIdiomScreen({kidLang, t}) {
 }
 
 function KidsMode({t, onStars, stars=0}) {
-  const [tab,setTab]         = useState("chat");
-  const [kidLang,setKidLang] = useState(loadLS(SK_KIDLG,"en"));
-  const [topic,setTopic]     = useState(null);
+  const [tab,setTab]               = useState("chat");
+  const [kidLang,setKidLang]       = useState(loadLS(SK_KIDLG,"en"));
+  const [topic,setTopic]           = useState(null);
+  const [chatExchanges,setChatExchanges] = useState(0); // user turns in current chat
+  const [showReflect,setShowReflect]    = useState(false);
   const {onBack, uiLang, setUiLang} = useContext(Ctx);
   const nbCount              = loadKNB().length;
 
   function selectLang(code) { setKidLang(code); saveLS(SK_KIDLG,code); sfx.click(); haptic([15]); }
+
+  // Called when user tries to leave a topic — show reflection modal if ≥ 2 exchanges
+  function leaveTopic() {
+    if (chatExchanges >= 2) { setShowReflect(true); }
+    else { setTopic(null); setChatExchanges(0); }
+  }
 
   return (
     <div className="ks">
@@ -2293,14 +2614,14 @@ function KidsMode({t, onStars, stars=0}) {
           <OllieAvatar size={28}/>
           <span className="kh-title">Ollie's Language World</span>
         </div>
-        {topic && <button className="khome-btn" onClick={()=>setTopic(null)}>← {t.topics}</button>}
+        {topic && <button className="khome-btn" onClick={leaveTopic}>← {t.topics}</button>}
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}/>
       </div>
 
       <div className="ktabs">
-        {[["chat","📚 Learn"],["idiom","💬 Expressions"],["notebook","⭐ "+t.notebook],["vocab","🃏 "+t.vocabSets]].map(([k,l])=>(
+        {[["chat","📚 Learn"],["read","📖 Read"],["idiom","💬 Expressions"],["notebook","⭐ "+t.notebook],["vocab","🃏 "+t.vocabSets]].map(([k,l])=>(
           <button key={k} className={`ktab${tab===k?" on":""}`}
-            onClick={()=>{setTab(k);setTopic(null);sfx.click();}}>
+            onClick={()=>{setTab(k);setTopic(null);setChatExchanges(0);sfx.click();}}>
             {l}
           </button>
         ))}
@@ -2339,13 +2660,22 @@ function KidsMode({t, onStars, stars=0}) {
               )}
             </div>
           ) : (
-            <KidsChat topic={topic.labels[kidLang]||topic.labels.en} kidLang={kidLang} t={t} onStars={onStars}/>
+            <KidsChat topic={topic.labels[kidLang]||topic.labels.en} kidLang={kidLang} t={t}
+              onStars={onStars} onExchange={setChatExchanges}/>
           )}
         </>
       )}
+      {tab==="read"     && <KidsReadScreen kidLang={kidLang} t={t}/>}
       {tab==="idiom"    && <KidsIdiomScreen kidLang={kidLang} t={t}/>}
       {tab==="notebook" && <KidsNotebookScreen t={t}/>}
       {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang} onStars={onStars}/></div>}
+
+      {/* Metacognitive reflection modal — shown when leaving a topic after ≥2 exchanges */}
+      {showReflect && (
+        <ReflectionModal onDone={()=>{
+          setShowReflect(false); setTopic(null); setChatExchanges(0);
+        }}/>
+      )}
     </div>
   );
 }
