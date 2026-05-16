@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      // 'prompt' = show update toast, user taps to apply
+      // 'prompt' = new SW waits; app shows an "Update" toast so the user decides when to reload
       registerType: 'prompt',
 
       manifest: {

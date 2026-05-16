@@ -249,27 +249,28 @@ const KIDS_LANGS = [
   {code:"en",name:"English 🇬🇧",tts:"en-GB"},
   {code:"es",name:"Spanish 🇪🇸",tts:"es-ES"},
   {code:"de",name:"German 🇩🇪",tts:"de-DE"},
+  {code:"fr",name:"French 🇫🇷", tts:"fr-FR"},
 ];
 
 const KIDS_TOPICS = [
-  {id:"animals",   emoji:"🐾", color:"#E8B4A0", labels:{en:"Animals",       es:"Animales",          de:"Tiere"}},
-  {id:"food",      emoji:"🍎", color:"#F4C28A", labels:{en:"Food & Drink",  es:"Comida y bebida",   de:"Essen & Trinken"}},
-  {id:"school",    emoji:"✏️", color:"#B7C9DC", labels:{en:"School Stuff",  es:"La escuela",        de:"Schule"}},
-  {id:"body",      emoji:"🦷", color:"#B9D4B5", labels:{en:"Body Parts",    es:"El cuerpo",         de:"Körperteile"}},
-  {id:"weather",   emoji:"⛅", color:"#F4D998", labels:{en:"Weather",       es:"El tiempo",         de:"Das Wetter"}},
-  {id:"numbers",   emoji:"🔢", color:"#C9B4D6", labels:{en:"Numbers",       es:"Los números",       de:"Zahlen"}},
-  {id:"colors",    emoji:"🎨", color:"#E8C5BC", labels:{en:"Colors",        es:"Los colores",       de:"Farben"}},
-  {id:"transport", emoji:"🚗", color:"#ACBBC9", labels:{en:"Transport",     es:"Transporte",        de:"Verkehrsmittel"}},
-  {id:"sports",    emoji:"⚽", color:"#A8C4B5", labels:{en:"Sports",        es:"Los deportes",      de:"Sport"}},
-  {id:"stories",   emoji:"📖", color:"#DCC9A8", labels:{en:"Story Time",    es:"Cuentos",           de:"Geschichten"}},
-  {id:"opposites", emoji:"↔️", color:"#C7BBC4", labels:{en:"Opposites",       es:"Los contrarios",      de:"Gegensätze"}},
-  {id:"travel",    emoji:"✈️", color:"#A8D4E8", labels:{en:"Travelling",      es:"De viaje",            de:"Reisen"}},
-  {id:"tvshows",   emoji:"📺", color:"#C4B8DC", labels:{en:"TV & Shows",      es:"Series y tele",       de:"Serien & TV"}},
-  {id:"books",     emoji:"📚", color:"#D4C4A8", labels:{en:"Favourite Books", es:"Libros favoritos",    de:"Lieblingsbücher"}},
-  {id:"space",     emoji:"🚀", color:"#9BB4CC", labels:{en:"Space & Stars",   es:"El espacio",          de:"Weltraum & Sterne"}},
-  {id:"music",     emoji:"🎵", color:"#D4A8C4", labels:{en:"Music & Dance",   es:"Música y baile",      de:"Musik & Tanz"}},
-  {id:"cooking",   emoji:"👨‍🍳", color:"#E8C4A0", labels:{en:"Cooking",         es:"Cocinar",             de:"Kochen"}},
-  {id:"free",      emoji:"💬", color:"#DDB89E", labels:{en:"Free Chat",       es:"Conversación libre",  de:"Freies Gespräch"}},
+  {id:"animals",   emoji:"🐾", color:"#E8B4A0", labels:{en:"Animals",       es:"Animales",          de:"Tiere",          fr:"Les animaux"}},
+  {id:"food",      emoji:"🍎", color:"#F4C28A", labels:{en:"Food & Drink",  es:"Comida y bebida",   de:"Essen & Trinken",fr:"Nourriture & boissons"}},
+  {id:"school",    emoji:"✏️", color:"#B7C9DC", labels:{en:"School Stuff",  es:"La escuela",        de:"Schule",         fr:"À l'école"}},
+  {id:"body",      emoji:"🦷", color:"#B9D4B5", labels:{en:"Body Parts",    es:"El cuerpo",         de:"Körperteile",    fr:"Le corps"}},
+  {id:"weather",   emoji:"⛅", color:"#F4D998", labels:{en:"Weather",       es:"El tiempo",         de:"Das Wetter",     fr:"La météo"}},
+  {id:"numbers",   emoji:"🔢", color:"#C9B4D6", labels:{en:"Numbers",       es:"Los números",       de:"Zahlen",         fr:"Les nombres"}},
+  {id:"colors",    emoji:"🎨", color:"#E8C5BC", labels:{en:"Colors",        es:"Los colores",       de:"Farben",         fr:"Les couleurs"}},
+  {id:"transport", emoji:"🚗", color:"#ACBBC9", labels:{en:"Transport",     es:"Transporte",        de:"Verkehrsmittel", fr:"Les transports"}},
+  {id:"sports",    emoji:"⚽", color:"#A8C4B5", labels:{en:"Sports",        es:"Los deportes",      de:"Sport",          fr:"Les sports"}},
+  {id:"stories",   emoji:"📖", color:"#DCC9A8", labels:{en:"Story Time",    es:"Cuentos",           de:"Geschichten",    fr:"Histoires"}},
+  {id:"opposites", emoji:"↔️", color:"#C7BBC4", labels:{en:"Opposites",       es:"Los contrarios",      de:"Gegensätze",     fr:"Les contraires"}},
+  {id:"travel",    emoji:"✈️", color:"#A8D4E8", labels:{en:"Travelling",      es:"De viaje",            de:"Reisen",         fr:"En voyage"}},
+  {id:"tvshows",   emoji:"📺", color:"#C4B8DC", labels:{en:"TV & Shows",      es:"Series y tele",       de:"Serien & TV",    fr:"Séries & télé"}},
+  {id:"books",     emoji:"📚", color:"#D4C4A8", labels:{en:"Favourite Books", es:"Libros favoritos",    de:"Lieblingsbücher",fr:"Livres préférés"}},
+  {id:"space",     emoji:"🚀", color:"#9BB4CC", labels:{en:"Space & Stars",   es:"El espacio",          de:"Weltraum & Sterne",fr:"L'espace & les étoiles"}},
+  {id:"music",     emoji:"🎵", color:"#D4A8C4", labels:{en:"Music & Dance",   es:"Música y baile",      de:"Musik & Tanz",   fr:"Musique & danse"}},
+  {id:"cooking",   emoji:"👨‍🍳", color:"#E8C4A0", labels:{en:"Cooking",         es:"Cocinar",             de:"Kochen",         fr:"Cuisiner"}},
+  {id:"free",      emoji:"💬", color:"#DDB89E", labels:{en:"Free Chat",       es:"Conversación libre",  de:"Freies Gespräch",fr:"Discussion libre"}},
 ];
 
 const SKILL_LEVELS = [
@@ -1907,21 +1908,190 @@ function toApiMsgs(msgs) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   UPDATE PROMPT  (PWA service-worker update toast)
+   HELP MODAL  — full user manual, auto-updated with every deploy
+   Last updated: May 2026
 ───────────────────────────────────────────────────────────── */
-const CHECK_INTERVAL_MS = 60 * 60 * 1000; // re-check every hour
+function HelpSection({icon, title, children}) {
+  return (
+    <div style={{marginBottom:28}}>
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+        <span style={{fontSize:20}}>{icon}</span>
+        <h3 style={{fontFamily:"var(--a-serif)",fontSize:"1.1rem",fontWeight:600,
+                    color:"var(--a-cream)",margin:0}}>{title}</h3>
+      </div>
+      <div style={{paddingLeft:28, color:"var(--a-muted)", fontSize:"0.88rem",
+                   lineHeight:1.65, fontFamily:"var(--a-sans)"}}>{children}</div>
+    </div>
+  );
+}
+function HelpDivider({label}) {
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10,margin:"24px 0 20px"}}>
+      <div style={{flex:1,height:1,background:"var(--a-border)"}}/>
+      <span style={{fontSize:"0.72rem",fontWeight:700,letterSpacing:".1em",
+                    color:"var(--a-gold)",textTransform:"uppercase"}}>{label}</span>
+      <div style={{flex:1,height:1,background:"var(--a-border)"}}/>
+    </div>
+  );
+}
+function HelpBullet({emoji, text}) {
+  return (
+    <div style={{display:"flex",gap:8,marginBottom:6}}>
+      <span style={{flexShrink:0,minWidth:20}}>{emoji}</span>
+      <span>{text}</span>
+    </div>
+  );
+}
 
+function HelpModal({onClose}) {
+  return createPortal(
+    <div onClick={onClose} style={{
+      position:"fixed",inset:0,background:"rgba(0,0,0,.72)",
+      zIndex:2147483646, overflowY:"auto", padding:"24px 16px",
+    }}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        maxWidth:600, margin:"0 auto", background:"var(--a-surf)",
+        border:"1px solid var(--a-border)", borderRadius:18,
+        padding:"28px 24px 36px", position:"relative",
+        fontFamily:"var(--a-sans)",
+      }}>
+        {/* Header */}
+        <button onClick={onClose} style={{
+          position:"absolute",top:16,right:16,background:"none",
+          border:"none",color:"var(--a-muted)",fontSize:22,cursor:"pointer",lineHeight:1,
+        }}>✕</button>
+        <div style={{textAlign:"center",marginBottom:28}}>
+          <div style={{fontSize:32,marginBottom:6}}>✦</div>
+          <h2 style={{fontFamily:"var(--a-serif)",fontSize:"1.5rem",fontWeight:700,
+                      color:"var(--a-cream)",margin:"0 0 4px"}}>Lingua — User Guide</h2>
+          <div style={{fontSize:"0.75rem",color:"var(--a-muted)",letterSpacing:".06em"}}>
+            UPDATED MAY 2026
+          </div>
+        </div>
+
+        {/* Getting Started */}
+        <HelpSection icon="🚀" title="Getting Started">
+          <p style={{marginBottom:8}}>Lingua teaches you to <em>actually speak</em>, not just memorise. Pick a mode from the home screen:</p>
+          <HelpBullet emoji="✈" text="Adult Mode — immersive AI conversations in real-life scenarios"/>
+          <HelpBullet emoji="🦉" text="Kids Mode — guided learning with Ollie the Owl, focused on school vocabulary"/>
+          <p style={{marginTop:8}}>The app installs on your home screen and works fully <strong style={{color:"var(--a-cream)"}}>offline</strong> after the first load.</p>
+        </HelpSection>
+
+        <HelpDivider label="Adult Mode"/>
+
+        <HelpSection icon="💬" title="Chat & Scenarios">
+          <p style={{marginBottom:8}}>Choose a <strong style={{color:"var(--a-cream)"}}>language</strong>, your <strong style={{color:"var(--a-cream)"}}>skill level</strong>, and a <strong style={{color:"var(--a-cream)"}}>scenario</strong> (café, hotel, job interview, market…). The AI plays a real native speaker — not a tutor — living that scene right now.</p>
+          <HelpBullet emoji="💡" text="Hint chips appear below each reply — tap one to send that phrase instantly."/>
+          <HelpBullet emoji="🔴" text="Red highlight = mistake. Blue = grammar tip. Tap any highlight to see the explanation."/>
+          <HelpBullet emoji="🔤" text="Phonetic pronunciation appears below the AI's reply for tricky words."/>
+          <HelpBullet emoji="⊕" text="Tap the save button on any word to add it to your Notebook."/>
+        </HelpSection>
+
+        <HelpSection icon="📚" title="Lessons">
+          <p>Structured mini-lessons for guided study. Find them via the Chat tab — look for the Lessons button above the scenario picker. Great for practising specific grammar points.</p>
+        </HelpSection>
+
+        <HelpSection icon="📓" title="Notebook">
+          <p>Words and phrases you save during conversations live here. Review your personal vocabulary list anytime. Each entry shows the original, translation, and the context it was saved in.</p>
+        </HelpSection>
+
+        <HelpSection icon="📅" title="Word of the Day & Idiom of the Day">
+          <p>A fresh word and a colloquial expression in your target language every day — with example sentences, pronunciation, and cultural notes.</p>
+        </HelpSection>
+
+        <HelpSection icon="🃏" title="Vocabulary Sets">
+          <p style={{marginBottom:8}}>Auto-generated flashcard sets for every language. Adult mode also builds <strong style={{color:"var(--a-cream)"}}>4 Core 1000 sets</strong> (250 words each):</p>
+          <HelpBullet emoji="⭐" text="Core Essentials — the 250 most fundamental words"/>
+          <HelpBullet emoji="🌅" text="Daily Rhythms — home, food, body, transport, weather"/>
+          <HelpBullet emoji="🌍" text="The World Around You — nature, jobs, travel, technology, animals"/>
+          <HelpBullet emoji="💬" text="Heart & Mind — emotions, abstract ideas, connectors, arts"/>
+          <p style={{marginTop:8}}>Practice modes per set: <strong style={{color:"var(--a-cream)"}}>Flashcards</strong>, <strong style={{color:"var(--a-cream)"}}>Fill-in-the-blank</strong>, <strong style={{color:"var(--a-cream)"}}>Word Match</strong>. Use <strong style={{color:"var(--a-cream)"}}>Mix All</strong> to shuffle every set into one mega-session.</p>
+        </HelpSection>
+
+        <HelpSection icon="✍️" title="Write — Script Practice">
+          <p style={{marginBottom:8}}>Available for <strong style={{color:"var(--a-cream)"}}>Hebrew, Arabic, and Russian</strong>. Draw each letter on the canvas with your finger (touchscreen) or mouse.</p>
+          <HelpBullet emoji="👻" text="A ghost letter guides your stroke — trace over it to learn the shape."/>
+          <HelpBullet emoji="🤖" text="The AI checks your drawing and gives ✅ / 🟡 / ❌ feedback with star ratings."/>
+          <HelpBullet emoji="📖" text="Tap 'Show alphabet' to see the full script reference guide."/>
+        </HelpSection>
+
+        <HelpDivider label="Kids Mode — Ollie's Language World"/>
+
+        <HelpSection icon="📚" title="Learn">
+          <p>Chat with Ollie the Owl in your target language. Pick a topic first (animals, food, family, school…). Ollie keeps it fun, encouraging, and age-appropriate.</p>
+        </HelpSection>
+
+        <HelpSection icon="📖" title="Read">
+          <p>Short illustrated reading passages with comprehension questions. Build reading confidence at a comfortable pace.</p>
+        </HelpSection>
+
+        <HelpSection icon="💬" title="Expressions">
+          <p>Fun idioms and common everyday phrases — explained with examples and pictures so they actually stick.</p>
+        </HelpSection>
+
+        <HelpSection icon="🃏" title="Vocabulary Sets">
+          <p style={{marginBottom:8}}>Themed flashcard sets focused on school and everyday vocabulary — exactly what kids need for class. Practice with Flashcards, Fill-in-the-blank, or the Word Match game.</p>
+          <HelpBullet emoji="🌟" text="Bonus Challenge — tap the golden card to unlock 1000 extra words in 4 themed sets, for when you're ready to go further!"/>
+        </HelpSection>
+
+        <HelpSection icon="⭐" title="Notebook">
+          <p>Favourite words saved during Ollie conversations appear here. A great way to review what you've learned.</p>
+        </HelpSection>
+
+        <HelpDivider label="Stars & Progress"/>
+
+        <HelpSection icon="🌟" title="Stars & Levels">
+          <p style={{marginBottom:8}}>Earn stars for correct answers, completed flashcard sessions, and good conversations. Your star total determines your level name — from <em>Beginner</em> all the way to <em>Master</em>.</p>
+          <HelpBullet emoji="📈" text="Stars carry over between sessions and languages."/>
+          <HelpBullet emoji="🎉" text="A level-up banner celebrates each new milestone."/>
+        </HelpSection>
+
+        <HelpDivider label="Settings & Tips"/>
+
+        <HelpSection icon="⚙️" title="Settings">
+          <HelpBullet emoji="🌐" text="App Language — switch the UI between English, German, Dutch, French, and Spanish."/>
+          <HelpBullet emoji="🗣" text="My Native Language — tells the app your first language for better translations and explanations."/>
+        </HelpSection>
+
+        <HelpSection icon="💡" title="Tips for Best Results">
+          <HelpBullet emoji="✓" text="Use hint chips in conversations to see how a phrase should be phrased, then try to vary it."/>
+          <HelpBullet emoji="✓" text="Save words mid-conversation — the Notebook is your personal dictionary."/>
+          <HelpBullet emoji="✓" text="Review Flashcards before a trip or exam — Mix All makes it efficient."/>
+          <HelpBullet emoji="✓" text="For script languages: trace the ghost letter slowly before trying freehand."/>
+          <HelpBullet emoji="✓" text="Core 1000 sets generate once per language and are saved permanently — no internet needed after that."/>
+          <HelpBullet emoji="✓" text="Keep conversations short and punchy — the AI will always give you something to respond to."/>
+        </HelpSection>
+
+        <div style={{textAlign:"center",marginTop:24,paddingTop:20,
+                     borderTop:"1px solid var(--a-border)",
+                     color:"var(--a-muted)",fontSize:"0.75rem",lineHeight:1.6}}>
+          <div>Lingua · Learn to speak, not just study.</div>
+          <div style={{marginTop:4,opacity:.6}}>Manual updates automatically with every app release.</div>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UPDATE PROMPT  (PWA service-worker update toast)
+   registerType:'prompt' — new SW waits; toast lets user choose when to apply.
+   Fix: reg.update() is called immediately on registration so the check
+   doesn't wait an hour before detecting the new version.
+───────────────────────────────────────────────────────────── */
 function UpdatePrompt() {
   const [reloading, setReloading] = useState(false);
-  const { needRefresh: [needRefresh, setNeedRefresh] } = useRegisterSW({
+  const { needRefresh: [needRefresh, setNeedRefresh], updateServiceWorker } = useRegisterSW({
     onRegisteredSW(_swUrl, reg) {
       if (!reg) return;
+      // ← key fix: check immediately instead of waiting for the next interval
+      reg.update().catch(() => {});
       const tick = () => reg.update().catch(() => {});
-      const id = setInterval(tick, CHECK_INTERVAL_MS);
+      const id   = setInterval(tick, 60 * 60 * 1000);
       const onVis = () => { if (document.visibilityState === "visible") tick(); };
       document.addEventListener("visibilitychange", onVis);
       window.addEventListener("focus", tick);
-      return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVis); window.removeEventListener("focus", tick); };
     },
   });
 
@@ -1929,18 +2099,11 @@ function UpdatePrompt() {
     if (reloading) return;
     setReloading(true);
     try {
-      const reg = await navigator.serviceWorker?.getRegistration();
-      const target = reg?.waiting || reg?.installing;
-      if (target) {
-        const done = { fired: false };
-        const reload = () => { if (!done.fired) { done.fired = true; window.location.reload(); } };
-        navigator.serviceWorker.addEventListener("controllerchange", reload, { once: true });
-        target.postMessage({ type: "SKIP_WAITING" });
-        setTimeout(reload, 1500);
-      } else {
-        window.location.reload();
-      }
-    } catch { window.location.reload(); }
+      // Tell the waiting SW to skip its wait, then reload
+      await updateServiceWorker(true);
+    } catch {
+      window.location.reload();
+    }
   }
 
   if (!needRefresh) return null;
@@ -2054,6 +2217,9 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .topbar-title{font-family:var(--a-serif);font-size:18px;font-weight:600;color:var(--a-cream);flex:1;}
 .ghost{background:transparent;border:1px solid var(--a-border);border-radius:9px;padding:6px 13px;font-size:12.5px;color:var(--a-muted);transition:all .2s;cursor:pointer;}
 .ghost:hover{border-color:var(--a-muted);color:var(--a-cream);}
+.a-nav{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--a-bg);border-bottom:1px solid var(--a-border);}
+.a-nav-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:1px solid var(--a-border);background:var(--a-surf);color:var(--a-cream);font-family:var(--a-sans);font-size:12.5px;font-weight:500;cursor:pointer;transition:all .2s;}
+.a-nav-btn:hover{border-color:var(--a-gold);color:var(--a-gold);}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--a-border);background:var(--a-surf);}
 .tab{padding:10px 4px;font-size:11.5px;font-weight:500;letter-spacing:.03em;color:var(--a-muted);border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;white-space:nowrap;text-align:center;}
 .tab.on{color:var(--a-gold);border-bottom-color:var(--a-gold);}
@@ -2404,8 +2570,8 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .khome-btn{color:#fff;font-size:13px;padding:5px 10px;background:rgba(255,255,255,.1);border-radius:8px;font-family:var(--k-sans);font-weight:700;cursor:pointer;border:none;}
 .kh-ollie{display:flex;align-items:center;gap:8px;flex:1;margin-left:4px;}
 .kh-title{font-family:var(--k-sans);font-weight:800;font-size:15px;color:#fff;}
-.ktabs{display:flex;background:var(--k-paper2);border-bottom:2px solid var(--k-border);}
-.ktab{flex:1;padding:10px;font-family:var(--k-sans);font-size:13px;font-weight:800;color:var(--k-mute);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;cursor:pointer;border:none;background:none;}
+.ktabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--k-paper2);border-bottom:2px solid var(--k-border);}
+.ktab{padding:11px 6px;font-family:var(--k-sans);font-size:13px;font-weight:800;color:var(--k-mute);border-bottom:3px solid transparent;transition:all .2s;cursor:pointer;border:none;background:none;text-align:center;white-space:nowrap;}
 .ktab.on{color:var(--k-ink);border-bottom-color:var(--k-accent);}
 .kwel{padding:20px 20px 6px;position:relative;}
 .kwel h1{font-family:var(--k-display);font-size:26px;font-weight:600;color:var(--k-ink);letter-spacing:-.3px;line-height:1.15;margin-bottom:6px;}
@@ -3298,8 +3464,246 @@ async function generateVSetsForLang(langCode) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   GRAMMAR EXERCISES
+   AI-generated exercises for adults and kids.
+   Adults: multiple_choice + fill_blank, skill-level aware.
+   Kids:   multiple_choice only, age-appropriate language.
+═══════════════════════════════════════════════════════════ */
+function GrammarExercises({lang, skillLevel="beginner", onStars, isKids=false}) {
+  const [exercises, setExercises] = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [genErr, setGenErr]       = useState(false);
+  const [current, setCurrent]     = useState(0);
+  const [input, setInput]         = useState("");
+  const [answered, setAnswered]   = useState(null); // null | "correct" | "wrong"
+  const [selected, setSelected]   = useState(null);
+  const [results, setResults]     = useState([]);   // [true|false, ...]
+  const [done, setDone]           = useState(false);
+  const inputRef = useRef();
+
+  const langObj = [...LANGUAGES, ...KIDS_LANGS].find(l => l.code === lang) || LANGUAGES[0];
+  const skillLabel = SKILL_LEVELS.find(s => s.id === skillLevel)?.cefr || "A1";
+
+  useEffect(() => { generate(); }, [lang, skillLevel]); // eslint-disable-line
+
+  async function generate() {
+    setLoading(true); setGenErr(false); setExercises([]);
+    setCurrent(0); setResults([]); setDone(false);
+    setAnswered(null); setSelected(null); setInput("");
+
+    const count = isKids ? 5 : 7;
+    const levelNote = isKids
+      ? "beginner, child-friendly (ages 8–14), very simple sentences"
+      : `${skillLevel} (${skillLabel}) — match the difficulty carefully`;
+    const typesNote = isKids
+      ? "Use ONLY multiple_choice (4 options). NO fill_blank for kids."
+      : "Use a mix: roughly 4 multiple_choice and 3 fill_blank. Vary the types.";
+
+    const prompt =
+`Generate ${count} ${langObj.name} grammar exercises at ${levelNote} level.
+${typesNote}
+
+Return ONLY a raw JSON array — no markdown fences, no explanation:
+[{"type":"multiple_choice","question":"sentence or question in ${langObj.name}","options":["A","B","C","D"],"answer":"exact text of the correct option","explanation":"one English sentence explaining the rule","topic":"e.g. verb conjugation"},...]
+For fill_blank: the question contains ___ where the answer goes; omit the options field; answer is the missing word/phrase.
+RULES: All questions and answer options must be in ${langObj.name}. Explanations in English. Cover varied grammar topics (articles, gender, verb tenses, agreement, prepositions, word order, negation, etc). Make exercises practical and natural.`;
+
+    try {
+      const raw = await ai([{role:"user", content:prompt}], null, 2000);
+      const cleaned = raw.replace(/```json\s*/gi,"").replace(/```/g,"");
+      const m = cleaned.match(/\[[\s\S]*\]/);
+      if (!m) throw new Error("no array");
+      const arr = JSON.parse(m[0]);
+      const valid = arr.filter(e => e.question && e.answer);
+      if (valid.length === 0) throw new Error("empty");
+      setExercises(valid);
+    } catch { setGenErr(true); }
+    setLoading(false);
+  }
+
+  function submit(userAnswer) {
+    const ex  = exercises[current];
+    const ok  = userAnswer.trim().toLowerCase() === ex.answer.trim().toLowerCase();
+    setAnswered(ok ? "correct" : "wrong");
+    setSelected(userAnswer);
+    setResults(r => [...r, ok]);
+    if (ok) {
+      const pts = isKids ? 3 : 2;
+      const newTotal = addStarsTo(pts);
+      onStars?.(newTotal, pts);
+      sfx.correct(); haptic([30,10,30]);
+    } else {
+      sfx.wrong(); haptic([50]);
+    }
+  }
+
+  function next() {
+    sfx.click();
+    if (current + 1 >= exercises.length) { setDone(true); }
+    else { setCurrent(c=>c+1); setAnswered(null); setSelected(null); setInput(""); setTimeout(()=>inputRef.current?.focus(),50); }
+  }
+
+  const gold  = isKids ? "var(--k-accent,#F4A261)"  : "var(--a-gold,#C9943A)";
+  const cream = isKids ? "var(--k-ink,#2D2A26)"     : "var(--a-cream,#EDE8DF)";
+  const muted = isKids ? "var(--k-mute,#8A7F74)"    : "var(--a-muted,#8A8070)";
+  const surf  = isKids ? "rgba(0,0,0,.04)"           : "rgba(255,255,255,.04)";
+
+  /* ── Loading ── */
+  if (loading) return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+                 justifyContent:"center",padding:48,gap:14,textAlign:"center"}}>
+      <div style={{fontSize:44}}>{isKids?"🦉":"📝"}</div>
+      <div style={{color:muted,fontSize:14}}>
+        {isKids ? "Ollie is writing your exercises…" : "Generating grammar exercises…"}
+      </div>
+      <Dots/>
+    </div>
+  );
+
+  /* ── Error ── */
+  if (genErr || exercises.length === 0) return (
+    <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+                 justifyContent:"center",padding:40,gap:16,textAlign:"center"}}>
+      <div style={{fontSize:40}}>😕</div>
+      <p style={{color:muted,fontSize:14}}>Couldn't generate exercises. Check your connection and try again.</p>
+      <button className="cta" onClick={generate}>Try again</button>
+    </div>
+  );
+
+  /* ── Done screen ── */
+  if (done) {
+    const score  = results.filter(Boolean).length;
+    const pct    = Math.round((score / exercises.length) * 100);
+    const emoji  = pct >= 80 ? "🏆" : pct >= 60 ? "🌟" : "💪";
+    const msg    = pct >= 80 ? "Excellent!" : pct >= 60 ? "Good work!" : "Keep practising!";
+    return (
+      <div style={{flex:1,overflowY:"auto",padding:"28px 16px"}}>
+        <div style={{textAlign:"center",marginBottom:24}}>
+          <div style={{fontSize:52,marginBottom:10}}>{emoji}</div>
+          <h2 style={{fontFamily:"var(--a-serif,serif)",fontSize:"1.4rem",color:cream,margin:"0 0 6px"}}>{msg}</h2>
+          <p style={{color:muted,fontSize:14}}>{score} / {exercises.length} correct · {pct}%</p>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:28}}>
+          {exercises.map((e,i) => (
+            <div key={i} style={{
+              padding:"10px 14px",borderRadius:10,fontSize:"0.83rem",
+              display:"flex",gap:10,alignItems:"flex-start",
+              background: results[i] ? "rgba(80,200,120,.08)" : "rgba(220,80,80,.07)",
+              border: `1px solid ${results[i] ? "rgba(80,200,120,.25)" : "rgba(220,80,80,.2)"}`,
+            }}>
+              <span>{results[i] ? "✅" : "❌"}</span>
+              <div>
+                <div style={{color:cream,marginBottom:2}}>{e.question.replace("___",`[${e.answer}]`)}</div>
+                {!results[i] && <div style={{color:muted,fontSize:"0.78rem"}}>{e.explanation}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <button className="cta" style={{width:"100%"}} onClick={generate}>🔄 New Exercises</button>
+      </div>
+    );
+  }
+
+  /* ── Exercise screen ── */
+  const ex = exercises[current];
+  const isMulti = ex.type === "multiple_choice" || isKids || !ex.options === false;
+  const hasOptions = Array.isArray(ex.options) && ex.options.length >= 2;
+  const pct = Math.round((current / exercises.length) * 100);
+
+  return (
+    <div style={{flex:1,overflowY:"auto",padding:"16px 16px 24px"}}>
+      {/* Progress bar */}
+      <div style={{marginBottom:18}}>
+        <div style={{display:"flex",justifyContent:"space-between",
+                     fontSize:"0.73rem",color:muted,marginBottom:5}}>
+          <span>Question {current+1} / {exercises.length}</span>
+          <span style={{color:gold}}>{ex.topic}</span>
+        </div>
+        <div style={{height:4,borderRadius:4,background:isKids?"rgba(0,0,0,.1)":"rgba(255,255,255,.08)"}}>
+          <div style={{height:"100%",borderRadius:4,background:gold,
+                       width:`${pct}%`,transition:"width .3s"}}/>
+        </div>
+      </div>
+
+      {/* Question */}
+      <div style={{
+        padding:"20px 16px",borderRadius:14,marginBottom:22,textAlign:"center",
+        background:surf,border:`1px solid ${isKids?"rgba(0,0,0,.08)":"rgba(255,255,255,.08)"}`,
+        fontSize:"1.1rem",color:cream,lineHeight:1.65,
+        fontFamily: isKids ? "var(--k-sans,sans-serif)" : "var(--a-serif,serif)",
+      }}>
+        {ex.question}
+      </div>
+
+      {/* Multiple choice */}
+      {hasOptions && (
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+          {ex.options.map((opt,i) => {
+            const isCorrect = answered && opt === ex.answer;
+            const isWrong   = answered && opt === selected && opt !== ex.answer;
+            return (
+              <button key={i} disabled={!!answered} onClick={() => submit(opt)} style={{
+                padding:"14px 10px",borderRadius:12,fontSize:"0.92rem",textAlign:"center",
+                fontFamily:"inherit",cursor:answered?"default":"pointer",transition:"all .18s",
+                color:cream,
+                background: isCorrect?"rgba(80,200,120,.15)":isWrong?"rgba(220,80,80,.15)":surf,
+                border: isCorrect?"1px solid rgba(80,200,120,.5)":isWrong?"1px solid rgba(220,80,80,.5)":`1px solid ${isKids?"rgba(0,0,0,.1)":"rgba(255,255,255,.1)"}`,
+              }}>{opt}</button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Fill in the blank */}
+      {!hasOptions && (
+        <div style={{marginBottom:20}}>
+          <input ref={inputRef} value={input} onChange={e=>setInput(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter"&&input.trim()&&!answered)submit(input.trim());}}
+            disabled={!!answered} placeholder="Type your answer…"
+            autoFocus
+            style={{width:"100%",padding:"13px 14px",borderRadius:10,fontSize:"1rem",
+                    fontFamily:"inherit",outline:"none",
+                    color:cream, background: isKids?"rgba(0,0,0,.04)":"rgba(255,255,255,.05)",
+                    border:`1px solid ${answered?(answered==="correct"?"rgba(80,200,120,.5)":"rgba(220,80,80,.5)"):isKids?"rgba(0,0,0,.15)":"rgba(255,255,255,.15)"}`,
+            }}/>
+          {!answered && (
+            <button className="cta" style={{width:"100%",marginTop:10}}
+              disabled={!input.trim()}
+              onClick={()=>{if(input.trim())submit(input.trim());}}>
+              Check ✓
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Feedback */}
+      {answered && (
+        <div style={{
+          padding:"14px 16px",borderRadius:12,marginBottom:14,
+          background:answered==="correct"?"rgba(80,200,120,.09)":"rgba(220,80,80,.08)",
+          border:`1px solid ${answered==="correct"?"rgba(80,200,120,.3)":"rgba(220,80,80,.25)"}`,
+        }}>
+          <div style={{fontWeight:700,fontSize:"0.9rem",marginBottom:5,
+                       color:answered==="correct"?"#5BC88A":"#E07070"}}>
+            {answered==="correct" ? "✅ Correct!" : `❌ Answer: ${ex.answer}`}
+          </div>
+          <div style={{fontSize:"0.82rem",color:muted,lineHeight:1.55}}>{ex.explanation}</div>
+        </div>
+      )}
+
+      {answered && (
+        <button className="cta" style={{width:"100%"}} onClick={next}>
+          {current+1 >= exercises.length ? "See Results →" : "Next →"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    CORE 1000 VOCAB GENERATOR
-   4 sets × 250 words — fired once per language, parallel API calls
+   4 sets × 250 words — one sequential API call per set so a
+   single bad response never kills the whole batch.
 ═══════════════════════════════════════════════════════════ */
 async function generateCoreVocab(langCode) {
   const allLangs = [...LANGUAGES, ...KIDS_LANGS];
@@ -3307,68 +3711,82 @@ async function generateCoreVocab(langCode) {
   if (!langObj) return [];
   const lang = langObj.name;
 
-  // Helper: pull two word-arrays from one raw response
-  function splitPair(raw) {
-    const objM = raw.match(/\{[\s\S]*\}/);
+  // Robust extractor: strips markdown fences, finds a valid JSON array
+  // Uses GREEDY match so nested arrays are captured whole.
+  function extractWordList(raw) {
+    const cleaned = raw.replace(/```(?:json)?\s*/gi, "").replace(/```/g, "");
+    // Try top-level array first (greedy)
+    const arrM = cleaned.match(/\[[\s\S]*\]/);
+    if (arrM) {
+      try {
+        const arr = JSON.parse(arrM[0]);
+        if (Array.isArray(arr)) return arr.filter(w => w?.word && w?.transl);
+      } catch { /* fall through */ }
+    }
+    // Try object with a .words / .list property
+    const objM = cleaned.match(/\{[\s\S]*\}/);
     if (objM) {
       try {
         const obj = JSON.parse(objM[0]);
-        if (Array.isArray(obj.list1) && Array.isArray(obj.list2))
-          return [obj.list1.filter(w=>w?.word&&w?.transl), obj.list2.filter(w=>w?.word&&w?.transl)];
-      } catch { /* fall through */ }
-    }
-    // Fallback: grab the two largest arrays
-    const arrays = [];
-    for (const m of raw.matchAll(/\[[\s\S]*?\]/g)) {
-      try {
-        const a = JSON.parse(m[0]).filter(w=>w?.word&&w?.transl);
-        if (a.length > 0) { arrays.push(a); if (arrays.length === 2) break; }
+        const a = obj.words || obj.list || obj.items;
+        if (Array.isArray(a)) return a.filter(w => w?.word && w?.transl);
       } catch { /* skip */ }
     }
-    return [arrays[0]||[], arrays[1]||[]];
+    return [];
   }
 
-  const rule = `Every "word" value must be in ${lang}. Every "transl" value must be in English. No duplicates. Return ONLY the JSON object — no markdown, no explanation.`;
+  const rule = `Return ONLY a JSON array of 250 objects: [{"word":"TARGET_LANGUAGE_WORD","transl":"English meaning"},...]
+Every "word" MUST be in ${lang}. Every "transl" MUST be in English. No duplicates. No markdown, no code fences, no explanation — just the raw JSON array.`;
 
-  const p1 = `Create two ${lang} vocabulary lists. Return as JSON: {"list1":[{"word":"...","transl":"..."},...250 items],"list2":[...250 items]}
+  const prompts = [
+    // Set 0 — Core Essentials
+    `Generate 250 essential ${lang} vocabulary words — the absolute most fundamental words a learner needs first.
+Cover: core verbs (be, have, go, do, say, make, know, get, take, come, want, need, can, will, see, think, give, find, tell, ask, feel, become, leave, keep, begin, show, hear, run, love, understand, speak, read, write, buy, pay, open, close, help, try, start, stop, use, learn, work, play, eat, drink, sleep, live, die), pronouns, greetings & politeness (hello, goodbye, please, thank you, sorry, yes, no, excuse me, welcome), numbers 1–20 word form, days of week, months, core adjectives (big, small, good, bad, new, old, first, last, long, short, right, wrong, same, different, easy, hard, fast, slow, hot, cold, happy, sad, young, beautiful, important, possible, true, sure, ready, free, early, late, real, strong, safe), essential nouns (time, day, year, week, month, hour, place, way, thing, man, woman, child, world, life, country, city, home, water, food, money, work, school, friend, family, word, question, answer, problem, idea, name, hand, eye, voice).
+${rule}`,
 
-LIST 1 — "Core Essentials ⭐" (the 250 most fundamental ${lang} words):
-Core verbs (be, have, go, do, say, make, know, get, take, come, want, need, can, will, see, think, give, find, tell, ask, feel, become, leave, keep, begin, show, hear, run, love, understand, speak, read, write, buy, pay, open, close, help, try, start, stop, use, learn, work, play, eat, drink, sleep, live, die), pronouns (I/me/my, you/your, he/him/his, she/her, it/its, we/us/our, they/them/their), greetings & politeness (hello, goodbye, please, thank you, sorry, yes, no, excuse me, welcome, good morning/afternoon/evening/night), numbers 1–30 (word form), days of week, months, core adjectives (big, small, good, bad, new, old, first, last, long, short, high, low, right, wrong, same, different, easy, hard, fast, slow, hot, cold, warm, cool, clean, dirty, full, empty, free, busy, happy, sad, young, beautiful, important, possible, true, sure, ready, open, simple, strong, safe, early, late, dark, light, rich, poor, real, public), essential nouns (time, day, year, week, month, hour, minute, place, way, thing, man, woman, child, world, life, country, city, home, house, water, food, money, work, school, friend, family, word, question, answer, problem, idea, number, name, hand, eye, voice).
-${rule}
+    // Set 1 — Daily Rhythms
+    `Generate 250 ${lang} vocabulary words about everyday life topics.
+Cover: home & furniture (room, door, window, bed, table, chair, sofa, kitchen, bathroom, shelf, lamp, mirror, wardrobe, stairs, drawer, sink, toilet, shower, stove, fridge, garden, balcony), food & drink (bread, milk, coffee, tea, juice, rice, pasta, soup, salad, meat, fish, chicken, egg, cheese, butter, sugar, salt, oil, apple, banana, orange, potato, tomato, carrot, cake, chocolate, breakfast, lunch, dinner, restaurant, plate, cup, glass, fork, knife, spoon), body (head, hair, eye, ear, nose, mouth, tooth, neck, shoulder, arm, hand, finger, chest, back, leg, knee, foot, skin, face, heart, brain, bone, muscle, blood), clothing (shirt, trousers, dress, jacket, coat, shoes, socks, hat, scarf, gloves, bag, wallet, jeans, sweater, belt), health (doctor, hospital, medicine, pain, headache, fever, cold, cough, sick, healthy, tired, hungry, thirsty, pharmacy, emergency, appointment), transport (car, bus, train, plane, bike, taxi, ticket, station, airport, road, traffic, direction, left, right, parking, journey, map), weather (sun, rain, snow, wind, cloud, storm, temperature, sunny, rainy, cloudy, windy, humid, forecast).
+${rule}`,
 
-LIST 2 — "Daily Rhythms 🌅" (everyday life, words 251–500):
-Home & furniture (room, door, window, bed, table, chair, sofa, floor, wall, ceiling, kitchen, bathroom, bedroom, garden, shelf, lamp, mirror, curtain, blanket, pillow, wardrobe, stairs, balcony, garage, hallway, roof, drawer, sink, toilet, shower, stove, oven, fridge), food & drink (bread, milk, coffee, tea, juice, wine, beer, rice, pasta, soup, salad, meat, fish, chicken, egg, cheese, butter, sugar, salt, pepper, oil, apple, banana, orange, lemon, potato, tomato, carrot, onion, garlic, cake, chocolate, breakfast, lunch, dinner, restaurant, menu, plate, cup, glass, fork, knife, spoon), body parts (head, hair, eye, ear, nose, mouth, tooth, tongue, neck, shoulder, arm, elbow, hand, finger, chest, back, stomach, leg, knee, foot, skin, face, heart, brain, bone, muscle, blood), clothing (shirt, trousers, dress, skirt, jacket, coat, shoes, boots, socks, hat, scarf, gloves, belt, bag, wallet, umbrella, suit, jeans, sweater), health (doctor, hospital, medicine, pain, headache, fever, cold, cough, sick, healthy, tired, hungry, thirsty, pharmacy, pill, emergency, appointment), transport (car, bus, train, plane, bike, taxi, metro, ticket, station, airport, road, street, traffic, direction, left, right, straight, parking, driver, passenger, journey, map), weather (sun, rain, snow, wind, cloud, storm, fog, temperature, thunder, lightning, ice, frost, sunny, rainy, cloudy, windy, humid, forecast).
-${rule}`;
+    // Set 2 — The World Around You
+    `Generate 250 ${lang} vocabulary words about the wider world.
+Cover: nature (tree, forest, river, mountain, sea, ocean, lake, beach, desert, island, sky, moon, star, flower, grass, stone, fire, hill, field, farm, jungle, climate, environment, pollution, energy), professions (office, meeting, boss, salary, career, business, manager, lawyer, nurse, teacher, engineer, police, farmer, artist, writer, musician, cook, driver, pilot, scientist, programmer, architect, builder, mechanic), society (government, president, law, tax, vote, election, citizen, rights, freedom, war, peace, economy, bank, university, religion, history, museum, tradition), travel (trip, holiday, hotel, passport, visa, tourist, luggage, flight, destination, capital, north, south, east, west, souvenir, adventure), technology (phone, computer, internet, app, website, email, social media, camera, screen, battery, wifi, password, video, data, software, digital, online), sports & leisure (football, basketball, tennis, swimming, gym, yoga, dance, film, book, game, hobby, team, match, score, goal, coach, concert, theatre, festival, party), animals (dog, cat, horse, cow, pig, sheep, bird, eagle, lion, tiger, elephant, bear, wolf, rabbit, snake, whale, dolphin, butterfly, bee, turtle, monkey, penguin, owl, mouse, duck, goat).
+${rule}`,
 
-  const p2 = `Create two ${lang} vocabulary lists. Return as JSON: {"list1":[{"word":"...","transl":"..."},...250 items],"list2":[...250 items]}
+    // Set 3 — Heart & Mind
+    `Generate 250 ${lang} vocabulary words about emotions, abstract ideas, and discourse.
+Cover: emotions (happy, sad, angry, scared, surprised, anxious, excited, bored, proud, ashamed, guilty, lonely, jealous, hopeful, desperate, calm, stressed, confused, frustrated, grateful, confident, shy, embarrassed, love, hate, joy, fear, grief, worry, relief, trust, regret, nostalgia, affection, passion, admiration, compassion, curiosity, courage), abstract concepts (idea, thought, mind, soul, freedom, truth, beauty, power, knowledge, belief, memory, dream, reality, imagination, possibility, meaning, value, purpose, success, failure, effort, challenge, opportunity, risk, choice, progress, growth, reason, responsibility, identity, culture, justice, hope), opinions (agree, disagree, argue, discuss, suggest, recommend, prefer, support, oppose, explain, consider, doubt, assume, conclude, predict, admit, deny, claim, opinion, evidence, fact, consequence, solution, cause, effect, benefit, advantage, disadvantage), time expressions (now, soon, already, still, again, always, never, sometimes, often, rarely, before, after, during, while, until, since, recently, immediately, suddenly, finally, eventually, currently, yesterday, tomorrow, early, late), connectors & discourse (however, therefore, moreover, furthermore, in addition, on the other hand, for example, in conclusion, despite, instead, unless, both, either, even though, as long as, according to, indeed, unfortunately, fortunately, generally, especially, clearly, actually, obviously, exactly), arts & culture (painting, sculpture, cinema, novel, poem, song, dance, photography, architecture, fashion, literature, celebration, ceremony, symbol, myth, ritual, gallery, performance, instrument, guitar, piano, violin, style, heritage, icon).
+${rule}`,
+  ];
 
-LIST 1 — "The World Around You 🌍" (words 501–750):
-Nature & environment (tree, forest, river, mountain, sea, ocean, lake, beach, desert, island, sky, moon, star, flower, grass, leaf, stone, rock, sand, soil, fire, wave, hill, valley, field, farm, jungle, cave, waterfall, volcano, climate, environment, pollution, energy), work & professions (office, meeting, boss, colleague, salary, contract, interview, career, business, manager, director, lawyer, nurse, teacher, engineer, police, soldier, farmer, artist, writer, musician, cook, driver, pilot, scientist, programmer, architect, accountant, builder, mechanic), society & government (government, president, minister, parliament, law, tax, vote, election, citizen, rights, freedom, war, peace, economy, bank, currency, budget, equality, justice, university, religion, church, tradition, history, museum), travel (trip, holiday, hotel, passport, visa, border, tourist, guide, sightseeing, luggage, flight, destination, continent, capital, north, south, east, west, abroad, souvenir, photo, adventure, exchange rate), technology (phone, computer, internet, app, website, email, message, social media, camera, screen, battery, charger, wifi, password, download, video, search, keyboard, data, software, robot, digital, online), sports & leisure (football, basketball, tennis, swimming, cycling, gym, yoga, dance, film, book, game, hobby, team, player, match, competition, score, goal, race, coach, fan, stadium, concert, theatre, festival, party), animals (dog, cat, horse, cow, pig, sheep, chicken, bird, eagle, lion, tiger, elephant, bear, wolf, fox, rabbit, snake, whale, dolphin, shark, butterfly, bee, frog, turtle, monkey, giraffe, penguin, owl, mouse, duck, goat).
-${rule}
+  const names = ["Core Essentials ⭐", "Daily Rhythms 🌅", "The World Around You 🌍", "Heart & Mind 💬"];
+  const now   = new Date().toISOString();
+  const results = [];
 
-LIST 2 — "Heart & Mind 💬" (words 751–1000):
-Emotions (happy, sad, angry, scared, surprised, anxious, excited, bored, proud, ashamed, guilty, lonely, jealous, hopeful, desperate, calm, stressed, confused, frustrated, grateful, confident, shy, embarrassed, love, hate, joy, fear, grief, worry, relief, trust, regret, nostalgia, affection, passion, admiration, compassion, curiosity, wonder, courage, mood), abstract concepts (idea, thought, mind, soul, freedom, truth, beauty, power, knowledge, belief, memory, dream, reality, imagination, possibility, meaning, value, purpose, success, failure, effort, challenge, opportunity, risk, choice, progress, growth, existence, reason, ethics, responsibility, identity, culture, justice, hope), opinions & debate (agree, disagree, argue, discuss, suggest, recommend, prefer, support, oppose, criticise, prove, explain, consider, doubt, assume, conclude, predict, admit, deny, claim, opinion, view, perspective, evidence, fact, example, consequence, advantage, disadvantage, solution, cause, effect, benefit), time expressions (now, soon, already, still, again, always, never, sometimes, often, rarely, before, after, during, while, until, since, recently, immediately, suddenly, finally, eventually, previously, currently, yesterday, tomorrow, on time, at the same time, for a long time, for a moment), connectors (however, therefore, moreover, furthermore, in addition, on the other hand, for example, in other words, in conclusion, as a result, despite, instead, unless, whether, both, either, not only, also, even though, as long as, due to, according to, in terms of, indeed, clearly, unfortunately, fortunately, surprisingly, generally, especially), arts & culture (painting, sculpture, cinema, novel, poem, song, dance, photography, architecture, design, fashion, literature, celebration, ceremony, symbol, myth, legend, prayer, ritual, gallery, performance, instrument, guitar, piano, violin, drum, voice, style, trend, heritage, icon).
-${rule}`;
+  // Skip any sets that were already saved in a previous (partial) run
+  const savedIds = new Set(loadVSets().map(s => s.id));
 
-  try {
-    const [raw12, raw34] = await Promise.all([
-      ai([{role:"user",content:p1}], null, 8000),
-      ai([{role:"user",content:p2}], null, 8000),
-    ]);
-    const [w0,w1] = splitPair(raw12);
-    const [w2,w3] = splitPair(raw34);
-    const names  = ["Core Essentials ⭐","Daily Rhythms 🌅","The World Around You 🌍","Heart & Mind 💬"];
-    const now    = new Date().toISOString();
-    return [w0,w1,w2,w3]
-      .map((words,i) => ({
-        id:      `lingua_core_${langCode}_v1_${i}`,
-        lang:    langCode,
-        name:    names[i],
-        created: now,
-        words,
-      }))
-      .filter(s => s.words.length > 0);
-  } catch { return []; }
+  // Sequential: each set is independent — a failed call doesn't kill the others
+  for (let i = 0; i < 4; i++) {
+    const setId = `lingua_core_${langCode}_v1_${i}`;
+    if (savedIds.has(setId)) continue; // already saved — skip
+    try {
+      const raw   = await ai([{role:"user", content:prompts[i]}], null, 4000);
+      const words = extractWordList(raw);
+      if (words.length > 0) {
+        results.push({
+          id:      setId,
+          lang:    langCode,
+          name:    names[i],
+          created: now,
+          words,
+        });
+      }
+    } catch { /* one set failed — keep going */ }
+  }
+
+  return results;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3407,27 +3825,39 @@ function VocabSets({t, kidLang, onStars, isKids=false}) {
       .finally(() => setGenerating(false));
   }, [kidLang]); // eslint-disable-line
 
-  // Auto-generate Core 1000 sets — adults only; kids get them on explicit request
+  // Auto-generate Core 1000 sets — adults only; kids get them on explicit request.
+  // We check for ALL 4 sets (not just set 0) so a partial previous run triggers a retry.
   useEffect(() => {
     if (isKids) return;
-    const hasCoreSet = loadVSets().some(s => s.id === `lingua_core_${kidLang}_v1_0`);
-    if (hasCoreSet || coreGenerating) return;
+    const coreCount = loadVSets().filter(s => s.id?.startsWith(`lingua_core_${kidLang}_v1_`)).length;
+    if (coreCount >= 4 || coreGenerating) return;
     setCoreGenerating(true);
     generateCoreVocab(kidLang)
       .then(newSets => {
-        if (newSets.length > 0) { saveVSets([...loadVSets(), ...newSets]); reload(); }
+        if (newSets.length > 0) {
+          // Merge: don't duplicate IDs that arrived in a previous partial run
+          const cur = loadVSets();
+          const curIds = new Set(cur.map(s => s.id));
+          const toAdd = newSets.filter(s => !curIds.has(s.id));
+          if (toAdd.length > 0) { saveVSets([...cur, ...toAdd]); reload(); }
+        }
       })
       .catch(() => {})
       .finally(() => setCoreGenerating(false));
   }, [kidLang]); // eslint-disable-line
 
   function requestKidsCore() {
-    const hasCoreSet = loadVSets().some(s => s.id === `lingua_core_${kidLang}_v1_0`);
-    if (hasCoreSet || coreGenerating) { setBonusOpen(true); return; }
+    const coreCount = loadVSets().filter(s => s.id?.startsWith(`lingua_core_${kidLang}_v1_`)).length;
+    if (coreCount >= 4 || coreGenerating) { setBonusOpen(true); return; }
     setCoreGenerating(true);
     generateCoreVocab(kidLang)
       .then(newSets => {
-        if (newSets.length > 0) { saveVSets([...loadVSets(), ...newSets]); reload(); }
+        if (newSets.length > 0) {
+          const cur = loadVSets();
+          const curIds = new Set(cur.map(s => s.id));
+          const toAdd = newSets.filter(s => !curIds.has(s.id));
+          if (toAdd.length > 0) { saveVSets([...cur, ...toAdd]); reload(); }
+        }
       })
       .catch(() => {})
       .finally(() => { setCoreGenerating(false); setBonusOpen(true); });
@@ -3980,7 +4410,7 @@ function SaveModal({ text, lang, onClose, onStars }) {
 /* ═══════════════════════════════════════════════════════════
    ADULT CHAT  (new design, all old features)
 ═══════════════════════════════════════════════════════════ */
-function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack}) {
+function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack, onLevelUpdate}) {
   const [msgs,setMsgs]           = useState([]);
   const [input,setInput]         = useState("");
   const [loading,setLoading]     = useState(false);
@@ -3989,6 +4419,7 @@ function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack}) 
   const [sessionEnd,setSessionEnd] = useState(null);
   const [endLoading,setEndLoading] = useState(false);
   const [hints,setHints]         = useState([]);
+  const [levelUpdated,setLevelUpdated] = useState(false);
   const endRef = useRef();
   const langObj = LANGUAGES.find(l=>l.code===lang);
 
@@ -4120,8 +4551,14 @@ Reply ONLY in ${langObj?.name}. Never break character. Never explain or translat
         `RULES: NEVER use negative words (wrong, mistake, error, struggle, problem, failed, incorrect, difficulty).\n` +
         `Frame everything as progress and potential. Be honest and specific — don't make up things that didn't happen.\n` +
         `If the session was short, warmly acknowledge it was a solid start.\n\n` +
+        `Also add a "levelAssessment" field based ONLY on the learner's own messages:\n` +
+        `"levelAssessment":{"suggestedLevel":"beginner|elementary|intermediate|advanced","direction":"up|down|same","reason":"One concrete sentence citing what you observed in their messages"}\n` +
+        `The learner's current skill level is: ${skillLevel}.\n` +
+        `Suggest "up" only if their vocabulary, sentence structure, or grammar clearly exceeded the current level.\n` +
+        `Suggest "down" only if the level was obviously too hard AND there were at least 4 learner turns.\n` +
+        `Default to "same" if unsure or the session was short.\n\n` +
         `Conversation transcript:\n${transcript}`
-      }], null, 500);
+      }], null, 600);
       let parsed;
       try { parsed = JSON.parse(raw.replace(/^```json\s*/,"").replace(/```\s*$/,"").trim()); }
       catch { parsed = fallback; }
@@ -4175,6 +4612,48 @@ Reply ONLY in ${langObj?.name}. Never break character. Never explain or translat
           {sessionEnd.closing && (
             <p className="se-closing">{sessionEnd.closing}</p>
           )}
+
+          {/* ── AI level assessment ── */}
+          {(()=>{
+            const la = sessionEnd.levelAssessment;
+            if (!la || la.direction === "same" || !la.suggestedLevel || la.suggestedLevel === skillLevel) return null;
+            const suggested = SKILL_LEVELS.find(l => l.id === la.suggestedLevel);
+            if (!suggested) return null;
+            const isUp = la.direction === "up";
+            return (
+              <div style={{margin:"16px 0",padding:"14px 16px",
+                           border:`1px solid ${isUp ? "var(--a-gold)" : "var(--a-border)"}`,
+                           borderRadius:12,background:"rgba(255,255,255,.03)"}}>
+                <div style={{fontWeight:700,fontSize:"0.8rem",letterSpacing:".08em",
+                             textTransform:"uppercase",color:"var(--a-gold)",marginBottom:8}}>
+                  {isUp ? "📈 Ready to Level Up?" : "📊 Level Suggestion"}
+                </div>
+                <p style={{fontSize:"0.85rem",color:"var(--a-cream)",lineHeight:1.55,margin:"0 0 6px"}}>
+                  {la.reason}
+                </p>
+                <p style={{fontSize:"0.8rem",color:"var(--a-muted)",margin:"0 0 12px"}}>
+                  {isUp ? "Suggested next level:" : "Suggested level:"}&nbsp;
+                  <strong style={{color:"var(--a-cream)"}}>{suggested.emoji} {suggested.label} ({suggested.cefr})</strong>
+                </p>
+                {levelUpdated ? (
+                  <div style={{textAlign:"center",color:"var(--a-gold)",fontWeight:600,padding:"6px 0"}}>
+                    ✓ Level updated to {suggested.label}!
+                  </div>
+                ) : (
+                  <div style={{display:"flex",gap:8}}>
+                    <button className="cta" style={{flex:1,padding:"10px",fontSize:"0.85rem"}}
+                      onClick={()=>{ onLevelUpdate?.(la.suggestedLevel); setLevelUpdated(true); sfx.click(); }}>
+                      {isUp ? `⬆ Switch to ${suggested.label}` : `⬇ Adjust to ${suggested.label}`}
+                    </button>
+                    <button className="action-btn" style={{flex:1,padding:"10px",fontSize:"0.85rem"}}
+                      onClick={()=>setLevelUpdated(true)}>
+                      Keep current
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="se-actions">
             <button className="cta" onClick={()=>setSessionEnd(null)}>
@@ -4686,7 +5165,7 @@ function AdultMode({t, stars, onStars}) {
   const [showScript,setShowScript]      = useState(false);
   const [lessonsView,setLessonsView]    = useState(null); // null | "list" | "player"
   const [activeLesson,setActiveLesson]  = useState(null);
-  const {onBack,uiLang,setUiLang} = useContext(Ctx);
+  const {onBack,uiLang,setUiLang,openHelp} = useContext(Ctx);
   const langObj              = LANGUAGES.find(l=>l.code===lang);
   const sessions             = loadSessions(lang);
 
@@ -4712,9 +5191,10 @@ function AdultMode({t, stars, onStars}) {
         <span className="topbar-title">Lingua</span>
         <span className="star-count">⭐ {stars}</span>
         <button className="ghost" onClick={()=>setInChat(false)}>← {t.scenario}</button>
-        <button className="ghost" onClick={onBack}>{t.home}</button>
+        <button className="ghost" onClick={onBack}>🏠</button>
+        <button className="ghost" onClick={openHelp}>📖</button>
       </div>
-      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} skillLevel={skillLevel} t={t} onStars={onStars} onBack={()=>setInChat(false)}/>
+      <AdultChat lang={lang} scenario={langObj?.scenarios[scenIdx]||""} skillLevel={skillLevel} t={t} onStars={onStars} onBack={()=>setInChat(false)} onLevelUpdate={lv=>{changeSkill(lv);sfx.star();}}/>
     </div>
   );
 
@@ -4726,9 +5206,13 @@ function AdultMode({t, stars, onStars}) {
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}
           label={`🌐 ${t.appLang}`}/>
       </div>
+      <div className="a-nav">
+        <button className="a-nav-btn" onClick={()=>{onBack();sfx.click();}}>🏠 {t.home}</button>
+        <button className="a-nav-btn" onClick={openHelp}>📖 Manual</button>
+      </div>
       <LevelBadge stars={stars}/>
       <div className="tabs">
-        {[["chat",t.chat],["notebook",t.notebook],["wod",t.wordOfDay],["idiom",t.idiomOfDay],["vocab",t.vocabSets]].map(([k,l])=>(
+        {[["chat",t.chat],["grammar","✏️ Grammar"],["notebook",t.notebook],["wod",t.wordOfDay],["idiom",t.idiomOfDay],["vocab",t.vocabSets]].map(([k,l])=>(
           <button key={k} className={`tab${tab===k?" on":""}`} onClick={()=>{setTab(k);sfx.click();}}>
             {l}
           </button>
@@ -4738,9 +5222,6 @@ function AdultMode({t, stars, onStars}) {
             ✍️ Write
           </button>
         )}
-        <button className="tab tab-home" onClick={()=>{onBack();sfx.click();}}>
-          🏠 {t.home}
-        </button>
       </div>
 
       {tab==="chat" && lessonsView==="list" && (
@@ -4844,6 +5325,7 @@ function AdultMode({t, stars, onStars}) {
           </div>
         </div>
       )}
+      {tab==="grammar"  && <div className="scr" style={{display:"flex",flexDirection:"column",flex:1,overflowY:"auto"}}><GrammarExercises lang={lang} skillLevel={skillLevel} onStars={onStars}/></div>}
       {tab==="notebook" && <AdultNotebookScreen t={t}/>}
       {tab==="wod"      && <WodScreen lang={lang} t={t}/>}
       {tab==="idiom"    && <IdiomScreen lang={lang} t={t}/>}
@@ -5225,7 +5707,7 @@ function KidsMode({t, onStars, stars=0}) {
   const [topic,setTopic]           = useState(null);
   const [chatExchanges,setChatExchanges] = useState(0); // user turns in current chat
   const [showReflect,setShowReflect]    = useState(false);
-  const {onBack, uiLang, setUiLang} = useContext(Ctx);
+  const {onBack, uiLang, setUiLang, openHelp} = useContext(Ctx);
   const nbCount              = loadKNB().length;
 
   function selectLang(code) { setKidLang(code); saveLS(SK_KIDLG,code); sfx.click(); haptic([15]); }
@@ -5247,10 +5729,15 @@ function KidsMode({t, onStars, stars=0}) {
         {topic && <button className="khome-btn" onClick={leaveTopic}>← {t.topics}</button>}
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}
           label="🌐 App"/>
+        <button onClick={openHelp} title="Help" style={{
+          background:"none", border:"1px solid rgba(255,255,255,.2)",
+          color:"rgba(255,255,255,.6)", borderRadius:8, padding:"3px 9px",
+          fontSize:13, cursor:"pointer", fontFamily:"inherit",
+        }}>?</button>
       </div>
 
       <div className="ktabs">
-        {[["chat","📚 Learn"],["read","📖 Read"],["idiom","💬 Expressions"],["notebook","⭐ "+t.notebook],["vocab","🃏 "+t.vocabSets]].map(([k,l])=>(
+        {[["chat","📚 Learn"],["read","📖 Read"],["idiom","💬 Expressions"],["grammar","✏️ Grammar"],["notebook","⭐ "+t.notebook],["vocab","🃏 "+t.vocabSets]].map(([k,l])=>(
           <button key={k} className={`ktab${tab===k?" on":""}`}
             onClick={()=>{setTab(k);setTopic(null);setChatExchanges(0);sfx.click();}}>
             {l}
@@ -5313,6 +5800,7 @@ function KidsMode({t, onStars, stars=0}) {
       )}
       {tab==="read"     && <KidsReadScreen kidLang={kidLang} t={t}/>}
       {tab==="idiom"    && <KidsIdiomScreen kidLang={kidLang} t={t}/>}
+      {tab==="grammar"  && <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column"}}><GrammarExercises lang={kidLang} skillLevel="beginner" onStars={onStars} isKids/></div>}
       {tab==="notebook" && <KidsNotebookScreen t={t}/>}
       {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang} onStars={onStars} isKids/></div>}
 
@@ -5359,6 +5847,7 @@ export default function App() {
   const [stars,setStars]       = useState(getStarsData().total);
   const [flashes,setFlashes]   = useState([]);
   const [levelToast,setLevelToast] = useState("");
+  const [showHelp,setShowHelp] = useState(false);
   const t = T[uiLang] || T.EN;
 
   function handleStars(newTotal, n=1) {
@@ -5385,7 +5874,8 @@ export default function App() {
   const ctx = {
     t, uiLang, setUiLang: (l)=>{ setUiLang(l); saveLS(SK_UILNG,l); },
     nativeLang, setNativeLang: (l)=>{ setNativeLang(l); saveLS(SK_NATLNG,l); },
-    onBack:()=>{ setMode(null); saveLS("lingua_last_mode",null); }
+    onBack:()=>{ setMode(null); saveLS("lingua_last_mode",null); },
+    openHelp:()=>setShowHelp(true),
   };
 
   return (
@@ -5394,6 +5884,7 @@ export default function App() {
       <UpdatePrompt/>
       <StarFlash flashes={flashes}/>
       <LevelUpToast msg={levelToast}/>
+      {showHelp && <HelpModal onClose={()=>setShowHelp(false)}/>}
       {mode==="adult" && <AdultMode t={t} stars={stars} onStars={handleStars}/>}
       {mode==="kids"  && <KidsMode  t={t} onStars={handleStars} stars={stars}/>}
 
@@ -5404,6 +5895,11 @@ export default function App() {
             <div className="logo-icon">✦</div>
             <div className="logo-name">Lingua</div>
             <UiLangPicker uiLang={uiLang} setUiLang={ctx.setUiLang}/>
+            <button onClick={()=>setShowHelp(true)} title="Help & Manual" style={{
+              marginLeft:"auto", background:"none", border:"1px solid var(--a-border)",
+              color:"var(--a-muted)", borderRadius:8, padding:"4px 10px",
+              fontSize:13, cursor:"pointer", fontFamily:"var(--a-sans)",
+            }}>? Help</button>
           </div>
           <div className="l-hero">
             <h1 className="l-h1" dangerouslySetInnerHTML={{__html:t.landingH1}}/>

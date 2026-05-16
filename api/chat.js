@@ -22,6 +22,12 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body),
     });
     const data = await upstream.json();
+    if (upstream.status >= 400) {
+      console.error("ERR_TYPE:", data?.error?.type);
+      console.error("ERR_MSG:", data?.error?.message);
+      console.error("REQ_MODEL:", req.body?.model);
+      console.error("REQ_MAXTOK:", req.body?.max_tokens);
+    }
     res.status(upstream.status).json(data);
   } catch (err) {
     res.status(500).json({ error: { message: err.message } });
