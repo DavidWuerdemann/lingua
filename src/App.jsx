@@ -2057,6 +2057,7 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--a-border);background:var(--a-surf);}
 .tab{padding:10px 4px;font-size:11.5px;font-weight:500;letter-spacing:.03em;color:var(--a-muted);border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;white-space:nowrap;text-align:center;}
 .tab.on{color:var(--a-gold);border-bottom-color:var(--a-gold);}
+.tab-home{color:var(--a-muted);border-top:1px solid var(--a-border);}
 .scr{flex:1;padding:20px;max-width:840px;margin:0 auto;width:100%;overflow-y:auto;}
 .sh{font-family:var(--a-serif);font-size:26px;font-weight:600;color:var(--a-cream);letter-spacing:-.3px;margin-bottom:4px;}
 .ss{color:var(--a-muted);font-size:12.5px;margin-bottom:20px;}
@@ -2403,6 +2404,7 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .ktabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--k-paper2);border-bottom:2px solid var(--k-border);}
 .ktab{padding:9px 4px;font-family:var(--k-sans);font-size:12px;font-weight:800;color:var(--k-mute);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;cursor:pointer;border:none;background:none;text-align:center;}
 .ktab.on{color:var(--k-ink);border-bottom-color:var(--k-accent);}
+.ktab-home{border-top:2px solid var(--k-border);}
 .kwel{padding:20px 20px 6px;position:relative;}
 .kwel h1{font-family:var(--k-display);font-size:26px;font-weight:600;color:var(--k-ink);letter-spacing:-.3px;line-height:1.15;margin-bottom:6px;}
 .kwel p{font-family:var(--k-sans);font-size:13px;color:var(--k-inkSoft);font-weight:600;}
@@ -4551,7 +4553,6 @@ function AdultMode({t, stars, onStars}) {
         <span className="topbar-title">Lingua</span>
         <UiLangPicker uiLang={uiLang} setUiLang={(l)=>{setUiLang(l);saveLS(SK_UILNG,l);sfx.click();}}
           label={`🌐 ${t.appLang}`}/>
-        <button className="ghost" onClick={onBack}>← {t.home}</button>
       </div>
       <LevelBadge stars={stars}/>
       <div className="tabs">
@@ -4565,6 +4566,9 @@ function AdultMode({t, stars, onStars}) {
             ✍️ Write
           </button>
         )}
+        <button className="tab tab-home" onClick={()=>{onBack();sfx.click();}}>
+          🏠 {t.home}
+        </button>
       </div>
 
       {tab==="chat" && lessonsView==="list" && (
@@ -5063,7 +5067,6 @@ function KidsMode({t, onStars, stars=0}) {
   return (
     <div className="ks">
       <div className="kh">
-        <button className="khome-btn" onClick={onBack}>← {t.home}</button>
         <div className="kh-ollie">
           <OllieAvatar size={28}/>
           <span className="kh-title">Ollie's Language World</span>
@@ -5080,6 +5083,9 @@ function KidsMode({t, onStars, stars=0}) {
             {l}
           </button>
         ))}
+        <button className="ktab ktab-home" onClick={()=>{onBack();sfx.click();}}>
+          🏠 {t.home}
+        </button>
       </div>
       <KidsLevelBar stars={stars}/>
 
