@@ -4231,6 +4231,230 @@ function LessonsScreen({ langCode, langObj, onClose, onStartLesson }) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   SCRIPT PRACTICE  (finger-drawing practice for script languages)
+═══════════════════════════════════════════════════════════ */
+function ScriptPractice({langCode, onStars}) {
+  const data    = langCode==="he" ? HE_ALPHA : langCode==="ru" ? RU_ALPHA : AR_ALPHA;
+  const langObj = LANGUAGES.find(l=>l.code===langCode);
+  const rtl     = langCode==="he" || langCode==="ar";
+
+  const [idx,setIdx]           = useState(0);
+  const [feedback,setFeedback] = useState(null); // {ok,almost,text}
+  const [checking,setChecking] = useState(false);
+  const [hasDrawing,setHasDrawing] = useState(false);
+
+  const canvasRef = useRef();
+  const ctxRef    = useRef();
+  const isDrawing = useRef(false);
+  const lastPos   = useRef({x:0,y:0});
+
+  const char        = data[idx];
+  const displayChar = char.l.split("/")[0].split(" ")[0]; // "А а"→"А", "כ/ך"→"כ"
+
+  // Init canvas once on mount
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width  = 280 * dpr;
+    canvas.height = 280 * dpr;
+    canvas.style.width  = "280px";
+    canvas.style.height = "280px";
+    const ctx = canvas.getContext("2d");
+    ctx.scale(dpr, dpr);
+    ctxRef.current = ctx;
+  }, []);
+
+  // Clear canvas when character changes
+  useEffect(()=>{
+    ctxRef.current?.clearRect(0, 0, 280, 280);
+    setHasDrawing(false);
+    setFeedback(null);
+  }, [idx]);
+
+  function getPos(e) {
+    const canvas = canvasRef.current;
+    const rect   = canvas.getBoundingClientRect();
+    const src    = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    const pos = getPos(e);
+    isDrawing.current = true;
+    lastPos.current   = pos;
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "#1a2f5e";
+    ctx.fill();
+    setFeedback(null);
+    setHasDrawing(true);
+  }
+
+  function onMove(e) {
+    e.preventDefault();
+    if (!isDrawing.current) return;
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const pos = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastPos.current.x, lastPos.current.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.strokeStyle = "#1a2f5e";
+    ctx.lineWidth   = 9;
+    ctx.lineCap     = "round";
+    ctx.lineJoin    = "round";
+    ctx.stroke();
+    lastPos.current = pos;
+  }
+
+  function onEnd(e) { e.preventDefault(); isDrawing.current = false; }
+
+  function clearCanvas() {
+    ctxRef.current?.clearRect(0, 0, 280, 280);
+    setHasDrawing(false);
+    setFeedback(null);
+    sfx.click();
+  }
+
+  async function checkDrawing() {
+    if (!hasDrawing || checking) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setChecking(true);
+    // Composite onto white so AI sees the ink clearly
+    const off  = document.createElement("canvas");
+    off.width  = canvas.width;
+    off.height = canvas.height;
+    const octx = off.getContext("2d");
+    octx.fillStyle = "#ffffff";
+    octx.fillRect(0, 0, off.width, off.height);
+    octx.drawImage(canvas, 0, 0);
+    const base64 = off.toDataURL("image/png").replace(/^data:image\/png;base64,/, "");
+    try {
+      const raw = await ai([{
+        role: "user",
+        content: [
+          { type:"image", source:{ type:"base64", media_type:"image/png", data:base64 } },
+          { type:"text",  text:
+            `I'm learning to write ${langObj?.name} and practising the letter "${displayChar}" ` +
+            `(name: ${char.n}, sounds like: ${char.r}). ` +
+            `My handwriting attempt is shown in the image (dark ink on white paper). ` +
+            `Does it look like the correct letter? ` +
+            `Start with exactly one emoji: ✅ (clearly correct), 🟡 (almost — close but needs a tweak), or ❌ (needs more practice). ` +
+            `Then one short encouraging sentence with a specific tip if it's not perfect. Max 2 sentences total.`
+          }
+        ]
+      }], null, 130);
+      const text = raw.trim();
+      const ok     = text.startsWith("✅");
+      const almost = text.startsWith("🟡");
+      if (ok) { const total = addStarsTo(3); onStars?.(total, 3); sfx.save(); haptic([20,10,20]); }
+      else     { sfx.click(); haptic([40]); }
+      setFeedback({ok, almost, text});
+    } catch {
+      setFeedback({ok:false, almost:false, text:"Couldn't check — try again."});
+    }
+    setChecking(false);
+  }
+
+  return (
+    <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:14,alignItems:"center",overflowY:"auto",flex:1}}>
+
+      {/* Title */}
+      <div style={{textAlign:"center"}}>
+        <div style={{fontWeight:700,fontSize:"1rem",color:"var(--a-cream)"}}>✍️ Writing Practice</div>
+        <div style={{fontSize:"0.76rem",color:"var(--a-muted)",marginTop:2}}>
+          Draw the letter with your finger · tap Check for AI feedback
+        </div>
+      </div>
+
+      {/* Target letter info */}
+      <div style={{textAlign:"center"}}>
+        <div style={{
+          fontSize:96, lineHeight:1.1, fontWeight:700,
+          color:"var(--a-cream)", fontFamily:"serif",
+          direction:rtl?"rtl":"ltr",
+          textShadow:"0 2px 16px rgba(201,148,58,0.35)",
+        }}>{displayChar}</div>
+        <div style={{fontWeight:600,fontSize:"1rem",color:"var(--a-cream)",marginTop:6}}>{char.n}</div>
+        <div style={{fontSize:"0.8rem",color:"var(--a-muted)"}}>{char.r}</div>
+        <div style={{fontSize:"0.76rem",color:"var(--a-muted)",marginTop:2,direction:rtl?"rtl":"ltr"}}>
+          {char.ex} — <em>{char.xe}</em>
+        </div>
+      </div>
+
+      {/* Canvas + ghost overlay */}
+      <div style={{position:"relative",borderRadius:16,overflow:"hidden",
+                   boxShadow:"0 4px 24px rgba(0,0,0,0.4)",
+                   border:"2px solid rgba(201,148,58,0.28)"}}>
+        {/* ghost letter */}
+        <div style={{
+          position:"absolute",inset:0,pointerEvents:"none",userSelect:"none",
+          display:"flex",alignItems:"center",justifyContent:"center",
+          fontSize:210,fontWeight:700,lineHeight:1,
+          color:"rgba(180,155,110,0.10)",fontFamily:"serif",
+          direction:rtl?"rtl":"ltr",
+        }}>{displayChar}</div>
+        <canvas
+          ref={canvasRef}
+          style={{display:"block",background:"rgba(255,255,255,0.07)",touchAction:"none",cursor:"crosshair"}}
+          onMouseDown={onStart} onMouseMove={onMove} onMouseUp={onEnd} onMouseLeave={onEnd}
+          onTouchStart={onStart} onTouchMove={onMove} onTouchEnd={onEnd} onTouchCancel={onEnd}
+        />
+      </div>
+
+      {/* Feedback pill */}
+      {feedback && (
+        <div style={{
+          background: feedback.ok    ? "rgba(34,197,94,0.13)"
+                    : feedback.almost? "rgba(234,179,8,0.11)"
+                    :                  "rgba(239,68,68,0.09)",
+          border:`1.5px solid ${feedback.ok?"rgba(34,197,94,0.4)":feedback.almost?"rgba(234,179,8,0.4)":"rgba(239,68,68,0.3)"}`,
+          borderRadius:12,padding:"10px 16px",fontSize:"0.88rem",
+          textAlign:"center",maxWidth:284,lineHeight:1.55,color:"var(--a-cream)",
+        }}>{feedback.text}</div>
+      )}
+
+      {/* Buttons */}
+      <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center"}}>
+        <button className="action-btn" onClick={clearCanvas}>🗑 Clear</button>
+        <button className="action-btn primary" onClick={checkDrawing}
+          disabled={checking||!hasDrawing} style={{minWidth:92}}>
+          {checking ? <Dots/> : "✓ Check"}
+        </button>
+        <button className="action-btn"
+          onClick={()=>{setIdx(i=>(i+1)%data.length);sfx.click();}}>
+          Next →
+        </button>
+      </div>
+
+      {/* Character selector grid */}
+      <div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center",
+                   maxWidth:310,direction:rtl?"rtl":"ltr",paddingBottom:12}}>
+        {data.map((c,i)=>{
+          const dc = c.l.split("/")[0].split(" ")[0];
+          return (
+            <button key={i} onClick={()=>{setIdx(i);sfx.click();}}
+              style={{
+                width:36,height:36,borderRadius:8,
+                border:`1.5px solid ${i===idx?"var(--a-gold)":"rgba(201,148,58,0.18)"}`,
+                background: i===idx ? "rgba(201,148,58,0.2)" : "rgba(255,255,255,0.04)",
+                color: i===idx ? "var(--a-gold)" : "var(--a-cream)",
+                fontSize:17,cursor:"pointer",fontFamily:"serif",
+                display:"flex",alignItems:"center",justifyContent:"center",
+              }}>{dc}</button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
    SCRIPT GUIDE  (Hebrew / Arabic alphabet reference)
 ═══════════════════════════════════════════════════════════ */
 function ScriptGuide({ langCode, onClose }) {
@@ -4297,6 +4521,9 @@ function AdultMode({t, stars, onStars}) {
     setLang(code); setScenIdx(0);
     setSkillLevelState(loadSkill(code));
     setLessonsView(null);
+    // If switching to a non-script language while on the write tab, go back to chat
+    const newLang = LANGUAGES.find(l=>l.code===code);
+    if (!newLang?.script && tab==="write") setTab("chat");
     sfx.click();
   }
   function changeSkill(lv) {
@@ -4334,6 +4561,11 @@ function AdultMode({t, stars, onStars}) {
             {l}
           </button>
         ))}
+        {langObj?.script && (
+          <button className={`tab${tab==="write"?" on":""}`} onClick={()=>{setTab("write");sfx.click();}}>
+            ✍️ Write
+          </button>
+        )}
       </div>
 
       {tab==="chat" && lessonsView==="list" && (
@@ -4441,6 +4673,11 @@ function AdultMode({t, stars, onStars}) {
       {tab==="wod"      && <WodScreen lang={lang} t={t}/>}
       {tab==="idiom"    && <IdiomScreen lang={lang} t={t}/>}
       {tab==="vocab"    && <div className="scr"><VocabSets t={t} kidLang={lang} onStars={onStars}/></div>}
+      {tab==="write" && langObj?.script && (
+        <div className="scr" style={{display:"flex",flexDirection:"column",flex:1,overflowY:"auto"}}>
+          <ScriptPractice langCode={lang} onStars={onStars}/>
+        </div>
+      )}
     </div>
     {showScript && <ScriptGuide langCode={lang} onClose={()=>setShowScript(false)}/>}
     </>
