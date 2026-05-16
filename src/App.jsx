@@ -3298,6 +3298,80 @@ async function generateVSetsForLang(langCode) {
 }
 
 /* ═══════════════════════════════════════════════════════════
+   CORE 1000 VOCAB GENERATOR
+   4 sets × 250 words — fired once per language, parallel API calls
+═══════════════════════════════════════════════════════════ */
+async function generateCoreVocab(langCode) {
+  const allLangs = [...LANGUAGES, ...KIDS_LANGS];
+  const langObj  = allLangs.find(l => l.code === langCode);
+  if (!langObj) return [];
+  const lang = langObj.name;
+
+  // Helper: pull two word-arrays from one raw response
+  function splitPair(raw) {
+    const objM = raw.match(/\{[\s\S]*\}/);
+    if (objM) {
+      try {
+        const obj = JSON.parse(objM[0]);
+        if (Array.isArray(obj.list1) && Array.isArray(obj.list2))
+          return [obj.list1.filter(w=>w?.word&&w?.transl), obj.list2.filter(w=>w?.word&&w?.transl)];
+      } catch { /* fall through */ }
+    }
+    // Fallback: grab the two largest arrays
+    const arrays = [];
+    for (const m of raw.matchAll(/\[[\s\S]*?\]/g)) {
+      try {
+        const a = JSON.parse(m[0]).filter(w=>w?.word&&w?.transl);
+        if (a.length > 0) { arrays.push(a); if (arrays.length === 2) break; }
+      } catch { /* skip */ }
+    }
+    return [arrays[0]||[], arrays[1]||[]];
+  }
+
+  const rule = `Every "word" value must be in ${lang}. Every "transl" value must be in English. No duplicates. Return ONLY the JSON object — no markdown, no explanation.`;
+
+  const p1 = `Create two ${lang} vocabulary lists. Return as JSON: {"list1":[{"word":"...","transl":"..."},...250 items],"list2":[...250 items]}
+
+LIST 1 — "Core Essentials ⭐" (the 250 most fundamental ${lang} words):
+Core verbs (be, have, go, do, say, make, know, get, take, come, want, need, can, will, see, think, give, find, tell, ask, feel, become, leave, keep, begin, show, hear, run, love, understand, speak, read, write, buy, pay, open, close, help, try, start, stop, use, learn, work, play, eat, drink, sleep, live, die), pronouns (I/me/my, you/your, he/him/his, she/her, it/its, we/us/our, they/them/their), greetings & politeness (hello, goodbye, please, thank you, sorry, yes, no, excuse me, welcome, good morning/afternoon/evening/night), numbers 1–30 (word form), days of week, months, core adjectives (big, small, good, bad, new, old, first, last, long, short, high, low, right, wrong, same, different, easy, hard, fast, slow, hot, cold, warm, cool, clean, dirty, full, empty, free, busy, happy, sad, young, beautiful, important, possible, true, sure, ready, open, simple, strong, safe, early, late, dark, light, rich, poor, real, public), essential nouns (time, day, year, week, month, hour, minute, place, way, thing, man, woman, child, world, life, country, city, home, house, water, food, money, work, school, friend, family, word, question, answer, problem, idea, number, name, hand, eye, voice).
+${rule}
+
+LIST 2 — "Daily Rhythms 🌅" (everyday life, words 251–500):
+Home & furniture (room, door, window, bed, table, chair, sofa, floor, wall, ceiling, kitchen, bathroom, bedroom, garden, shelf, lamp, mirror, curtain, blanket, pillow, wardrobe, stairs, balcony, garage, hallway, roof, drawer, sink, toilet, shower, stove, oven, fridge), food & drink (bread, milk, coffee, tea, juice, wine, beer, rice, pasta, soup, salad, meat, fish, chicken, egg, cheese, butter, sugar, salt, pepper, oil, apple, banana, orange, lemon, potato, tomato, carrot, onion, garlic, cake, chocolate, breakfast, lunch, dinner, restaurant, menu, plate, cup, glass, fork, knife, spoon), body parts (head, hair, eye, ear, nose, mouth, tooth, tongue, neck, shoulder, arm, elbow, hand, finger, chest, back, stomach, leg, knee, foot, skin, face, heart, brain, bone, muscle, blood), clothing (shirt, trousers, dress, skirt, jacket, coat, shoes, boots, socks, hat, scarf, gloves, belt, bag, wallet, umbrella, suit, jeans, sweater), health (doctor, hospital, medicine, pain, headache, fever, cold, cough, sick, healthy, tired, hungry, thirsty, pharmacy, pill, emergency, appointment), transport (car, bus, train, plane, bike, taxi, metro, ticket, station, airport, road, street, traffic, direction, left, right, straight, parking, driver, passenger, journey, map), weather (sun, rain, snow, wind, cloud, storm, fog, temperature, thunder, lightning, ice, frost, sunny, rainy, cloudy, windy, humid, forecast).
+${rule}`;
+
+  const p2 = `Create two ${lang} vocabulary lists. Return as JSON: {"list1":[{"word":"...","transl":"..."},...250 items],"list2":[...250 items]}
+
+LIST 1 — "The World Around You 🌍" (words 501–750):
+Nature & environment (tree, forest, river, mountain, sea, ocean, lake, beach, desert, island, sky, moon, star, flower, grass, leaf, stone, rock, sand, soil, fire, wave, hill, valley, field, farm, jungle, cave, waterfall, volcano, climate, environment, pollution, energy), work & professions (office, meeting, boss, colleague, salary, contract, interview, career, business, manager, director, lawyer, nurse, teacher, engineer, police, soldier, farmer, artist, writer, musician, cook, driver, pilot, scientist, programmer, architect, accountant, builder, mechanic), society & government (government, president, minister, parliament, law, tax, vote, election, citizen, rights, freedom, war, peace, economy, bank, currency, budget, equality, justice, university, religion, church, tradition, history, museum), travel (trip, holiday, hotel, passport, visa, border, tourist, guide, sightseeing, luggage, flight, destination, continent, capital, north, south, east, west, abroad, souvenir, photo, adventure, exchange rate), technology (phone, computer, internet, app, website, email, message, social media, camera, screen, battery, charger, wifi, password, download, video, search, keyboard, data, software, robot, digital, online), sports & leisure (football, basketball, tennis, swimming, cycling, gym, yoga, dance, film, book, game, hobby, team, player, match, competition, score, goal, race, coach, fan, stadium, concert, theatre, festival, party), animals (dog, cat, horse, cow, pig, sheep, chicken, bird, eagle, lion, tiger, elephant, bear, wolf, fox, rabbit, snake, whale, dolphin, shark, butterfly, bee, frog, turtle, monkey, giraffe, penguin, owl, mouse, duck, goat).
+${rule}
+
+LIST 2 — "Heart & Mind 💬" (words 751–1000):
+Emotions (happy, sad, angry, scared, surprised, anxious, excited, bored, proud, ashamed, guilty, lonely, jealous, hopeful, desperate, calm, stressed, confused, frustrated, grateful, confident, shy, embarrassed, love, hate, joy, fear, grief, worry, relief, trust, regret, nostalgia, affection, passion, admiration, compassion, curiosity, wonder, courage, mood), abstract concepts (idea, thought, mind, soul, freedom, truth, beauty, power, knowledge, belief, memory, dream, reality, imagination, possibility, meaning, value, purpose, success, failure, effort, challenge, opportunity, risk, choice, progress, growth, existence, reason, ethics, responsibility, identity, culture, justice, hope), opinions & debate (agree, disagree, argue, discuss, suggest, recommend, prefer, support, oppose, criticise, prove, explain, consider, doubt, assume, conclude, predict, admit, deny, claim, opinion, view, perspective, evidence, fact, example, consequence, advantage, disadvantage, solution, cause, effect, benefit), time expressions (now, soon, already, still, again, always, never, sometimes, often, rarely, before, after, during, while, until, since, recently, immediately, suddenly, finally, eventually, previously, currently, yesterday, tomorrow, on time, at the same time, for a long time, for a moment), connectors (however, therefore, moreover, furthermore, in addition, on the other hand, for example, in other words, in conclusion, as a result, despite, instead, unless, whether, both, either, not only, also, even though, as long as, due to, according to, in terms of, indeed, clearly, unfortunately, fortunately, surprisingly, generally, especially), arts & culture (painting, sculpture, cinema, novel, poem, song, dance, photography, architecture, design, fashion, literature, celebration, ceremony, symbol, myth, legend, prayer, ritual, gallery, performance, instrument, guitar, piano, violin, drum, voice, style, trend, heritage, icon).
+${rule}`;
+
+  try {
+    const [raw12, raw34] = await Promise.all([
+      ai([{role:"user",content:p1}], null, 8000),
+      ai([{role:"user",content:p2}], null, 8000),
+    ]);
+    const [w0,w1] = splitPair(raw12);
+    const [w2,w3] = splitPair(raw34);
+    const names  = ["Core Essentials ⭐","Daily Rhythms 🌅","The World Around You 🌍","Heart & Mind 💬"];
+    const now    = new Date().toISOString();
+    return [w0,w1,w2,w3]
+      .map((words,i) => ({
+        id:      `lingua_core_${langCode}_v1_${i}`,
+        lang:    langCode,
+        name:    names[i],
+        created: now,
+        words,
+      }))
+      .filter(s => s.words.length > 0);
+  } catch { return []; }
+}
+
+/* ═══════════════════════════════════════════════════════════
    VOCAB SETS HUB
 ═══════════════════════════════════════════════════════════ */
 function VocabSets({t, kidLang, onStars}) {
@@ -3308,11 +3382,12 @@ function VocabSets({t, kidLang, onStars}) {
   const [matchTarget,setMatchTarget] = useState(null);
   const [listKey,setListKey]         = useState(0);
   const [flashSession,setFlashSession] = useState(0); // incremented each time a set is opened
-  const [generating,setGenerating]   = useState(false);
-  const [genError,setGenError]       = useState(false);
+  const [generating,setGenerating]       = useState(false);
+  const [genError,setGenError]           = useState(false);
+  const [coreGenerating,setCoreGenerating] = useState(false);
   const reload = () => setListKey(k=>k+1);
 
-  // Auto-generate sets the first time this language is visited and has none
+  // Auto-generate 3 thematic sets the first time this language is visited and has none
   useEffect(() => {
     const existing = loadVSets().filter(s => s.lang === kidLang);
     if (existing.length > 0 || generating) return;
@@ -3329,6 +3404,22 @@ function VocabSets({t, kidLang, onStars}) {
       })
       .catch(() => setGenError(true))
       .finally(() => setGenerating(false));
+  }, [kidLang]); // eslint-disable-line
+
+  // Auto-generate Core 1000 sets (4 × 250 words) the first time this language is visited
+  useEffect(() => {
+    const hasCoreSet = loadVSets().some(s => s.id === `lingua_core_${kidLang}_v1_0`);
+    if (hasCoreSet || coreGenerating) return;
+    setCoreGenerating(true);
+    generateCoreVocab(kidLang)
+      .then(newSets => {
+        if (newSets.length > 0) {
+          saveVSets([...loadVSets(), ...newSets]);
+          reload();
+        }
+      })
+      .catch(() => { /* silently ignore — user still sees existing sets */ })
+      .finally(() => setCoreGenerating(false));
   }, [kidLang]); // eslint-disable-line
 
   if (view==="edit") return (
@@ -3367,6 +3458,14 @@ function VocabSets({t, kidLang, onStars}) {
 
   return (
     <div className="vs-list" key={listKey}>
+      {coreGenerating && (
+        <div style={{display:"flex",alignItems:"center",gap:8,background:"var(--a-surf)",
+                     border:"1px solid var(--a-border)",borderRadius:8,padding:"7px 12px",
+                     marginBottom:10,fontSize:"0.8rem",color:"var(--a-muted)"}}>
+          <span>⏳</span>
+          <span>Building Core 1000 for {[...LANGUAGES,...KIDS_LANGS].find(l=>l.code===kidLang)?.name||kidLang}… <em style={{opacity:.7}}>this only happens once</em></span>
+        </div>
+      )}
       <div style={{display:"flex",gap:8,marginBottom:10,flexWrap:"wrap"}}>
         <button className="action-btn primary"
           onClick={()=>{ setEditTarget(null); setView("edit"); sfx.click(); }}>
