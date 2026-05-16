@@ -3374,17 +3374,18 @@ ${rule}`;
 /* ═══════════════════════════════════════════════════════════
    VOCAB SETS HUB
 ═══════════════════════════════════════════════════════════ */
-function VocabSets({t, kidLang, onStars}) {
+function VocabSets({t, kidLang, onStars, isKids=false}) {
   const [view,setView]               = useState("list");
   const [editTarget,setEditTarget]   = useState(null);
   const [flashTarget,setFlashTarget] = useState(null);
   const [practTarget,setPractTarget] = useState(null);
   const [matchTarget,setMatchTarget] = useState(null);
   const [listKey,setListKey]         = useState(0);
-  const [flashSession,setFlashSession] = useState(0); // incremented each time a set is opened
+  const [flashSession,setFlashSession] = useState(0);
   const [generating,setGenerating]       = useState(false);
   const [genError,setGenError]           = useState(false);
   const [coreGenerating,setCoreGenerating] = useState(false);
+  const [bonusOpen,setBonusOpen]         = useState(false);
   const reload = () => setListKey(k=>k+1);
 
   // Auto-generate 3 thematic sets the first time this language is visited and has none
@@ -3406,21 +3407,31 @@ function VocabSets({t, kidLang, onStars}) {
       .finally(() => setGenerating(false));
   }, [kidLang]); // eslint-disable-line
 
-  // Auto-generate Core 1000 sets (4 × 250 words) the first time this language is visited
+  // Auto-generate Core 1000 sets — adults only; kids get them on explicit request
   useEffect(() => {
+    if (isKids) return;
     const hasCoreSet = loadVSets().some(s => s.id === `lingua_core_${kidLang}_v1_0`);
     if (hasCoreSet || coreGenerating) return;
     setCoreGenerating(true);
     generateCoreVocab(kidLang)
       .then(newSets => {
-        if (newSets.length > 0) {
-          saveVSets([...loadVSets(), ...newSets]);
-          reload();
-        }
+        if (newSets.length > 0) { saveVSets([...loadVSets(), ...newSets]); reload(); }
       })
-      .catch(() => { /* silently ignore — user still sees existing sets */ })
+      .catch(() => {})
       .finally(() => setCoreGenerating(false));
   }, [kidLang]); // eslint-disable-line
+
+  function requestKidsCore() {
+    const hasCoreSet = loadVSets().some(s => s.id === `lingua_core_${kidLang}_v1_0`);
+    if (hasCoreSet || coreGenerating) { setBonusOpen(true); return; }
+    setCoreGenerating(true);
+    generateCoreVocab(kidLang)
+      .then(newSets => {
+        if (newSets.length > 0) { saveVSets([...loadVSets(), ...newSets]); reload(); }
+      })
+      .catch(() => {})
+      .finally(() => { setCoreGenerating(false); setBonusOpen(true); });
+  }
 
   if (view==="edit") return (
     <SetEditor set={editTarget} t={t} targetLang={kidLang||"en"}
@@ -3443,7 +3454,9 @@ function VocabSets({t, kidLang, onStars}) {
     <WordMatch words={matchTarget.words} kidLang={kidLang} t={t} onDone={()=>setView("list")}/>
   );
 
-  const sets = loadVSets().filter(s => !s.lang || s.lang === kidLang);
+  const allSets    = loadVSets().filter(s => !s.lang || s.lang === kidLang);
+  const coreSets   = allSets.filter(s => s.id?.startsWith("lingua_core_"));
+  const sets       = isKids ? allSets.filter(s => !s.id?.startsWith("lingua_core_")) : allSets;
 
   if (generating) {
     const langName = [...LANGUAGES,...KIDS_LANGS].find(l=>l.code===kidLang)?.name || kidLang;
@@ -3536,6 +3549,64 @@ function VocabSets({t, kidLang, onStars}) {
           </div>
         );
       })}
+
+      {/* ── Kids bonus section ── */}
+      {isKids && (
+        <div style={{marginTop:18}}>
+          {!bonusOpen ? (
+            <button onClick={()=>{ sfx.click(); requestKidsCore(); }}
+              style={{width:"100%",padding:"14px 16px",borderRadius:14,
+                      border:"2px dashed var(--k-accent,#F4A261)",
+                      background:"rgba(244,162,97,0.07)",
+                      cursor:"pointer",textAlign:"center",fontFamily:"var(--k-sans)",}}>
+              <div style={{fontSize:24,marginBottom:4}}>🌟</div>
+              <div style={{fontWeight:800,fontSize:"0.95rem",color:"var(--k-ink,#2C2C2C)"}}>
+                Ready for a Bonus Challenge?
+              </div>
+              <div style={{fontSize:"0.78rem",color:"var(--k-mute,#999)",marginTop:3}}>
+                {coreGenerating ? "Building your bonus words… ⏳" : "Tap to unlock 1 000 extra words!"}
+              </div>
+            </button>
+          ) : (
+            <div>
+              <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10,flexWrap:"wrap"}}>
+                <span style={{fontWeight:800,fontSize:"0.9rem",fontFamily:"var(--k-sans)"}}>🌟 Bonus Words</span>
+                <button onClick={()=>setBonusOpen(false)}
+                  style={{background:"none",border:"none",color:"var(--k-mute,#999)",
+                          fontSize:"0.78rem",cursor:"pointer",marginLeft:"auto"}}>
+                  hide ▲
+                </button>
+              </div>
+              {coreGenerating && (
+                <div style={{fontSize:"0.8rem",color:"var(--k-mute,#999)",marginBottom:8}}>
+                  ⏳ Building bonus words… this only happens once!
+                </div>
+              )}
+              {coreSets.length === 0 && !coreGenerating && (
+                <div style={{fontSize:"0.82rem",color:"var(--k-mute,#999)"}}>
+                  Couldn't load bonus words — check your connection and try again.
+                </div>
+              )}
+              {coreSets.map(s=>(
+                <div key={s.id} className="vs-item" style={{flexDirection:"column",alignItems:"stretch",gap:4}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <span className="vs-name">{s.name}</span>
+                    <span className="vs-count">{s.words.length} words</span>
+                    <div className="vs-actions">
+                      <button className="vs-btn" title="Flashcards"
+                        onClick={()=>{ setFlashTarget(s); setFlashSession(n=>n+1); setView("flash"); sfx.click(); }}>🃏</button>
+                      <button className="vs-btn" title="Practice with Ollie"
+                        onClick={()=>{ setPractTarget(s); setView("practice"); sfx.click(); }}>🤖</button>
+                      <button className="vs-btn" title="Word match"
+                        onClick={()=>{ setMatchTarget(s); setView("match"); sfx.click(); }}>🔗</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -5243,7 +5314,7 @@ function KidsMode({t, onStars, stars=0}) {
       {tab==="read"     && <KidsReadScreen kidLang={kidLang} t={t}/>}
       {tab==="idiom"    && <KidsIdiomScreen kidLang={kidLang} t={t}/>}
       {tab==="notebook" && <KidsNotebookScreen t={t}/>}
-      {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang} onStars={onStars}/></div>}
+      {tab==="vocab"    && <div className="kids-wrap" style={{padding:14,flex:1,overflowY:"auto"}}><VocabSets t={t} kidLang={kidLang} onStars={onStars} isKids/></div>}
 
       {/* Metacognitive reflection modal — shown when leaving a topic after ≥2 exchanges */}
       {showReflect && (
