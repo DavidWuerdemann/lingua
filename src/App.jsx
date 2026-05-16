@@ -2404,10 +2404,9 @@ input,textarea,select{font-family:inherit;font-size:16px;}
 .khome-btn{color:#fff;font-size:13px;padding:5px 10px;background:rgba(255,255,255,.1);border-radius:8px;font-family:var(--k-sans);font-weight:700;cursor:pointer;border:none;}
 .kh-ollie{display:flex;align-items:center;gap:8px;flex:1;margin-left:4px;}
 .kh-title{font-family:var(--k-sans);font-weight:800;font-size:15px;color:#fff;}
-.ktabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--k-paper2);border-bottom:2px solid var(--k-border);}
-.ktab{padding:9px 4px;font-family:var(--k-sans);font-size:12px;font-weight:800;color:var(--k-mute);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;cursor:pointer;border:none;background:none;text-align:center;}
+.ktabs{display:flex;background:var(--k-paper2);border-bottom:2px solid var(--k-border);}
+.ktab{flex:1;padding:10px;font-family:var(--k-sans);font-size:13px;font-weight:800;color:var(--k-mute);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;cursor:pointer;border:none;background:none;}
 .ktab.on{color:var(--k-ink);border-bottom-color:var(--k-accent);}
-.ktab-home{border-top:2px solid var(--k-border);}
 .kwel{padding:20px 20px 6px;position:relative;}
 .kwel h1{font-family:var(--k-display);font-size:26px;font-weight:600;color:var(--k-ink);letter-spacing:-.3px;line-height:1.15;margin-bottom:6px;}
 .kwel p{font-family:var(--k-sans);font-size:13px;color:var(--k-inkSoft);font-weight:600;}
@@ -5070,6 +5069,7 @@ function KidsMode({t, onStars, stars=0}) {
   return (
     <div className="ks">
       <div className="kh">
+        <button className="khome-btn" onClick={onBack}>← {t.home}</button>
         <div className="kh-ollie">
           <OllieAvatar size={28}/>
           <span className="kh-title">Ollie's Language World</span>
@@ -5086,9 +5086,6 @@ function KidsMode({t, onStars, stars=0}) {
             {l}
           </button>
         ))}
-        <button className="ktab ktab-home" onClick={()=>{onBack();sfx.click();}}>
-          🏠 {t.home}
-        </button>
       </div>
       <KidsLevelBar stars={stars}/>
 
