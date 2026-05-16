@@ -1880,21 +1880,25 @@ function speak(text, lang="en-US", rate=0.95) {
    AUTO-CORRECTION PARSER
 ───────────────────────────────────────────────────────────── */
 function parseAiResponse(raw) {
-  const mFix  = raw.match(/<fix>([\s\S]*?)<\/fix>/);
-  const mGram = raw.match(/<gram>([\s\S]*?)<\/gram>/);
+  const mFix   = raw.match(/<fix>([\s\S]*?)<\/fix>/);
+  const mGram  = raw.match(/<gram>([\s\S]*?)<\/gram>/);
+  const mHints = raw.match(/<hints>([\s\S]*?)<\/hints>/);
   // Extract phonetic line (🔤 ... to end of that line)
-  const mPhon = raw.match(/🔤\s*(.+)/);
+  const mPhon  = raw.match(/🔤\s*(.+)/);
   const phonetic = mPhon ? mPhon[1].trim() : null;
+  let hints = null;
+  if (mHints) try { hints = JSON.parse(mHints[1].trim()); } catch {}
   const text  = raw
     .replace(/<fix>[\s\S]*?<\/fix>/g, "")
     .replace(/<gram>[\s\S]*?<\/gram>/g, "")
+    .replace(/<hints>[\s\S]*?<\/hints>/g, "")
     .replace(/\n?🔤\s*.+/g, "")
     .trim();
   let fix = null, gram = null;
   if (mFix)  try { fix  = JSON.parse(mFix[1].trim());  } catch {}
   if (mGram) try { gram = JSON.parse(mGram[1].trim()); } catch {}
   // Never return empty text — strip any stray tags and fall back to ellipsis
-  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix, gram, phonetic};
+  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix, gram, phonetic, hints};
 }
 
 // Strip extra props so Anthropic never sees fields like `fix` or `id`
@@ -3811,6 +3815,7 @@ function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack}) 
   const [modal,setModal]         = useState(null);
   const [sessionEnd,setSessionEnd] = useState(null);
   const [endLoading,setEndLoading] = useState(false);
+  const [hints,setHints]         = useState([]);
   const endRef = useRef();
   const langObj = LANGUAGES.find(l=>l.code===lang);
 
@@ -3831,20 +3836,38 @@ function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack}) 
     ? `PHONETICS: At the very end of your reply (before any <fix> tag), add one line starting with exactly the emoji 🔤 followed by the complete romanised transliteration of everything you wrote in ${langObj.name}. Keep it on a single line. Example for Hebrew: "שלום! מה שלומך?\n🔤 Shalom! Ma shlomkha?" — for Arabic: "مرحبا! كيف حالك؟\n🔤 Marhaban! Kayfa ḥālak?" — for Russian: "Привет! Как дела?\n🔤 Privet! Kak dela?"`
     : "";
 
-  const sysPrompt = `You are a native ${langObj?.name} speaker in this real-life scenario: "${scenario}".
+  const sysPrompt = `You are a vivid, real native ${langObj?.name} speaker — not a tutor, a person — living this scenario right now: "${scenario}".
+
 ${skillInstructions}
 ${scriptInstruction}
-CRITICAL: Reply ONLY in ${langObj?.name}. Max 2 short punchy sentences — this is a live conversation, not a lesson.
-Stay in character, be natural and spontaneous. React to what the user says.
-If they make a grammar/vocabulary error, append this AFTER your reply (no blank line):
-<fix>{"err":"exact wrong phrase","fix":"correct form","tip":"one-line English tip"}</fix>
-No <fix> if no error.`;
+
+CHARACTER: You have a distinct personality — warm but real, occasionally opinionated, sometimes funny, never bland. You have a mood today, opinions, and a life outside this moment. Let these colour everything you say.
+
+ENERGY: This is a LIVE scene. Make something happen every single turn — a small revelation, an unexpected detail, a complication, a moment of humour. Never give a generic reply. React genuinely: be surprised, delighted, a little impatient, curious — whatever the moment calls for. If the learner gives a short or weak answer, raise the stakes or add a twist to pull them back in.
+
+HOOKS: Every reply MUST end with something that compels a response — a direct question, a provocative statement, a challenge, an unfinished thought. Never let the scene go quiet.
+
+LENGTH: 2–3 short punchy sentences maximum. This is a conversation, not a monologue.
+
+REPLY SUGGESTIONS: After your reply, on a new line, provide exactly 3 short phrases the learner could say next (in ${langObj?.name}, simple and natural). Format:
+<hints>["phrase one", "phrase two", "phrase three"]</hints>
+Make them varied: one practical/direct, one showing emotion or curiosity, one playful or unexpected. Keep them short enough to feel natural to say aloud.
+
+CORRECTIONS: If the learner makes a grammar or vocabulary error, append this AFTER your reply and BEFORE <hints>:
+<fix>{"err":"exact wrong phrase","fix":"correct form","tip":"one-line English explanation"}</fix>
+Omit <fix> entirely if there is no error.
+
+Reply ONLY in ${langObj?.name}. Never break character. Never explain or translate unprompted.`;
 
   useEffect(()=>{
-    setMsgs([]); setSessionEnd(null); setEndLoading(false); setInput(""); setPanels({});
+    setMsgs([]); setSessionEnd(null); setEndLoading(false); setInput(""); setPanels({}); setHints([]);
     setLoading(true);
-    ai([{role:"user",content:"Start the conversation right now with one short opening line — stay in character!"}], sysPrompt, 120)
-      .then(raw=>{ const {text,phonetic}=parseAiResponse(raw); setMsgs([{role:"assistant",content:text,phonetic,id:1}]); })
+    ai([{role:"user",content:"Open the scene right now — one vivid short line, fully in character. Include <hints> with 3 reply options."}], sysPrompt, 200)
+      .then(raw=>{
+        const {text,phonetic,hints:h}=parseAiResponse(raw);
+        setMsgs([{role:"assistant",content:text,phonetic,id:1}]);
+        if (h) setHints(h);
+      })
       .catch(()=>setMsgs([{role:"assistant",content:"Connection error. Please try again.",id:1}]))
       .finally(()=>setLoading(false));
   },[lang,scenario]);
@@ -3855,14 +3878,15 @@ No <fix> if no error.`;
     if (!input.trim()||loading) return;
     sfx.send(); haptic([15]);
     const userMsg = {role:"user",content:input.trim(),id:Date.now()};
-    const next = [...msgs, userMsg]; setMsgs(next); setInput(""); setLoading(true);
+    const next = [...msgs, userMsg]; setMsgs(next); setInput(""); setHints([]); setLoading(true);
     try {
       const apiMsgs = next.map(m=>({role:m.role,content:m.content}));
-      const raw = await ai(apiMsgs, sysPrompt, 220);
-      const {text,fix,phonetic} = parseAiResponse(raw);
+      const raw = await ai(apiMsgs, sysPrompt, 340);
+      const {text,fix,phonetic,hints:h} = parseAiResponse(raw);
       if (fix) addError(fix);
       const newTotal = addStarsTo(2); onStars?.(newTotal, 2);
       setMsgs(p=>[...p,{role:"assistant",content:text,fix,phonetic,id:Date.now()+1}]);
+      if (h) setHints(h);
     } catch(e) {
       setMsgs(p=>[...p,{role:"assistant",content:`Error: ${e.message}`,id:Date.now()}]);
     }
@@ -3933,16 +3957,7 @@ No <fix> if no error.`;
     setEndLoading(false);
   }
 
-  const HINTS_FOR = lang => ({
-    es:["¿Puede repetir?","No entiendo","¿Cuánto cuesta?","Muchas gracias","¿Más despacio?"],
-    fr:["Pouvez-vous répéter?","Je ne comprends pas","Combien ça coûte?","Merci beaucoup","Plus lentement?"],
-    de:["Können Sie das wiederholen?","Ich verstehe nicht","Was kostet das?","Danke schön","Bitte langsamer?"],
-    it:["Può ripetere?","Non capisco","Quanto costa?","Grazie mille","Parla più lentamente?"],
-    pt:["Pode repetir?","Não entendo","Quanto custa?","Muito obrigado","Mais devagar?"],
-    nl:["Kunt u dat herhalen?","Ik begrijp het niet","Hoeveel kost het?","Dank u wel","Langzamer?"],
-    ja:["もう一度言ってください","わかりません","いくらですか?","ありがとうございます","ゆっくり話してください"],
-    zh:["请再说一遍","我不明白","多少钱?","非常感谢","请说慢一点"],
-  })[lang] || [];
+  // hints are now dynamic — set from AI response via <hints> tag
 
   /* ── Session-end screen ── */
   if (endLoading || sessionEnd) return (
@@ -4070,9 +4085,15 @@ No <fix> if no error.`;
         )}
         <div ref={endRef}/>
       </div>
-      <div className="hints">
-        {HINTS_FOR(lang).map(h=><button key={h} className="hchip" onClick={()=>setInput(h)}>{h}</button>)}
-      </div>
+      {hints.length > 0 && (
+        <div className="hints">
+          {hints.map((h,i)=>(
+            <button key={i} className="hchip" onClick={()=>{ setInput(h); sfx.click(); }}>
+              {h}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="chat-actions">
         {msgs.length>0 && <button className="action-btn" onClick={()=>{setMsgs([]);setPanels({});sfx.click();}}>{t.clear}</button>}
         {msgs.filter(m=>m.role==="assistant").length>=1 && (
