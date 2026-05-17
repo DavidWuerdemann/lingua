@@ -3907,6 +3907,11 @@ async function generateVSetsForLang(langCode) {
    Kids:   multiple_choice only, age-appropriate language.
 ═══════════════════════════════════════════════════════════ */
 function GrammarExercises({lang, skillLevel="beginner", onStars, isKids=false}) {
+  const {nativeLang} = useContext(Ctx);
+
+  // ── exercise-topic state (kids only: mixed / negation / wquestions) ──────
+  const [exerciseTopic, setExerciseTopic] = useState("mixed");
+
   const [exercises, setExercises] = useState([]);
   const [loading, setLoading]     = useState(true);
   const [genErr, setGenErr]       = useState(false);
@@ -3918,17 +3923,45 @@ function GrammarExercises({lang, skillLevel="beginner", onStars, isKids=false}) 
   const [done, setDone]           = useState(false);
   const inputRef = useRef();
 
-  const langObj = [...LANGUAGES, ...KIDS_LANGS].find(l => l.code === lang) || LANGUAGES[0];
+  const langObj    = [...LANGUAGES, ...KIDS_LANGS].find(l => l.code === lang) || LANGUAGES[0];
   const skillLabel = SKILL_LEVELS.find(s => s.id === skillLevel)?.cefr || "A1";
 
-  useEffect(() => { generate(); }, [lang, skillLevel]); // eslint-disable-line
+  // Map UI-language code → full name for the AI prompt
+  const NATIVE_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const nativeLangName = NATIVE_NAMES[nativeLang] || "English";
 
-  async function generate() {
+  // Localized done-screen praise (kids)
+  const DONE_LOC = {
+    EN:{excellent:"Excellent!",  good:"Good work!",      keep:"Keep practising!"},
+    DE:{excellent:"Ausgezeichnet!", good:"Gut gemacht!", keep:"Weiter üben!"},
+    FR:{excellent:"Excellent !",  good:"Bien joué !",    keep:"Continue à pratiquer !"},
+    ES:{excellent:"¡Excelente!", good:"¡Buen trabajo!",  keep:"¡Sigue practicando!"},
+    NL:{excellent:"Uitstekend!", good:"Goed gedaan!",    keep:"Blijf oefenen!"},
+  };
+  const doneL = (isKids && DONE_LOC[nativeLang]) ? DONE_LOC[nativeLang] : DONE_LOC.EN;
+
+  // Kids topic selector config
+  const TOPIC_CFG = [
+    {id:"mixed",       emoji:"🎲", label:"Mixed"},
+    {id:"negation",    emoji:"🚫", label:"Negation"},
+    {id:"wquestions",  emoji:"❓", label:"W-Questions"},
+  ];
+
+  useEffect(() => { generate("mixed"); }, [lang, skillLevel]); // eslint-disable-line
+
+  function switchTopic(newTopic) {
+    setExerciseTopic(newTopic);
+    generate(newTopic);
+  }
+
+  async function generate(topicArg) {
+    // topicArg is authoritative when provided; fall back to current state
+    const tp = topicArg !== undefined ? topicArg : exerciseTopic;
     setLoading(true); setGenErr(false); setExercises([]);
     setCurrent(0); setResults([]); setDone(false);
     setAnswered(null); setSelected(null); setInput("");
 
-    const count = isKids ? 5 : 7;
+    const count     = isKids ? 5 : 7;
     const levelNote = isKids
       ? "beginner, child-friendly (ages 8–14), very simple sentences"
       : `${skillLevel} (${skillLabel}) — match the difficulty carefully`;
@@ -3936,17 +3969,50 @@ function GrammarExercises({lang, skillLevel="beginner", onStars, isKids=false}) 
       ? "Use ONLY multiple_choice (4 options). NO fill_blank for kids."
       : "Use a mix: roughly 4 multiple_choice and 3 fill_blank. Vary the types.";
 
+    // Per-topic AI instructions ─────────────────────────────────────────────
+    const topicNote = tp === "negation"
+      ? `Focus EXCLUSIVELY on negation. Cover a variety of negation patterns:\n` +
+        `- is not / isn't   e.g. "She is happy." → which option is the correct negative?\n` +
+        `- do not / don't   e.g. "They play football." → negative form\n` +
+        `- cannot / can't   e.g. "He can swim." → negative form\n` +
+        `- has not / hasn't, will not / won't\n` +
+        `Frame each exercise as sentence transformation: show a positive sentence, ask which negative form is correct.\n` +
+        `Vary the helper verb across all 5 exercises. No two exercises may test the same pattern.`
+      : tp === "wquestions"
+      ? `Focus EXCLUSIVELY on W-questions (Who, What, Where, When, Why, How).\n` +
+        `Alternate among these three formats:\n` +
+        `  1. Fill the gap: "___ do you live?" → answer is the single question word (Where / What / etc.)\n` +
+        `     [use fill_blank type for adults; for kids embed it as multiple_choice]\n` +
+        `  2. Given a statement, choose the correct matching question from 4 options\n` +
+        `     e.g. "She plays violin." → "What does she play? / Where does she go? / When is she? / Who is she?"\n` +
+        `  3. Given a question, choose the correct short answer from 4 options\n` +
+        `     e.g. "Why is the sky blue?" → child-friendly answer about sunlight\n` +
+        `Cover all 6 question words across the 5 exercises. No question word may appear twice.`
+      : `Cover varied grammar topics (articles, verb tenses, agreement, prepositions, word order, negation, etc).`;
+
+    // Native-language explanations (kids) ───────────────────────────────────
+    const nativeNote = isKids
+      ? `\nFor EACH exercise also add a "nativeExplanation" field: 1–2 sentences in ${nativeLangName}, ` +
+        `age-appropriate and encouraging, explaining WHY the answer is correct — not just saying "wrong". ` +
+        `Explain the grammar rule simply. ` +
+        `Example (German): "Bei Verneinungen mit 'do' hängen wir 'not' ans Hilfsverb an: 'I do not like...'"` +
+        `Example (French): "Pour les questions en 'Where', on utilise 'Où' au début de la phrase."`
+      : "";
+
     const prompt =
 `Generate ${count} ${langObj.name} grammar exercises at ${levelNote} level.
 ${typesNote}
 
+Topic focus: ${topicNote}
+${nativeNote}
+
 Return ONLY a raw JSON array — no markdown fences, no explanation:
-[{"type":"multiple_choice","question":"sentence or question in ${langObj.name}","options":["A","B","C","D"],"answer":"exact text of the correct option","explanation":"one English sentence explaining the rule","topic":"e.g. verb conjugation"},...]
-For fill_blank: the question contains ___ where the answer goes; omit the options field; answer is the missing word/phrase.
-RULES: All questions and answer options must be in ${langObj.name}. Explanations in English. Cover varied grammar topics (articles, gender, verb tenses, agreement, prepositions, word order, negation, etc). Make exercises practical and natural.`;
+[{"type":"multiple_choice","question":"full sentence or prompt in ${langObj.name}","options":["A","B","C","D"],"answer":"exact text of the correct option","explanation":"one English sentence explaining the rule","topic":"short label e.g. negation / W-question","nativeExplanation":"explanation in ${nativeLangName} for wrong answer"},...]
+For fill_blank (adults only): question contains ___ ; omit options; answer is the missing word/phrase.
+RULES: questions and options in ${langObj.name}. explanation in English. nativeExplanation in ${nativeLangName}.`;
 
     try {
-      const raw = await ai([{role:"user", content:prompt}], null, 2000);
+      const raw = await ai([{role:"user", content:prompt}], null, 2500);
       const cleaned = raw.replace(/```json\s*/gi,"").replace(/```/g,"");
       const m = cleaned.match(/\[[\s\S]*\]/);
       if (!m) throw new Error("no array");
@@ -3959,15 +4025,14 @@ RULES: All questions and answer options must be in ${langObj.name}. Explanations
   }
 
   function submit(userAnswer) {
-    const ex  = exercises[current];
-    const ok  = userAnswer.trim().toLowerCase() === ex.answer.trim().toLowerCase();
+    const ex = exercises[current];
+    const ok = userAnswer.trim().toLowerCase() === ex.answer.trim().toLowerCase();
     setAnswered(ok ? "correct" : "wrong");
     setSelected(userAnswer);
     setResults(r => [...r, ok]);
     if (ok) {
       const pts = isKids ? 3 : 2;
-      const newTotal = addStarsTo(pts);
-      onStars?.(newTotal, pts);
+      onStars?.(addStarsTo(pts), pts);
       sfx.correct(); haptic([30,10,30]);
     } else {
       sfx.wrong(); haptic([50]);
@@ -3985,154 +4050,223 @@ RULES: All questions and answer options must be in ${langObj.name}. Explanations
   const muted = isKids ? "var(--k-mute,#8A7F74)"    : "var(--a-muted,#8A8070)";
   const surf  = isKids ? "rgba(0,0,0,.04)"           : "rgba(255,255,255,.04)";
 
-  /* ── Loading ── */
-  if (loading) return (
-    <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
-                 justifyContent:"center",padding:48,gap:14,textAlign:"center"}}>
-      <div style={{fontSize:44}}>{isKids?"🦉":"📝"}</div>
-      <div style={{color:muted,fontSize:14}}>
-        {isKids ? "Ollie is writing your exercises…" : "Generating grammar exercises…"}
-      </div>
-      <Dots/>
+  /* ── Topic selector bar (kids only) ──────────────────────────────────────── */
+  const topicBar = isKids && (
+    <div style={{display:"flex",gap:6,padding:"12px 14px 0",flexShrink:0}}>
+      {TOPIC_CFG.map(tp => {
+        const active = exerciseTopic === tp.id;
+        return (
+          <button key={tp.id}
+            onClick={() => !active && switchTopic(tp.id)}
+            style={{
+              flex:1, padding:"7px 4px", borderRadius:10,
+              display:"flex", flexDirection:"column", alignItems:"center", gap:2,
+              fontSize:"0.75rem", fontWeight:active?700:500,
+              fontFamily:"var(--k-sans,sans-serif)",
+              background: active ? gold : surf,
+              color:  active ? "#fff" : muted,
+              border: active ? "none" : `1px solid rgba(0,0,0,.1)`,
+              cursor: active ? "default" : "pointer",
+              transition:"all .18s",
+            }}>
+            <span style={{fontSize:"1.05rem"}}>{tp.emoji}</span>
+            <span>{tp.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 
+  /* ── Loading ── */
+  if (loading) {
+    const loadMsg = isKids
+      ? (exerciseTopic==="negation" ? "Ollie is writing negation exercises…"
+         : exerciseTopic==="wquestions" ? "Ollie is thinking up questions…"
+         : "Ollie is writing your exercises…")
+      : "Generating grammar exercises…";
+    return (
+      <div style={{flex:1,display:"flex",flexDirection:"column"}}>
+        {topicBar}
+        <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+                     justifyContent:"center",padding:48,gap:14,textAlign:"center"}}>
+          <div style={{fontSize:44}}>{isKids?"🦉":"📝"}</div>
+          <div style={{color:muted,fontSize:14}}>{loadMsg}</div>
+          <Dots/>
+        </div>
+      </div>
+    );
+  }
+
   /* ── Error ── */
   if (genErr || exercises.length === 0) return (
-    <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
-                 justifyContent:"center",padding:40,gap:16,textAlign:"center"}}>
-      <div style={{fontSize:40}}>😕</div>
-      <p style={{color:muted,fontSize:14}}>Couldn't generate exercises. Check your connection and try again.</p>
-      <button className="cta" onClick={generate}>Try again</button>
+    <div style={{flex:1,display:"flex",flexDirection:"column"}}>
+      {topicBar}
+      <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+                   justifyContent:"center",padding:40,gap:16,textAlign:"center"}}>
+        <div style={{fontSize:40}}>😕</div>
+        <p style={{color:muted,fontSize:14}}>Couldn't generate exercises. Check your connection and try again.</p>
+        <button className="cta" onClick={()=>generate()}>Try again</button>
+      </div>
     </div>
   );
 
   /* ── Done screen ── */
   if (done) {
-    const score  = results.filter(Boolean).length;
-    const pct    = Math.round((score / exercises.length) * 100);
-    const emoji  = pct >= 80 ? "🏆" : pct >= 60 ? "🌟" : "💪";
-    const msg    = pct >= 80 ? "Excellent!" : pct >= 60 ? "Good work!" : "Keep practising!";
+    const score = results.filter(Boolean).length;
+    const pct   = Math.round((score / exercises.length) * 100);
+    const emoji = pct >= 80 ? "🏆" : pct >= 60 ? "🌟" : "💪";
+    const msg   = pct >= 80 ? doneL.excellent : pct >= 60 ? doneL.good : doneL.keep;
     return (
-      <div style={{flex:1,overflowY:"auto",padding:"28px 16px"}}>
-        <div style={{textAlign:"center",marginBottom:24}}>
-          <div style={{fontSize:52,marginBottom:10}}>{emoji}</div>
-          <h2 style={{fontFamily:"var(--a-serif,serif)",fontSize:"1.4rem",color:cream,margin:"0 0 6px"}}>{msg}</h2>
-          <p style={{color:muted,fontSize:14}}>{score} / {exercises.length} correct · {pct}%</p>
-        </div>
-        <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:28}}>
-          {exercises.map((e,i) => (
-            <div key={i} style={{
-              padding:"10px 14px",borderRadius:10,fontSize:"0.83rem",
-              display:"flex",gap:10,alignItems:"flex-start",
-              background: results[i] ? "rgba(80,200,120,.08)" : "rgba(220,80,80,.07)",
-              border: `1px solid ${results[i] ? "rgba(80,200,120,.25)" : "rgba(220,80,80,.2)"}`,
-            }}>
-              <span>{results[i] ? "✅" : "❌"}</span>
-              <div>
-                <div style={{color:cream,marginBottom:2}}>{e.question.replace("___",`[${e.answer}]`)}</div>
-                {!results[i] && <div style={{color:muted,fontSize:"0.78rem"}}>{e.explanation}</div>}
+      <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column"}}>
+        {topicBar}
+        <div style={{padding:"28px 16px",flex:1}}>
+          <div style={{textAlign:"center",marginBottom:24}}>
+            <div style={{fontSize:52,marginBottom:10}}>{emoji}</div>
+            <h2 style={{fontFamily:"var(--a-serif,serif)",fontSize:"1.4rem",color:cream,margin:"0 0 6px"}}>{msg}</h2>
+            <p style={{color:muted,fontSize:14}}>{score} / {exercises.length} correct · {pct}%</p>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:28}}>
+            {exercises.map((e,i) => (
+              <div key={i} style={{
+                padding:"10px 14px",borderRadius:10,fontSize:"0.83rem",
+                display:"flex",gap:10,alignItems:"flex-start",
+                background: results[i] ? "rgba(80,200,120,.08)" : "rgba(220,80,80,.07)",
+                border: `1px solid ${results[i] ? "rgba(80,200,120,.25)" : "rgba(220,80,80,.2)"}`,
+              }}>
+                <span>{results[i] ? "✅" : "❌"}</span>
+                <div>
+                  <div style={{color:cream,marginBottom:2}}>{e.question.replace("___",`[${e.answer}]`)}</div>
+                  {!results[i] && (
+                    <>
+                      <div style={{color:muted,fontSize:"0.78rem"}}>{e.explanation}</div>
+                      {isKids && e.nativeExplanation && (
+                        <div style={{color:gold,fontSize:"0.78rem",marginTop:3}}>
+                          💡 {e.nativeExplanation}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <button className="cta" style={{width:"100%"}} onClick={()=>generate()}>🔄 New Exercises</button>
         </div>
-        <button className="cta" style={{width:"100%"}} onClick={generate}>🔄 New Exercises</button>
       </div>
     );
   }
 
   /* ── Exercise screen ── */
-  const ex = exercises[current];
-  const isMulti = ex.type === "multiple_choice" || isKids || !ex.options === false;
+  const ex         = exercises[current];
   const hasOptions = Array.isArray(ex.options) && ex.options.length >= 2;
-  const pct = Math.round((current / exercises.length) * 100);
+  const pct        = Math.round((current / exercises.length) * 100);
+  const topicLabel = ex.topic || (exerciseTopic==="negation" ? "Negation" : exerciseTopic==="wquestions" ? "W-Questions" : "Grammar");
 
   return (
-    <div style={{flex:1,overflowY:"auto",padding:"16px 16px 24px"}}>
-      {/* Progress bar */}
-      <div style={{marginBottom:18}}>
-        <div style={{display:"flex",justifyContent:"space-between",
-                     fontSize:"0.73rem",color:muted,marginBottom:5}}>
-          <span>Question {current+1} / {exercises.length}</span>
-          <span style={{color:gold}}>{ex.topic}</span>
-        </div>
-        <div style={{height:4,borderRadius:4,background:isKids?"rgba(0,0,0,.1)":"rgba(255,255,255,.08)"}}>
-          <div style={{height:"100%",borderRadius:4,background:gold,
-                       width:`${pct}%`,transition:"width .3s"}}/>
-        </div>
-      </div>
+    <div style={{flex:1,overflowY:"auto",display:"flex",flexDirection:"column"}}>
+      {topicBar}
+      <div style={{padding:"16px 16px 24px",flex:1}}>
 
-      {/* Question */}
-      <div style={{
-        padding:"20px 16px",borderRadius:14,marginBottom:22,textAlign:"center",
-        background:surf,border:`1px solid ${isKids?"rgba(0,0,0,.08)":"rgba(255,255,255,.08)"}`,
-        fontSize:"1.1rem",color:cream,lineHeight:1.65,
-        fontFamily: isKids ? "var(--k-sans,sans-serif)" : "var(--a-serif,serif)",
-      }}>
-        {ex.question}
-      </div>
-
-      {/* Multiple choice */}
-      {hasOptions && (
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
-          {ex.options.map((opt,i) => {
-            const isCorrect = answered && opt === ex.answer;
-            const isWrong   = answered && opt === selected && opt !== ex.answer;
-            return (
-              <button key={i} disabled={!!answered} onClick={() => submit(opt)} style={{
-                padding:"14px 10px",borderRadius:12,fontSize:"0.92rem",textAlign:"center",
-                fontFamily:"inherit",cursor:answered?"default":"pointer",transition:"all .18s",
-                color:cream,
-                background: isCorrect?"rgba(80,200,120,.15)":isWrong?"rgba(220,80,80,.15)":surf,
-                border: isCorrect?"1px solid rgba(80,200,120,.5)":isWrong?"1px solid rgba(220,80,80,.5)":`1px solid ${isKids?"rgba(0,0,0,.1)":"rgba(255,255,255,.1)"}`,
-              }}>{opt}</button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Fill in the blank */}
-      {!hasOptions && (
-        <div style={{marginBottom:20}}>
-          <input ref={inputRef} value={input} onChange={e=>setInput(e.target.value)}
-            onKeyDown={e=>{if(e.key==="Enter"&&input.trim()&&!answered)submit(input.trim());}}
-            disabled={!!answered} placeholder="Type your answer…"
-            autoFocus
-            style={{width:"100%",padding:"13px 14px",borderRadius:10,fontSize:"1rem",
-                    fontFamily:"inherit",outline:"none",
-                    color:cream, background: isKids?"rgba(0,0,0,.04)":"rgba(255,255,255,.05)",
-                    border:`1px solid ${answered?(answered==="correct"?"rgba(80,200,120,.5)":"rgba(220,80,80,.5)"):isKids?"rgba(0,0,0,.15)":"rgba(255,255,255,.15)"}`,
-            }}/>
-          {!answered && (
-            <button className="cta" style={{width:"100%",marginTop:10}}
-              disabled={!input.trim()}
-              onClick={()=>{if(input.trim())submit(input.trim());}}>
-              Check ✓
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Feedback */}
-      {answered && (
-        <div style={{
-          padding:"14px 16px",borderRadius:12,marginBottom:14,
-          background:answered==="correct"?"rgba(80,200,120,.09)":"rgba(220,80,80,.08)",
-          border:`1px solid ${answered==="correct"?"rgba(80,200,120,.3)":"rgba(220,80,80,.25)"}`,
-        }}>
-          <div style={{fontWeight:700,fontSize:"0.9rem",marginBottom:5,
-                       color:answered==="correct"?"#5BC88A":"#E07070"}}>
-            {answered==="correct" ? "✅ Correct!" : `❌ Answer: ${ex.answer}`}
+        {/* Progress bar */}
+        <div style={{marginBottom:18}}>
+          <div style={{display:"flex",justifyContent:"space-between",
+                       fontSize:"0.73rem",color:muted,marginBottom:5}}>
+            <span>Question {current+1} / {exercises.length}</span>
+            <span style={{color:gold}}>{topicLabel}</span>
           </div>
-          <div style={{fontSize:"0.82rem",color:muted,lineHeight:1.55}}>{ex.explanation}</div>
+          <div style={{height:4,borderRadius:4,background:isKids?"rgba(0,0,0,.1)":"rgba(255,255,255,.08)"}}>
+            <div style={{height:"100%",borderRadius:4,background:gold,
+                         width:`${pct}%`,transition:"width .3s"}}/>
+          </div>
         </div>
-      )}
 
-      {answered && (
-        <button className="cta" style={{width:"100%"}} onClick={next}>
-          {current+1 >= exercises.length ? "See Results →" : "Next →"}
-        </button>
-      )}
+        {/* Question */}
+        <div style={{
+          padding:"20px 16px",borderRadius:14,marginBottom:22,textAlign:"center",
+          background:surf,border:`1px solid ${isKids?"rgba(0,0,0,.08)":"rgba(255,255,255,.08)"}`,
+          fontSize:"1.1rem",color:cream,lineHeight:1.65,
+          fontFamily: isKids ? "var(--k-sans,sans-serif)" : "var(--a-serif,serif)",
+        }}>
+          {ex.question}
+        </div>
+
+        {/* Multiple choice */}
+        {hasOptions && (
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:20}}>
+            {ex.options.map((opt,i) => {
+              const isCorrect = answered && opt === ex.answer;
+              const isWrong   = answered && opt === selected && opt !== ex.answer;
+              return (
+                <button key={i} disabled={!!answered} onClick={() => submit(opt)} style={{
+                  padding:"14px 10px",borderRadius:12,fontSize:"0.92rem",textAlign:"center",
+                  fontFamily:"inherit",cursor:answered?"default":"pointer",transition:"all .18s",
+                  color:cream,
+                  background: isCorrect?"rgba(80,200,120,.15)":isWrong?"rgba(220,80,80,.15)":surf,
+                  border: isCorrect?"1px solid rgba(80,200,120,.5)":isWrong?"1px solid rgba(220,80,80,.5)":`1px solid ${isKids?"rgba(0,0,0,.1)":"rgba(255,255,255,.1)"}`,
+                }}>{opt}</button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Fill in the blank */}
+        {!hasOptions && (
+          <div style={{marginBottom:20}}>
+            <input ref={inputRef} value={input} onChange={e=>setInput(e.target.value)}
+              onKeyDown={e=>{if(e.key==="Enter"&&input.trim()&&!answered)submit(input.trim());}}
+              disabled={!!answered} placeholder="Type your answer…"
+              autoFocus
+              style={{width:"100%",padding:"13px 14px",borderRadius:10,fontSize:"1rem",
+                      fontFamily:"inherit",outline:"none",
+                      color:cream, background: isKids?"rgba(0,0,0,.04)":"rgba(255,255,255,.05)",
+                      border:`1px solid ${answered?(answered==="correct"?"rgba(80,200,120,.5)":"rgba(220,80,80,.5)"):isKids?"rgba(0,0,0,.15)":"rgba(255,255,255,.15)"}`,
+              }}/>
+            {!answered && (
+              <button className="cta" style={{width:"100%",marginTop:10}}
+                disabled={!input.trim()}
+                onClick={()=>{if(input.trim())submit(input.trim());}}>
+                Check ✓
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Feedback */}
+        {answered && (
+          <div style={{
+            padding:"14px 16px",borderRadius:12,marginBottom:14,
+            background:answered==="correct"?"rgba(80,200,120,.09)":"rgba(220,80,80,.08)",
+            border:`1px solid ${answered==="correct"?"rgba(80,200,120,.3)":"rgba(220,80,80,.25)"}`,
+          }}>
+            <div style={{fontWeight:700,fontSize:"0.9rem",marginBottom:5,
+                         color:answered==="correct"?"#5BC88A":"#E07070"}}>
+              {answered==="correct" ? "✅ Correct!" : `❌ Answer: ${ex.answer}`}
+            </div>
+            <div style={{fontSize:"0.82rem",color:muted,lineHeight:1.55}}>{ex.explanation}</div>
+
+            {/* Native-language tip — shown to kids on wrong answers only */}
+            {answered==="wrong" && isKids && ex.nativeExplanation && (
+              <div style={{
+                marginTop:10, padding:"9px 11px", borderRadius:8,
+                background:"rgba(255,200,0,.13)",
+                border:"1px solid rgba(255,200,0,.4)",
+              }}>
+                <div style={{fontSize:"0.71rem",fontWeight:700,letterSpacing:".04em",
+                             color:gold,marginBottom:3}}>💡 Tipp</div>
+                <div style={{fontSize:"0.84rem",color:cream,lineHeight:1.55}}>
+                  {ex.nativeExplanation}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {answered && (
+          <button className="cta" style={{width:"100%"}} onClick={next}>
+            {current+1 >= exercises.length ? "See Results →" : "Next →"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
