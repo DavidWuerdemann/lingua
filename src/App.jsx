@@ -2318,6 +2318,9 @@ function speak(text, lang="en-US", rate=0.95) {
    AUTO-CORRECTION PARSER
 ───────────────────────────────────────────────────────────── */
 function parseAiResponse(raw) {
+  // New multi-error format: <fixes>[{err,fix,tip},…]</fixes>
+  const mFixes = raw.match(/<fixes>([\s\S]*?)<\/fixes>/);
+  // Legacy single-error fallback: <fix>{err,fix,tip}</fix>
   const mFix   = raw.match(/<fix>([\s\S]*?)<\/fix>/);
   const mGram  = raw.match(/<gram>([\s\S]*?)<\/gram>/);
   const mHints = raw.match(/<hints>([\s\S]*?)<\/hints>/);
@@ -2326,17 +2329,28 @@ function parseAiResponse(raw) {
   const phonetic = mPhon ? mPhon[1].trim() : null;
   let hints = null;
   if (mHints) try { hints = JSON.parse(mHints[1].trim()); } catch {}
-  const text  = raw
+  const text = raw
+    .replace(/<fixes>[\s\S]*?<\/fixes>/g, "")
     .replace(/<fix>[\s\S]*?<\/fix>/g, "")
     .replace(/<gram>[\s\S]*?<\/gram>/g, "")
     .replace(/<hints>[\s\S]*?<\/hints>/g, "")
     .replace(/\n?🔤\s*.+/g, "")
     .trim();
-  let fix = null, gram = null;
-  if (mFix)  try { fix  = JSON.parse(mFix[1].trim());  } catch {}
+  // Parse corrections into a uniform array (null when none)
+  let fixes = null, gram = null;
+  if (mFixes) {
+    try {
+      const arr = JSON.parse(mFixes[1].trim());
+      const valid = Array.isArray(arr) ? arr.filter(f => f.err && f.fix) : [];
+      if (valid.length > 0) fixes = valid;
+    } catch {}
+  }
+  if (!fixes && mFix) {          // fall back to legacy single <fix>
+    try { const f = JSON.parse(mFix[1].trim()); if (f.err && f.fix) fixes = [f]; } catch {}
+  }
   if (mGram) try { gram = JSON.parse(mGram[1].trim()); } catch {}
-  // Never return empty text — strip any stray tags and fall back to ellipsis
-  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fix, gram, phonetic, hints};
+  // Never return empty text
+  return {text: text || raw.replace(/<[^>]+>/g,"").trim() || "…", fixes, gram, phonetic, hints};
 }
 
 // Strip extra props so Anthropic never sees fields like `fix` or `id`
@@ -4736,8 +4750,8 @@ Only for genuinely useful patterns — never for basic vocabulary. Skip most of 
       // Strip extra props (fix, gram, id, …) — Anthropic rejects unknown fields
       const apiMsgs = toApiMsgs(newMsgs);
       const raw  = await ai(apiMsgs, system, 400);
-      const {text, fix, gram} = parseAiResponse(raw);
-      setMsgs(m=>[...m, {role:"assistant", content:text, fix, gram}]);
+      const {text, fixes, gram} = parseAiResponse(raw);
+      setMsgs(m=>[...m, {role:"assistant", content:text, fixes, gram}]);
       setCurrentAi(text); bounce();
       // Track vocab-set word exposures that appeared in Ollie's reply
       trackExposuresInText(text);
@@ -4864,15 +4878,19 @@ Only for genuinely useful patterns — never for basic vocabulary. Skip most of 
         {msgs.filter(m=>m.content!==GREET_TRIGGER.content).map((m,i)=>(
           <div key={i} className={`bubble ${m.role==="user"?"user":"ai"}`} dir="auto">
             {m.content}
-            {/* Kids-friendly correction pill */}
-            {m.role==="assistant" && m.fix && (
-              <div style={{marginTop:6,background:"rgba(248,224,180,.18)",border:"1px solid rgba(232,148,59,.35)",
-                borderRadius:8,padding:"5px 9px",fontSize:"0.72rem",lineHeight:1.5}}>
-                <span style={{fontSize:"0.75rem"}}>💡 </span>
-                <span style={{color:"#E08030",textDecoration:"line-through",marginRight:4}}>{m.fix.err}</span>
-                {"→ "}
-                <span style={{color:"#4CAF82",fontWeight:700}}>{m.fix.fix}</span>
-                {m.fix.tip && <span style={{color:"var(--a-muted)",fontStyle:"italic",marginLeft:4}}>({m.fix.tip})</span>}
+            {/* Kids-friendly correction pills — one per error */}
+            {m.role==="assistant" && m.fixes?.length > 0 && (
+              <div style={{display:"flex",flexDirection:"column",gap:3,marginTop:6}}>
+                {m.fixes.map((fx,i) => (
+                  <div key={i} style={{background:"rgba(248,224,180,.18)",border:"1px solid rgba(232,148,59,.35)",
+                    borderRadius:8,padding:"5px 9px",fontSize:"0.72rem",lineHeight:1.5}}>
+                    <span style={{fontSize:"0.75rem"}}>💡 </span>
+                    <span style={{color:"#E08030",textDecoration:"line-through",marginRight:4}}>{fx.err}</span>
+                    {"→ "}
+                    <span style={{color:"#4CAF82",fontWeight:700}}>{fx.fix}</span>
+                    {fx.tip && <span style={{color:"var(--a-muted)",fontStyle:"italic",marginLeft:4}}>({fx.tip})</span>}
+                  </div>
+                ))}
               </div>
             )}
             {m.role==="assistant" && m.gram && (
@@ -4989,6 +5007,7 @@ function SaveModal({ text, lang, onClose, onStars }) {
    ADULT CHAT  (new design, all old features)
 ═══════════════════════════════════════════════════════════ */
 function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack, onLevelUpdate}) {
+  const {nativeLang} = useContext(Ctx);
   const [msgs,setMsgs]           = useState([]);
   const [input,setInput]         = useState("");
   const [loading,setLoading]     = useState(false);
@@ -5000,6 +5019,8 @@ function AdultChat({lang, scenario, skillLevel="beginner", t, onStars, onBack, o
   const [levelUpdated,setLevelUpdated] = useState(false);
   const endRef = useRef();
   const langObj = LANGUAGES.find(l=>l.code===lang);
+  const NATIVE_NAMES = {EN:"English",DE:"German",NL:"Dutch",FR:"French",ES:"Spanish"};
+  const nativeLangName = NATIVE_NAMES[nativeLang] || "English";
 
   // Track session count for progress analysis
   useEffect(()=>{
@@ -5035,9 +5056,12 @@ REPLY SUGGESTIONS: After your reply, on a new line, provide exactly 3 short phra
 <hints>["phrase one", "phrase two", "phrase three"]</hints>
 Make them varied: one practical/direct, one showing emotion or curiosity, one playful or unexpected. Keep them short enough to feel natural to say aloud.
 
-CORRECTIONS: If the learner makes a grammar or vocabulary error, append this AFTER your reply and BEFORE <hints>:
-<fix>{"err":"exact wrong phrase","fix":"correct form","tip":"one-line English explanation"}</fix>
-Omit <fix> entirely if there is no error.
+CORRECTIONS: After your reply and BEFORE <hints>, list every error the learner made in a single tag:
+<fixes>[{"err":"exact wrong word or phrase","fix":"correct form in ${langObj?.name}","tip":"one-line English explanation"},…]</fixes>
+Rules:
+- Catch EVERY grammar and vocabulary mistake — never stop at the first one.
+- If the learner writes a word from another language (e.g. ${nativeLangName} or English) instead of ${langObj?.name}, include it: err = the foreign word they used, fix = the correct ${langObj?.name} word, tip = 'In ${langObj?.name} you say "…"'.
+- Emit <fixes>[]</fixes> (empty array) when there are no errors at all.
 
 Reply ONLY in ${langObj?.name}. Never break character. Never explain or translate unprompted.`;
 
@@ -5063,11 +5087,11 @@ Reply ONLY in ${langObj?.name}. Never break character. Never explain or translat
     const next = [...msgs, userMsg]; setMsgs(next); setInput(""); setHints([]); setLoading(true);
     try {
       const apiMsgs = next.map(m=>({role:m.role,content:m.content}));
-      const raw = await ai(apiMsgs, sysPrompt, 340);
-      const {text,fix,phonetic,hints:h} = parseAiResponse(raw);
-      if (fix) addError(fix);
+      const raw = await ai(apiMsgs, sysPrompt, 380);
+      const {text,fixes,phonetic,hints:h} = parseAiResponse(raw);
+      fixes?.forEach(f => addError(f));
       const newTotal = addStarsTo(2); onStars?.(newTotal, 2);
-      setMsgs(p=>[...p,{role:"assistant",content:text,fix,phonetic,id:Date.now()+1}]);
+      setMsgs(p=>[...p,{role:"assistant",content:text,fixes,phonetic,id:Date.now()+1}]);
       if (h) setHints(h);
     } catch(e) {
       setMsgs(p=>[...p,{role:"assistant",content:`Error: ${e.message}`,id:Date.now()}]);
@@ -5266,13 +5290,17 @@ Reply ONLY in ${langObj?.name}. Never break character. Never explain or translat
               {m.phonetic && (
                 <div className="phon-line">🔤 {m.phonetic}</div>
               )}
-              {m.fix && (
-                <div className="fix-pill">
-                  <span className="fix-label">{t.fix}:</span>
-                  <span className="fix-err">{m.fix.err}</span>
-                  {" → "}
-                  <span className="fix-ok">{m.fix.fix}</span>
-                  {m.fix.tip && <span className="fix-tip">({m.fix.tip})</span>}
+              {m.fixes?.length > 0 && (
+                <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                  {m.fixes.map((fx,i) => (
+                    <div key={i} className="fix-pill">
+                      <span className="fix-label">{t.fix}:</span>
+                      <span className="fix-err">{fx.err}</span>
+                      {" → "}
+                      <span className="fix-ok">{fx.fix}</span>
+                      {fx.tip && <span className="fix-tip">({fx.tip})</span>}
+                    </div>
+                  ))}
                 </div>
               )}
               {m.role==="assistant" && (
