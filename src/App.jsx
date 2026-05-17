@@ -3973,11 +3973,18 @@ function GrammarExercises({lang, skillLevel="beginner", onStars, isKids=false}) 
     const topicNote = tp === "negation"
       ? `Focus EXCLUSIVELY on negation. Cover a variety of negation patterns:\n` +
         `- is not / isn't   e.g. "She is happy." → which option is the correct negative?\n` +
+        `- are not / aren't   e.g. "They are tired." → negative form\n` +
         `- do not / don't   e.g. "They play football." → negative form\n` +
+        `- does not / doesn't   e.g. "He likes cats." → negative form\n` +
+        `- did not / didn't   e.g. "She went to school." → negative form\n` +
         `- cannot / can't   e.g. "He can swim." → negative form\n` +
-        `- has not / hasn't, will not / won't\n` +
+        `- has not / hasn't, will not / won't, was not / wasn't, were not / weren't\n` +
+        `IMPORTANT: Across the 5 exercises, RANDOMLY MIX long forms and short forms as the correct answer.\n` +
+        `About half the exercises should have the contracted form as the answer (isn't / aren't / doesn't / didn't / can't / wasn't / weren't),\n` +
+        `and about half should have the full form (is not / are not / does not / did not / cannot / was not / were not).\n` +
+        `The wrong options must also mix long and short forms so children learn both are valid but can tell them apart.\n` +
         `Frame each exercise as sentence transformation: show a positive sentence, ask which negative form is correct.\n` +
-        `Vary the helper verb across all 5 exercises. No two exercises may test the same pattern.`
+        `Vary the helper verb across all 5 exercises. No two exercises may test the same helper verb.`
       : tp === "wquestions"
       ? `Focus EXCLUSIVELY on W-questions (Who, What, Where, When, Why, How).\n` +
         `Alternate among these three formats:\n` +
